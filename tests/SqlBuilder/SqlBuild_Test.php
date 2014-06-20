@@ -213,7 +213,6 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->order( 'pKey' )
             ->limit(5)
             ->offset(10);
-        $this->builder->setDbType( 'pgsql' );
         $sql = $this->builder->toSelect( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(

@@ -35,6 +35,9 @@ class Builder
         'groupBy',
         'having',
         'orderBy',
+        'limit',
+        'offset',
+        'forUpdate',
     ];
 
     protected $insert = [
@@ -74,38 +77,6 @@ class Builder
     public function getBind()
     {
         return $this->bind;
-    }
-
-    /**
-     * ugly if statements. replace this method with some other pattern.
-     *
-     * @param string $db
-     */
-    public function setDbType( $db )
-    {
-        if ( $db == 'mysql' ) {
-
-            $this->quote->setQuote( '`' );
-            $this->select[ ] = 'limitOffset';
-            $this->select[ ] = 'forUpdate';
-            $this->update[ ] = 'limit';
-
-        } elseif ( $db == 'pgsql' ) {
-
-            $this->select[ ] = 'limit';
-            $this->select[ ] = 'offset';
-            $this->select[ ] = 'forUpdate';
-            $this->insert[ ] = 'returning';
-            $this->update[ ] = 'returning';
-
-        } elseif ( $db == 'sqlite' ) {
-
-        } else {
-
-            $this->select[ ] = 'limit';
-            $this->select[ ] = 'offset';
-            $this->select[ ] = 'forUpdate';
-        }
     }
 
     /**

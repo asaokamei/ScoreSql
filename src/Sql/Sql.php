@@ -1,7 +1,8 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\SqlBuilder\Sql;
 
-use WScore\SqlBuilder\Builder\Bind;
+use string;
+use WScore\SqlBuilder\Sql\Where;
 
 class Sql
 {
@@ -9,15 +10,6 @@ class Sql
      * @var Where
      */
     protected $where;
-
-    /**
-     * design decision: bind is kept inside Query.
-     * A Query object must have one independent Bind object,
-     * or contamination of variables occur.
-     *
-     * @var Bind
-     */
-    protected $bind;
 
     /**
      * @var string           name of database table
@@ -90,22 +82,6 @@ class Sql
     public $forUpdate = false;
 
     // +----------------------------------------------------------------------+
-    /**
-     * @param Bind $bind
-     */
-    public function __construct( $bind )
-    {
-        $this->bind = $bind;
-    }
-
-    /**
-     * @return Bind
-     */
-    public function bind()
-    {
-        return $this->bind;
-    }
-
     /**
      * @param $value
      * @return callable

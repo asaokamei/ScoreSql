@@ -1,8 +1,9 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\SqlBuilder\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Quote;
+use WScore\SqlBuilder\Sql;
 
 /**
  * Class Where
@@ -242,7 +243,7 @@ class Where
             }
             return $this->where( '', false, $where, $andOr );
         }
-        return $this->where( '', false, Query::raw($where), $andOr );
+        return $this->where( '', false, Sql::raw($where), $andOr );
     }
 
     /**

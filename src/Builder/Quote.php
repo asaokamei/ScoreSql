@@ -1,12 +1,12 @@
 <?php
 namespace WScore\SqlBuilder\Builder;
 
-use WScore\SqlBuilder\Query;
+use WScore\SqlBuilder\Sql;
 
 class Quote
 {
     /**
-     * @var Query
+     * @var Sql
      */
     protected $format = '"%s"';
 

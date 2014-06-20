@@ -1,7 +1,7 @@
 <?php
 namespace WScore\SqlBuilder\Builder;
 
-use WScore\SqlBuilder\Query;
+use WScore\SqlBuilder\Sql;
 use WScore\SqlBuilder\Builder\Quote;
 
 class Builder
@@ -22,7 +22,7 @@ class Builder
     protected $quoteChar = '"';
 
     /**
-     * @var Query
+     * @var Sql
      */
     protected $query;
 
@@ -100,7 +100,7 @@ class Builder
     }
 
     /**
-     * @param Query $query
+     * @param Sql $query
      */
     protected function setQuery( $query )
     {
@@ -112,7 +112,7 @@ class Builder
     //  convert to SQL statements.
     // +----------------------------------------------------------------------+
     /**
-     * @param Query $query
+     * @param Sql $query
      * @return string
      */
     public function toSelect( $query )
@@ -123,7 +123,7 @@ class Builder
     }
 
     /**
-     * @param Query $query
+     * @param Sql $query
      * @return string
      */
     public function toInsert( $query )
@@ -134,7 +134,7 @@ class Builder
     }
 
     /**
-     * @param Query $query
+     * @param Sql $query
      * @return string
      */
     public function toUpdate( $query )
@@ -145,7 +145,7 @@ class Builder
     }
 
     /**
-     * @param Query $query
+     * @param Sql $query
      * @return string
      */
     public function toDelete( $query )

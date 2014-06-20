@@ -16,7 +16,7 @@ class Factory
     public static function query( $dbType=null )
     {
         $builder = static::buildBuilder($dbType);
-        return new Query( $builder );
+        return static::buildQuery( $builder );
     }
 
     /**
@@ -26,7 +26,9 @@ class Factory
     public static function buildQuery( $builder=null )
     {
         if( !$builder ) $builder = static::buildBuilder();
-        return new Query( $builder );
+        $query = new Query( $builder );
+        $query->setBuilder( $builder );
+        return $query;
     }
 
     /**

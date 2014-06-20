@@ -16,7 +16,7 @@ class Query extends Sql
     /**
      * @param Builder $builder
      */
-    public function construct( $builder )
+    public function setBuilder( $builder )
     {
         $this->builder = $builder;
     }

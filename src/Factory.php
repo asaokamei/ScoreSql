@@ -10,6 +10,16 @@ use WScore\SqlBuilder\Builder\Quote;
 class Factory
 {
     /**
+     * @param string $dbType
+     * @return Query
+     */
+    public static function query( $dbType=null )
+    {
+        $builder = static::buildBuilder($dbType);
+        return new Query( $builder );
+    }
+
+    /**
      * @param Builder $builder
      * @return Query
      */
@@ -40,7 +50,7 @@ class Factory
     /**
      * @return Quote
      */
-    public static function buildQuote()
+    protected static function buildQuote()
     {
         return new Quote();
     }
@@ -48,7 +58,7 @@ class Factory
     /**
      * @return Bind
      */
-    public static function buildBind()
+    protected static function buildBind()
     {
         return new Bind();
     }

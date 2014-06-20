@@ -15,7 +15,7 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
     
     function setup()
     {
-        $this->q = Factory::buildQuote();
+        $this->q = new Quote();
     }
     
     function get($head='test') {

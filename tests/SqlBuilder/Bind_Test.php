@@ -15,7 +15,7 @@ class Bind_Test extends \PHPUnit_Framework_TestCase
     
     function setup()
     {
-        $this->b = Factory::buildBind();
+        $this->b = new Bind();
     }
     
     function get($head='value') {

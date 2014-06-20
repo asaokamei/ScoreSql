@@ -52,7 +52,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function or_makes_or()
     {
         $sql = Where::column('test')->eq('tested')->or()->more->ne('moreD')->build();
-        $this->assertEquals( '( test = tested OR more != moreD )', $sql );
+        $this->assertEquals( 'test = tested OR more != moreD', $sql );
     }
 
     /**
@@ -69,7 +69,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             );
         $sql = $this->w->build( $bind=new Bind(), new Quote() );
         $this->assertEquals(
-            '( ( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 ) )',
+            '( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 )',
             $sql
         );
         $bound = $bind->getBinding();

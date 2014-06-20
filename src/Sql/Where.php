@@ -59,7 +59,6 @@ class Where
     {
         if( $method == 'or' ) {
             $this->andOr = 'OR';
-            $this->parenthesis = true;
             return $this;
         }
         if( $method == 'and' ) {

@@ -1,5 +1,5 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\SqlBuilder\Builder;
 
 class Bind
 {

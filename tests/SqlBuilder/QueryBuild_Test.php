@@ -1,10 +1,10 @@
 <?php
 namespace tests\Sql;
 
-use WScore\SqlBuilder\Bind;
+use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Builder;
 use WScore\SqlBuilder\Query;
-use WScore\SqlBuilder\Quote;
+use WScore\SqlBuilder\Builder\Quote;
 use WScore\SqlBuilder\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );

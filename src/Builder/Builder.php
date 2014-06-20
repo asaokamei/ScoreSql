@@ -1,9 +1,8 @@
 <?php
 namespace WScore\SqlBuilder\Builder;
 
-use WScore\SqlBuilder\Bind;
 use WScore\SqlBuilder\Query;
-use WScore\SqlBuilder\Quote;
+use WScore\SqlBuilder\Builder\Quote;
 
 class Builder
 {

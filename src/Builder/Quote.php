@@ -1,5 +1,7 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\SqlBuilder\Builder;
+
+use WScore\SqlBuilder\Query;
 
 class Quote
 {

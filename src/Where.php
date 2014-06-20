@@ -1,6 +1,9 @@
 <?php
 namespace WScore\SqlBuilder;
 
+use WScore\SqlBuilder\Builder\Bind;
+use WScore\SqlBuilder\Builder\Quote;
+
 /**
  * Class Where
  * @package WScore\DbAccess\Sql

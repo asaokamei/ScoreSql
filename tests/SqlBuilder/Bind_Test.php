@@ -1,7 +1,7 @@
 <?php
 namespace tests\Sql;
 
-use WScore\SqlBuilder\Bind;
+use WScore\SqlBuilder\Builder\Bind;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
@@ -23,7 +23,7 @@ class Bind_Test extends \PHPUnit_Framework_TestCase
     
     function test0()
     {
-        $this->assertEquals( 'WScore\SqlBuilder\Bind', get_class( $this->b ) );
+        $this->assertEquals( 'WScore\SqlBuilder\Builder\Bind', get_class( $this->b ) );
     }
 
     /**

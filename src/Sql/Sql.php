@@ -106,6 +106,15 @@ class Sql
     }
 
     /**
+     * @param $where
+     * @return Sql
+     */
+    public function whereOr( $where )
+    {
+        return $this->where( $where, 'or' );
+    }
+
+    /**
      * @return Where
      */
     public function getWhere()
@@ -155,6 +164,25 @@ class Sql
             $this->columns[ $as ] = $column;
         } else {
             $this->columns[ ] = $column;
+        }
+        return $this;
+    }
+
+    /**
+     * ->columns( [ 'col1', 'col2', ...] )
+     * or
+     * ->columns( 'col1', 'col2', ... );
+     *
+     * @param array $column
+     * @return $this
+     */
+    public function columns( $column )
+    {
+        if( is_array($column ) ) {
+            $this->columns += $column;
+        } elseif( func_num_args() > 1 ) {
+            $column = func_get_args();
+            $this->columns += $column;
         }
         return $this;
     }

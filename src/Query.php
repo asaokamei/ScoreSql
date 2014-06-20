@@ -3,6 +3,7 @@ namespace WScore\SqlBuilder;
 
 use WScore\SqlBuilder\Builder\Builder;
 use WScore\SqlBuilder\Sql\Sql;
+use WScore\SqlBuilder\Sql\Where;
 
 class Query extends Sql
 {
@@ -18,6 +19,16 @@ class Query extends Sql
     public function construct( $builder )
     {
         $this->builder = $builder;
+    }
+
+    /**
+     * @param $column
+     * @return Where
+     */
+    public function __get( $column )
+    {
+        $where = new Where();
+        return $where->col( $column );
     }
 
     /**

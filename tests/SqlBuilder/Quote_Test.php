@@ -2,6 +2,7 @@
 namespace tests\Sql;
 
 use WScore\SqlBuilder\Builder\Quote;
+use WScore\SqlBuilder\Factory;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
@@ -14,7 +15,7 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
     
     function setup()
     {
-        $this->q = new Quote();
+        $this->q = Factory::buildQuote();
     }
     
     function get($head='test') {

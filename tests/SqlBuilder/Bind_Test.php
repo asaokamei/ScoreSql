@@ -2,6 +2,7 @@
 namespace tests\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
+use WScore\SqlBuilder\Factory;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
@@ -14,7 +15,7 @@ class Bind_Test extends \PHPUnit_Framework_TestCase
     
     function setup()
     {
-        $this->b = new Bind();
+        $this->b = Factory::buildBind();
     }
     
     function get($head='value') {

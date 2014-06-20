@@ -3,13 +3,13 @@ namespace tests\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Builder;
-use WScore\SqlBuilder\Query;
+use WScore\SqlBuilder\Sql;
 use WScore\SqlBuilder\Builder\Quote;
 use WScore\SqlBuilder\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class QueryBuild_Test extends \PHPUnit_Framework_TestCase
+class SqlBuild_Test extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var Builder
@@ -17,14 +17,14 @@ class QueryBuild_Test extends \PHPUnit_Framework_TestCase
     var $builder;
 
     /**
-     * @var Query
+     * @var Sql
      */
     var $query;
     
     function setup()
     {
         $this->builder = new Builder( new Quote() );
-        $this->query   = new Query( new Bind() );
+        $this->query   = new Sql( new Bind() );
         Bind::reset();
     }
     
@@ -35,7 +35,7 @@ class QueryBuild_Test extends \PHPUnit_Framework_TestCase
     function test0()
     {
         $this->assertEquals( 'WScore\SqlBuilder\Builder\Builder', get_class( $this->builder ) );
-        $this->assertEquals( 'WScore\SqlBuilder\Query', get_class( $this->query ) );
+        $this->assertEquals( 'WScore\SqlBuilder\Sql', get_class( $this->query ) );
     }
 
     /**
@@ -207,7 +207,7 @@ class QueryBuild_Test extends \PHPUnit_Framework_TestCase
             ->distinct()
             ->column( 'colTest', 'aliasAs' )
             ->where( Where::column('name')->contain( 'bob' ) )
-            ->having( Where::column( Query::raw('COUNT(*)'))->gt(5) )
+            ->having( Where::column( Sql::raw('COUNT(*)'))->gt(5) )
             ->group( 'grouped' )
             ->order( 'pKey' )
             ->limit(5)

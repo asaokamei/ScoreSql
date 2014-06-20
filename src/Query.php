@@ -1,0 +1,68 @@
+<?php
+namespace WScore\SqlBuilder;
+
+use WScore\SqlBuilder\Builder\Builder;
+use WScore\SqlBuilder\Sql\Sql;
+
+class Query extends Sql
+{
+    /**
+     * @var Builder
+     */
+    protected $builder;
+
+    // +----------------------------------------------------------------------+
+    /**
+     * @param Builder $builder
+     */
+    public function construct( $builder )
+    {
+        $this->builder = $builder;
+    }
+
+    /**
+     * @param null|int $limit
+     * @return string
+     */
+    public function select($limit=null)
+    {
+        if( $limit ) $this->limit($limit);
+        return $this->builder->toSelect( $this );
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function insert( $data=array() )
+    {
+        if( $data ) $this->value($data);
+        return $this->builder->toInsert( $this );
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function update( $data=array() )
+    {
+        if( $data ) $this->value($data);
+        return $this->builder->toUpdate( $this );
+    }
+
+    /**
+     * @return string
+     */
+    public function delete()
+    {
+        return $this->builder->toDelete( $this );
+    }
+
+    /**
+     * @return array
+     */
+    public function getBind()
+    {
+        return $this->builder->getBind()->getBinding();
+    }
+}

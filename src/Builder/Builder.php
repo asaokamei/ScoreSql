@@ -58,10 +58,10 @@ class Builder
     //  construction
     // +----------------------------------------------------------------------+
     /**
-     * @param Quote $quote
      * @param Bind  $bind
+     * @param Quote $quote
      */
-    public function __construct( $quote, $bind )
+    public function __construct( $bind, $quote )
     {
         $this->quote = $quote;
         $this->quote->setQuote( $this->quoteChar );

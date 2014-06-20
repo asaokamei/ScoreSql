@@ -36,15 +36,15 @@ class Factory
     public static function buildBuilder( $dbType=null )
     {
         $dbType = ucwords( $dbType );
-        $quote  = static::buildQuote();
         $bind   = static::buildBind();
+        $quote  = static::buildQuote();
         if( $dbType == 'Mysql' ) {
-            return new Mysql( $quote, $bind );
+            return new Mysql( $bind, $quote );
         }
         if( $dbType == 'Pgsql' ) {
-            return new Pgsql( $quote, $bind );
+            return new Pgsql( $bind, $quote );
         }
-        return new Builder( $quote, $bind );
+        return new Builder( $bind, $quote );
     }
 
     /**

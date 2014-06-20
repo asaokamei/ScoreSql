@@ -202,8 +202,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     function select_complex_case()
     {
         $this->query
-            ->table( 'testTable' )
-            ->alias( 'aliasTable' )
+            ->table( 'testTable', 'aliasTable' )
             ->forUpdate()
             ->distinct()
             ->column( 'colTest', 'aliasAs' )

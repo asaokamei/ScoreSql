@@ -2,7 +2,7 @@
 namespace tests\Sql;
 
 use WScore\SqlBuilder\Bind;
-use WScore\SqlBuilder\Builder;
+use WScore\SqlBuilder\Builder\Builder;
 use WScore\SqlBuilder\Query;
 use WScore\SqlBuilder\Quote;
 use WScore\SqlBuilder\Where;
@@ -34,7 +34,7 @@ class QueryBuild_Test extends \PHPUnit_Framework_TestCase
     
     function test0()
     {
-        $this->assertEquals( 'WScore\SqlBuilder\Builder', get_class( $this->builder ) );
+        $this->assertEquals( 'WScore\SqlBuilder\Builder\Builder', get_class( $this->builder ) );
         $this->assertEquals( 'WScore\SqlBuilder\Query', get_class( $this->query ) );
     }
 

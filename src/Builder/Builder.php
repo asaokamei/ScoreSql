@@ -1,5 +1,9 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\SqlBuilder\Builder;
+
+use WScore\SqlBuilder\Bind;
+use WScore\SqlBuilder\Query;
+use WScore\SqlBuilder\Quote;
 
 class Builder
 {
@@ -12,6 +16,11 @@ class Builder
      * @var Quote
      */
     protected $quote;
+
+    /**
+     * @var string
+     */
+    protected $quoteChar = '"';
 
     /**
      * @var Query
@@ -56,6 +65,7 @@ class Builder
     public function __construct( $quote )
     {
         $this->quote = $quote;
+        $this->quote->setQuote( $this->quoteChar );
     }
 
     /**
@@ -312,20 +322,6 @@ class Builder
             return "OFFSET " . $this->query->offset;
         }
         return '';
-    }
-
-    /**
-     * @return string
-     */
-    protected function buildLimitOffset()
-    {
-        $sql = '';
-        if ( $this->query->limit && $this->query->offset ) {
-            $sql .= ' LIMIT ' . $this->query->offset . ' , ' . $this->query->limit;
-        } elseif ( $this->query->limit ) {
-            $sql .= ' LIMIT ' . $this->query->limit;
-        }
-        return $sql;
     }
 
     /**

@@ -3,7 +3,6 @@ namespace WScore\SqlBuilder\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Quote;
-use WScore\SqlBuilder\Sql;
 
 /**
  * Class Where

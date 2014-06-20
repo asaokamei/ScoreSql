@@ -3,14 +3,14 @@ namespace tests\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Quote;
-use WScore\SqlBuilder\Where;
+use WScore\SqlBuilder\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
 class Where_Test extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Where
+     * @var \WScore\SqlBuilder\Sql\Where
      */
     var $w;
 
@@ -22,7 +22,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
 
     function test0()
     {
-        $this->assertEquals( 'WScore\SqlBuilder\Where', get_class( $this->w ) );
+        $this->assertEquals( 'WScore\SqlBuilder\Sql\Where', get_class( $this->w ) );
     }
 
     /**

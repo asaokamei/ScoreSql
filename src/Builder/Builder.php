@@ -1,8 +1,7 @@
 <?php
 namespace WScore\SqlBuilder\Builder;
 
-use WScore\SqlBuilder\Sql;
-use WScore\SqlBuilder\Builder\Quote;
+use WScore\SqlBuilder\Sql\Sql;
 
 class Builder
 {
@@ -60,11 +59,21 @@ class Builder
     // +----------------------------------------------------------------------+
     /**
      * @param Quote $quote
+     * @param Bind  $bind
      */
-    public function __construct( $quote )
+    public function __construct( $quote, $bind )
     {
         $this->quote = $quote;
         $this->quote->setQuote( $this->quoteChar );
+        $this->bind  = $bind;
+    }
+
+    /**
+     * @return Bind
+     */
+    public function getBind()
+    {
+        return $this->bind;
     }
 
     /**
@@ -100,12 +109,11 @@ class Builder
     }
 
     /**
-     * @param Sql $query
+     * @param \WScore\SqlBuilder\Sql\Sql $query
      */
     protected function setQuery( $query )
     {
         $this->query = $query;
-        $this->bind  = $query->bind();
     }
 
     // +----------------------------------------------------------------------+
@@ -123,7 +131,7 @@ class Builder
     }
 
     /**
-     * @param Sql $query
+     * @param \WScore\SqlBuilder\Sql\Sql $query
      * @return string
      */
     public function toInsert( $query )
@@ -134,7 +142,7 @@ class Builder
     }
 
     /**
-     * @param Sql $query
+     * @param \WScore\SqlBuilder\Sql\Sql $query
      * @return string
      */
     public function toUpdate( $query )
@@ -145,7 +153,7 @@ class Builder
     }
 
     /**
-     * @param Sql $query
+     * @param \WScore\SqlBuilder\Sql\Sql $query
      * @return string
      */
     public function toDelete( $query )

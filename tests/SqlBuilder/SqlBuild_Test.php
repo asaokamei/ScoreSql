@@ -3,9 +3,9 @@ namespace tests\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Builder;
-use WScore\SqlBuilder\Sql;
+use WScore\SqlBuilder\Sql\Sql;
 use WScore\SqlBuilder\Builder\Quote;
-use WScore\SqlBuilder\Where;
+use WScore\SqlBuilder\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
@@ -17,14 +17,14 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     var $builder;
 
     /**
-     * @var Sql
+     * @var \WScore\SqlBuilder\Sql\Sql
      */
     var $query;
     
     function setup()
     {
-        $this->builder = new Builder( new Quote() );
-        $this->query   = new Sql( new Bind() );
+        $this->builder = new Builder( new Quote(), new Bind() );
+        $this->query   = new Sql();
         Bind::reset();
     }
     
@@ -35,7 +35,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     function test0()
     {
         $this->assertEquals( 'WScore\SqlBuilder\Builder\Builder', get_class( $this->builder ) );
-        $this->assertEquals( 'WScore\SqlBuilder\Sql', get_class( $this->query ) );
+        $this->assertEquals( 'WScore\SqlBuilder\Sql\Sql', get_class( $this->query ) );
     }
 
     /**
@@ -46,7 +46,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $value = $this->get();
         $this->query->table( 'testTable' )->value( 'testCol', $value );
         $sql = $this->builder->toInsert( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals( 'INSERT INTO "testTable" ( "testCol" ) VALUES ( :db_prep_1 )', $sql );
         $this->assertEquals( $value, $bind[':db_prep_1'] );
         $this->assertEquals( 1, count( $bind ) );
@@ -66,7 +66,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             Where::column('pKey')->eq($keyVal)
         );
         $sql = $this->builder->toUpdate( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'UPDATE "testTable" SET "testCol"=:db_prep_1, "moreCol"=:db_prep_2 WHERE "pKey" = :db_prep_3',
             $sql );
@@ -86,7 +86,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             Where::column('pKey')->eq($keyVal)
         );
         $sql = $this->builder->toDelete( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'DELETE "testTable" WHERE "pKey" = :db_prep_1',
             $sql );
@@ -105,7 +105,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->where( Where::column('"my table".name')->like( 'bob' ) )
             ->order( 'pKey' );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT "colTest" AS "aliasAs" FROM "testTable" ' .
             'WHERE "my table"."name" LIKE :db_prep_1 ORDER BY "pKey" ASC',
@@ -128,7 +128,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->where( Where::column('name')->contain( 'bob' )->status->in($in) )
             ->order( 'pKey' );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "name" LIKE :db_prep_1 AND "status" IN ( :db_prep_2, :db_prep_3 ) ' .
@@ -150,7 +150,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->where( Where::column('value')->between(123,345) )
             ->order( 'pKey' );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "value" BETWEEN :db_prep_1 AND :db_prep_2 ' .
@@ -170,7 +170,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->table( 'testTable' )
             ->where( Where::column('value')->isNull() );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "value" IS NULL',
@@ -187,7 +187,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->table( 'testTable' )
             ->where( Where::column('value')->notNull() );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "value" IS NOT NULL',
@@ -214,7 +214,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->offset(10);
         $this->builder->setDbType( 'pgsql' );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT DISTINCT "colTest" AS "aliasAs" ' .
             'FROM "testTable" "aliasTable" WHERE "name" LIKE :db_prep_1 ' .
@@ -234,7 +234,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->where( Where::column('value')->isNull() )
             ->where( Where::column('value')->eq(''), 'or' );
         $sql = $this->builder->toSelect( $this->query );
-        $bind = $this->query->bind()->getBinding();
+        $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "value" IS NULL OR "value" = :db_prep_1',

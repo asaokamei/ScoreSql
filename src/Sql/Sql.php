@@ -1,9 +1,6 @@
 <?php
 namespace WScore\SqlBuilder\Sql;
 
-use string;
-use WScore\SqlBuilder\Sql\Where;
-
 class Sql
 {
     /**

@@ -16,7 +16,7 @@ class Sql
     /**
      * @var string           name of id (primary key)
      */
-    public $id_name;
+    public $keyName;
 
     /**
      * @var array            join for table
@@ -118,24 +118,30 @@ class Sql
     // +----------------------------------------------------------------------+
     /**
      * @param string $table
-     * @param string $id_name
+     * @param string $alias
      * @return Sql
      */
-    public function table( $table, $id_name = null )
+    public function table( $table, $alias = null )
     {
         $this->table   = $this->table = $table;
-        $this->id_name = $id_name ? : null;
+        $this->tableAlias = $alias ? : null;
         return $this;
     }
 
     /**
-     * @param $alias
-     * @return $this
+     * @return string
      */
-    public function alias( $alias )
+    public function getKeyName()
     {
-        $this->tableAlias = $alias;
-        return $this;
+        return $this->keyName;
+    }
+
+    /**
+     * @param string $keyName
+     */
+    public function setKeyName( $keyName )
+    {
+        $this->keyName = $keyName;
     }
 
     /**

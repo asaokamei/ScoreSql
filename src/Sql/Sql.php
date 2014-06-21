@@ -173,7 +173,9 @@ class Sql
      */
     public function column( $column, $as = null )
     {
-        if ( $as ) {
+        if( $column === false ) {
+            $this->columns = [ ];
+        } else if ( $as ) {
             $this->columns[ $as ] = $column;
         } else {
             $this->columns[ ] = $column;

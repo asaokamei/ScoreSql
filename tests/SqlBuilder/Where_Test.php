@@ -126,4 +126,102 @@ class Where_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
         $this->assertEquals( 'bad', $bound[':db_prep_4'] );
     }
+
+    /**
+     * @test
+     */
+    function block_or_and_or()
+    {
+        $this->w
+            ->startBlock()
+                ->test->eq('tested')->or()->more->eq('moreD')
+            ->endBlock()
+            ->startBlock()
+                ->test->eq('good')->or()->more->eq('bad')
+            ->endBlock();
+        $sql = $this->w->build(  $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '( "test" = :db_prep_1 OR "more" = :db_prep_2 ) AND ( "test" = :db_prep_3 OR "more" = :db_prep_4 )',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 'tested', $bound[':db_prep_1'] );
+        $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
+        $this->assertEquals( 'good', $bound[':db_prep_3'] );
+        $this->assertEquals( 'bad', $bound[':db_prep_4'] );
+    }
+
+    /**
+     * @test
+     */
+    function block_and_or_and()
+    {
+        $this->w
+            ->startBlock()
+            ->test->eq('tested')->and()->more->eq('moreD')
+            ->endBlock()
+            ->startBlock()
+            ->test->eq('good')->and()->more->eq('bad')
+            ->endBlock( 'or' );
+        $sql = $this->w->build(  $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 )',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 'tested', $bound[':db_prep_1'] );
+        $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
+        $this->assertEquals( 'good', $bound[':db_prep_3'] );
+        $this->assertEquals( 'bad', $bound[':db_prep_4'] );
+    }
+
+    /**
+     * probably, this is the correct behavior, when forget to 
+     * end the block. but not working yet. 
+     * 
+     * @ test
+     */
+    function block_without_endBlock()
+    {
+        $w = $this->w
+            ->startBlock()
+            ->test->eq('tested')->or()->more->eq('moreD')
+            ->endBlock()
+            ->startBlock()
+            ->test->eq('good')->or()->more->eq('bad');
+        $w = $w->getRootParent();
+        $sql = $w->build(  $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '( "test" = :db_prep_1 OR "more" = :db_prep_2 ) AND "test" = :db_prep_3 OR "more" = :db_prep_4',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 'tested', $bound[':db_prep_1'] );
+        $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
+        $this->assertEquals( 'good', $bound[':db_prep_3'] );
+        $this->assertEquals( 'bad', $bound[':db_prep_4'] );
+    }
+
+    /**
+     * @test
+     */
+    function blockSoFar()
+    {
+        $w = $this->w
+            ->test->eq('tested')->or()->more->eq('moreD')
+            ->putBlockSoFar()
+            ->startBlock()
+            ->test->eq('good')->or()->more->eq('bad')
+            ->endBlock();
+        $sql = $w->build(  $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '( "test" = :db_prep_1 OR "more" = :db_prep_2 ) AND ( "test" = :db_prep_3 OR "more" = :db_prep_4 )',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 'tested', $bound[':db_prep_1'] );
+        $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
+        $this->assertEquals( 'good', $bound[':db_prep_3'] );
+        $this->assertEquals( 'bad', $bound[':db_prep_4'] );
+    }
 }

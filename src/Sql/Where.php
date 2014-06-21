@@ -24,6 +24,11 @@ class Where
     protected $where = array();
 
     /**
+     * @var Where
+     */
+    protected $parent = null;
+
+    /**
      * @var string
      */
     protected $column;
@@ -47,6 +52,34 @@ class Where
      */
     public function __construct()
     {
+    }
+
+    /**
+     * @param Where $parent
+     */
+    public function setParent( $parent )
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * @return Where
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @return Where
+     */
+    public function getRootParent()
+    {
+        $top = $this;
+        while( $parent = $top->getParent() ) {
+            $top = $parent;
+        }
+        return $top;
     }
 
     /**
@@ -101,6 +134,35 @@ class Where
     public function parenthesis( $para=true ) {
         $this->parenthesis = $para;
         return $this;
+    }
+
+    /**
+     * @return Where
+     */
+    public function putBlockSoFar()
+    {
+        $where = new self;
+        $where->set( $this );
+        return $where;
+    }
+    
+    public function startBlock()
+    {
+        $block = new self;
+        $block->setParent( $this );
+        return $block;
+    }
+    
+    public function endBlock( $andOr='and' )
+    {
+        if( !$parent = $this->getParent() ) {
+            return $this;
+        }
+        if( $this->countCriteria() > 1 ) {
+            $this->parenthesis();
+        }
+        $parent->set( $this, $andOr );
+        return $parent;
     }
 
     // +----------------------------------------------------------------------+
@@ -239,6 +301,7 @@ class Where
             if( $where->countCriteria() > 1 ) {
                 $where->parenthesis();
             }
+            $where->setParent( $this );
             return $this->where( '', false, $where, $andOr );
         }
         return $this->where( '', false, Sql::raw($where), $andOr );

@@ -122,19 +122,6 @@ class Sql
         return $this->where;
     }
 
-    /**
-     * @param int $page
-     * @param int $perPage
-     * @return $this
-     */
-    public function page( $page, $perPage=20 )
-    {
-        $page = (int) ( $page > 0 ?: 1 );
-        $this->limit( $perPage );
-        $this->offset( $perPage * ($page - 1) );
-        return $this;
-    }
-
     // +----------------------------------------------------------------------+
     //  Setting string, array, and data to build SQL statement.
     // +----------------------------------------------------------------------+

@@ -130,7 +130,7 @@ class Builder
     public function toDelete( $query )
     {
         $this->setQuery( $query );
-        $sql = 'DELETE' . $this->buildByList( $this->delete );
+        $sql = 'DELETE FROM' . $this->buildByList( $this->delete );
         return $sql;
     }
 
@@ -248,7 +248,11 @@ class Builder
         }
         $columns = [ ];
         foreach ( $this->query->columns as $alias => $col ) {
-            $col = $this->quote->quote( $col );
+            if( is_callable($col) ) {
+                $col = $col();
+            } else {
+                $col = $this->quote->quote( $col );
+            }
             if ( !is_numeric( $alias ) ) {
                 $col .= ' AS ' . $this->quote->quote( $alias );
             }

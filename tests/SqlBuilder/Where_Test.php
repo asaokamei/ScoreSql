@@ -25,6 +25,9 @@ class Where_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals( 'WScore\SqlBuilder\Sql\Where', get_class( $this->w ) );
     }
 
+    // +----------------------------------------------------------------------+
+    //  test various methods
+    // +----------------------------------------------------------------------+
     /**
      * @test
      */
@@ -49,12 +52,70 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    function where_in_and_notIn()
+    {
+        $this->w->test->in( 'tested', 'more' )->more->notIn( 'good', 'bad' );
+        $sql = $this->w->build( $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '"test" IN ( :db_prep_1, :db_prep_2 ) AND "more" NOT IN ( :db_prep_3, :db_prep_4 )',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
+        $this->assertEquals( 'tested', $bound[':db_prep_1'] );
+        $this->assertEquals( 'more', $bound[':db_prep_2'] );
+        $this->assertEquals( 'good', $bound[':db_prep_3'] );
+        $this->assertEquals( 'bad', $bound[':db_prep_4'] );
+    }
+
+    /**
+     * @test
+     */
+    function where_contain_startWith_end_with()
+    {
+        $this->w->
+            test->contain( 'contains' )->
+            more->startWith( 'starts' )->
+            some->endWith( 'ends' );
+        $sql = $this->w->build( $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '"test" LIKE :db_prep_1 AND "more" LIKE :db_prep_2 AND "some" LIKE :db_prep_3',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 3, count( $bound ) );
+        $this->assertEquals( '%contains%', $bound[':db_prep_1'] );
+        $this->assertEquals( 'starts%', $bound[':db_prep_2'] );
+        $this->assertEquals( '%ends', $bound[':db_prep_3'] );
+    }
+
+    /**
+     * @test
+     */
+    function where_isNull_and_notNull()
+    {
+        $this->w->test->isNull()->more->notNull();
+        $sql = $this->w->build( $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '"test" IS NULL AND "more" IS NOT NULL',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 0, count( $bound ) );
+    }
+
+    /**
+     * @test
+     */
     function or_makes_or()
     {
         $sql = Where::column('test')->eq('tested')->or()->more->ne('moreD')->build();
         $this->assertEquals( 'test = tested OR more != moreD', $sql );
     }
 
+    // +----------------------------------------------------------------------+
+    //  testing blocks
+    // +----------------------------------------------------------------------+
     /**
      * @test
      */
@@ -231,4 +292,6 @@ class Where_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
         $this->assertEquals( 'bad', $bound[':db_prep_4'] );
     }
+
+    // +----------------------------------------------------------------------+
 }

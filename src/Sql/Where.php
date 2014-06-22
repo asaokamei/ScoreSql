@@ -364,7 +364,7 @@ class Where
         if( !is_array($values ) ) {
             $values = func_get_args();
         }
-        return $this->in( $this->column, $values, 'NOT IN' );
+        return $this->where( $this->column, $values, 'NOT IN' );
     }
 
     /**

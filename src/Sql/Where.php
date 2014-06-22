@@ -337,8 +337,11 @@ class Where
      */
     public function eq( $val )
     {
+        if( func_num_args() > 1 ) {
+            return $this->where( $this->column, func_get_args(), 'IN' );
+        }
         if ( is_array( $val ) ) {
-            return $this->in( $val );
+            return $this->where( $this->column, $val, 'IN' );
         }
         return $this->where( $this->column, $val, '=' );
     }

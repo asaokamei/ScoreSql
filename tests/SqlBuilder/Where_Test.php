@@ -31,6 +31,29 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    function where_eq()
+    {
+        $this->w->
+            test->eq( 'tested' )->
+            more->eq( 'good', 'bad' )->
+            some->eq( [ 'more', 'lot' ] );
+        $sql = $this->w->build( $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '"test" = :db_prep_1 AND "more" IN ( :db_prep_2, :db_prep_3 ) AND "some" IN ( :db_prep_4, :db_prep_5 )',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 5, count( $bound ) );
+        $this->assertEquals( 'tested', $bound[ ':db_prep_1' ] );
+        $this->assertEquals( 'good', $bound[ ':db_prep_2' ] );
+        $this->assertEquals( 'bad', $bound[ ':db_prep_3' ] );
+        $this->assertEquals( 'more', $bound[ ':db_prep_4' ] );
+        $this->assertEquals( 'lot', $bound[ ':db_prep_5' ] );
+    }
+    
+    /**
+     * @test
+     */
     function where_using_call()
     {
         $this->w

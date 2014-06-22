@@ -93,7 +93,7 @@ class Sql
     /**
      * @param Where       $where
      * @param string|null $andOr
-     * @return Sql
+     * @return $this
      */
     public function where( $where, $andOr=null )
     {
@@ -107,7 +107,7 @@ class Sql
 
     /**
      * @param $where
-     * @return Sql
+     * @return $this
      */
     public function whereOr( $where )
     {
@@ -128,7 +128,7 @@ class Sql
     /**
      * @param string $table
      * @param string $alias
-     * @return Sql
+     * @return $this
      */
     public function table( $table, $alias = null )
     {
@@ -156,7 +156,7 @@ class Sql
     /**
      * @param string $column
      * @param null|string $as
-     * @return Sql
+     * @return $this
      */
     public function column( $column, $as = null )
     {
@@ -257,7 +257,7 @@ class Sql
 
     /**
      * creates SELECT DISTINCT statement.
-     * @return Sql
+     * @return $this
      */
     public function distinct()
     {
@@ -266,7 +266,7 @@ class Sql
 
     /**
      * @param bool $for
-     * @return Sql
+     * @return $this
      */
     public function forUpdate( $for = true )
     {

@@ -62,7 +62,13 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             ->lt->lt( 'lt' )
             ->gt->gt( 'gt' )
             ->le->le( 'le' )
-            ->ge->ge( 'ge' );
+            ->ge->ge( 'ge' )
+            ->notEq->notEq( 'notEq' )
+            ->lessThan->lessThan( 'lessThan' )
+            ->lessEq->lessEq( 'lessEq' )
+            ->greaterEq->greaterEq( 'greaterEq' )
+            ->greaterThan->greaterThan( 'greaterThan' )
+        ;
         $where = $this->w->getCriteria();
         $this->assertEquals( [ 'col' => 'eq', 'val' => 'eq', 'rel' => '=',  'op' => 'AND' ], $where[ 0 ] );
         $this->assertEquals( [ 'col' => 'ne', 'val' => 'ne', 'rel' => '!=', 'op' => 'AND' ], $where[ 1 ] );
@@ -70,6 +76,28 @@ class Where_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals( [ 'col' => 'gt', 'val' => 'gt', 'rel' => '>',  'op' => 'AND' ], $where[ 3 ] );
         $this->assertEquals( [ 'col' => 'le', 'val' => 'le', 'rel' => '<=', 'op' => 'AND' ], $where[ 4 ] );
         $this->assertEquals( [ 'col' => 'ge', 'val' => 'ge', 'rel' => '>=', 'op' => 'AND' ], $where[ 5 ] );
+
+        $sql = $this->w->build( $bind=new Bind(), new Quote() );
+        $this->assertEquals(
+            '"eq" = :db_prep_1 AND "ne" != :db_prep_2 AND "lt" < :db_prep_3 AND ' .
+            '"gt" > :db_prep_4 AND "le" <= :db_prep_5 AND "ge" >= :db_prep_6 AND ' .
+            '"notEq" != :db_prep_7 AND "lessThan" < :db_prep_8 AND "lessEq" <= :db_prep_9 ' . 
+            'AND "greaterEq" >= :db_prep_10 AND "greaterThan" > :db_prep_11',
+            $sql
+        );
+        $bound = $bind->getBinding();
+        $this->assertEquals( 11, count( $bound ) );
+        $this->assertEquals( 'eq', $bound[':db_prep_1'] );
+        $this->assertEquals( 'ne', $bound[':db_prep_2'] );
+        $this->assertEquals( 'lt', $bound[':db_prep_3'] );
+        $this->assertEquals( 'gt', $bound[':db_prep_4'] );
+        $this->assertEquals( 'le', $bound[':db_prep_5'] );
+        $this->assertEquals( 'ge', $bound[':db_prep_6'] );
+        $this->assertEquals( 'notEq', $bound[':db_prep_7'] );
+        $this->assertEquals( 'lessThan', $bound[':db_prep_8'] );
+        $this->assertEquals( 'lessEq', $bound[':db_prep_9'] );
+        $this->assertEquals( 'greaterEq', $bound[':db_prep_10'] );
+        $this->assertEquals( 'greaterThan', $bound[':db_prep_11'] );
     }
 
     /**

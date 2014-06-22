@@ -13,6 +13,11 @@ use WScore\SqlBuilder\Builder\Quote;
  * @method Where le( $value )
  * @method Where gt( $value )
  * @method Where ge( $value )
+ * @method Where notEq( $value )
+ * @method Where lessThan( $value )
+ * @method Where lessEq( $value )
+ * @method Where greaterThan( $value )
+ * @method Where greaterEq( $value )
  * @method Where and()
  * @method Where or()
  */
@@ -43,6 +48,11 @@ class Where
         'gt'      => '>',
         'le'      => '<=',
         'ge'      => '>=',
+        'notEq'      => '!=',
+        'lessThan'      => '<',
+        'greaterThan'      => '>',
+        'lessEq'      => '<=',
+        'greaterEq'      => '>=',
     ];
 
     // +----------------------------------------------------------------------+

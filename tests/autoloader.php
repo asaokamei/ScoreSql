@@ -15,3 +15,5 @@ $loader = new \Composer\Autoload\ClassLoader();
 $loader->add( 'WSTest',   __DIR__ );
 $loader->register();
 
+\WScore\SqlBuilder\Builder\Bind::$useColumnInBindValues = true;
+

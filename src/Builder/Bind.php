@@ -4,6 +4,11 @@ namespace WScore\SqlBuilder\Builder;
 class Bind
 {
     /**
+     * @var bool
+     */
+    static $useColumnInBindValues = false;
+    
+    /**
      * @var int
      */
     protected static $prepared_counter = 1;
@@ -65,7 +70,8 @@ class Bind
         }
         if( is_callable( $val ) ) return $val;
 
-        $holder = ':db_prep_' . static::$prepared_counter++;
+        $holder  = ( static::$useColumnInBindValues ) ? ':' : ''; 
+        $holder .=  'db_prep_' . static::$prepared_counter++;
         $this->prepared_values[ $holder ] = $val;
         if( $type ) {
             $this->prepared_types[ $holder ] = $type;
@@ -73,6 +79,7 @@ class Bind
         elseif( $col && array_key_exists( $col, $this->col_data_types ) ) {
             $this->prepared_types[ $holder ] = $this->col_data_types[ $col ];
         }
+        $holder  = ( ( static::$useColumnInBindValues ) ? '' : ':' ) . $holder;
         return $holder;
     }
 

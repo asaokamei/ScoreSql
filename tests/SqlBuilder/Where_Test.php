@@ -73,6 +73,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
@@ -97,6 +98,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
@@ -121,6 +123,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
@@ -145,6 +148,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
@@ -160,15 +164,16 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             ->startBlock()
             ->test->eq('tested')->and()->more->eq('moreD')
             ->endBlock()
-            ->startBlock()
+            ->orBlock()
             ->test->eq('good')->and()->more->eq('bad')
-            ->endBlock( 'or' );
+            ->endBlock();
         $sql = $this->w->build(  $bind=new Bind(), new Quote() );
         $this->assertEquals(
             '( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 )',
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
@@ -177,9 +182,9 @@ class Where_Test extends \PHPUnit_Framework_TestCase
 
     /**
      * probably, this is the correct behavior, when forget to 
-     * end the block. but not working yet. 
+     * end the block.  
      * 
-     * @ test
+     * @test
      */
     function block_without_endBlock()
     {
@@ -196,6 +201,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );
@@ -208,17 +214,18 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function blockSoFar()
     {
         $w = $this->w
-            ->test->eq('tested')->or()->more->eq('moreD')
-            ->putBlockSoFar()
-            ->startBlock()
-            ->test->eq('good')->or()->more->eq('bad')
+            ->test->eq('tested')->more->eq('moreD')
+            ->packBlock()
+            ->orBlock()
+            ->test->eq('good')->more->eq('bad')
             ->endBlock();
         $sql = $w->build(  $bind=new Bind(), new Quote() );
         $this->assertEquals(
-            '( "test" = :db_prep_1 OR "more" = :db_prep_2 ) AND ( "test" = :db_prep_3 OR "more" = :db_prep_4 )',
+            '( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 )',
             $sql
         );
         $bound = $bind->getBinding();
+        $this->assertEquals( 4, count( $bound ) );
         $this->assertEquals( 'tested', $bound[':db_prep_1'] );
         $this->assertEquals( 'moreD', $bound[':db_prep_2'] );
         $this->assertEquals( 'good', $bound[':db_prep_3'] );

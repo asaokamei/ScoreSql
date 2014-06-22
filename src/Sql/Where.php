@@ -139,21 +139,36 @@ class Where
     /**
      * @return Where
      */
-    public function putBlockSoFar()
+    public function packBlock()
     {
         $where = new self;
         $where->set( $this );
         return $where;
     }
-    
-    public function startBlock()
+
+    /**
+     * @return Where
+     */
+    public function orBlock()
+    {
+        return $this->startBlock('or');
+    }
+
+    /**
+     * @param string $andOr
+     * @return Where
+     */
+    public function startBlock($andOr='and')
     {
         $block = new self;
-        $block->setParent( $this );
+        $this->set( $block, $andOr );
         return $block;
     }
-    
-    public function endBlock( $andOr='and' )
+
+    /**
+     * @return $this|Where
+     */
+    public function endBlock()
     {
         if( !$parent = $this->getParent() ) {
             return $this;
@@ -161,7 +176,6 @@ class Where
         if( $this->countCriteria() > 1 ) {
             $this->parenthesis();
         }
-        $parent->set( $this, $andOr );
         return $parent;
     }
 

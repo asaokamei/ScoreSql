@@ -108,7 +108,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT "colTest" AS "aliasAs" FROM "testTable" ' .
-            'WHERE "my table"."name" LIKE :db_prep_1 ORDER BY "testTable"."pKey" ASC',
+            'WHERE "my table"."name" LIKE :db_prep_1 ORDER BY "pKey" ASC',
             $sql );
         $this->assertEquals( 'bob', $bind[':db_prep_1'] );
         $this->assertEquals( 1, count( $bind ) );
@@ -132,7 +132,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "name" LIKE :db_prep_1 AND "status" IN ( :db_prep_2, :db_prep_3 ) ' .
-            'ORDER BY "testTable"."pKey" ASC',
+            'ORDER BY "pKey" ASC',
             $sql );
         $this->assertEquals( '%bob%', $bind[':db_prep_1'] );
         $this->assertEquals( $in[0], $bind[':db_prep_2'] );
@@ -154,7 +154,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "value" BETWEEN :db_prep_1 AND :db_prep_2 ' .
-            'ORDER BY "testTable"."pKey" ASC',
+            'ORDER BY "pKey" ASC',
             $sql );
         $this->assertEquals( '123', $bind[':db_prep_1'] );
         $this->assertEquals( '345', $bind[':db_prep_2'] );
@@ -265,7 +265,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function join()
+    function join_using_and_on()
     {
         $this->query->table( 'testTable', 'tt' )
             ->where( Where::column('test')->eq('tested') )

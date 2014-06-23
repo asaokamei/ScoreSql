@@ -3,6 +3,7 @@ namespace tests\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\Quote;
+use WScore\SqlBuilder\Factory;
 use WScore\SqlBuilder\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
@@ -247,10 +248,10 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function block_or_and_or()
     {
         $this->w
-            ->startBlock()
+            ->beginBlock()
                 ->test->eq('tested')->or()->more->eq('moreD')
             ->endBlock()
-            ->startBlock()
+            ->beginBlock()
                 ->test->eq('good')->or()->more->eq('bad')
             ->endBlock();
         $sql = $this->w->build(  $bind=new Bind(), new Quote() );
@@ -272,7 +273,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function block_and_or_and()
     {
         $this->w
-            ->startBlock()
+            ->beginBlock()
             ->test->eq('tested')->and()->more->eq('moreD')
             ->endBlock()
             ->orBlock()
@@ -300,10 +301,10 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function block_without_endBlock()
     {
         $w = $this->w
-            ->startBlock()
+            ->beginBlock()
             ->test->eq('tested')->or()->more->eq('moreD')
             ->endBlock()
-            ->startBlock()
+            ->beginBlock()
             ->test->eq('good')->or()->more->eq('bad');
         $w = $w->getRootParent();
         $sql = $w->build(  $bind=new Bind(), new Quote() );
@@ -343,5 +344,21 @@ class Where_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals( 'bad', $bound[':db_prep_4'] );
     }
 
+    /**
+     * @test
+     */
+    function where_ends()
+    {
+        $query = Factory::query( 'pgsql' );
+        $sql = $query->table( 'table' )->column( 'this', 'that' )
+            ->beginWhere()->
+                pKey->eq('1')->orBlock()->pKey->eq('5')
+            ->endWhere()
+            ->order( 'sort' )->select();
+        $this->assertEquals(
+            'SELECT "this" AS "that" FROM "table" WHERE "pKey" = :db_prep_1 OR "pKey" = :db_prep_2 ORDER BY "sort" ASC',
+            $sql
+        );
+    }
     // +----------------------------------------------------------------------+
 }

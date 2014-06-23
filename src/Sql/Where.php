@@ -4,6 +4,7 @@ namespace WScore\SqlBuilder\Sql;
 use WScore\SqlBuilder\Builder\Bind;
 use WScore\SqlBuilder\Builder\BuildWhere;
 use WScore\SqlBuilder\Builder\Quote;
+use WScore\SqlBuilder\QueryInterface;
 
 /**
  * Class Where
@@ -56,6 +57,11 @@ class Where
         'greaterEq'      => '>=',
     ];
 
+    /**
+     * @var Sql
+     */
+    protected $query;
+
     // +----------------------------------------------------------------------+
     //  managing objects.
     // +----------------------------------------------------------------------+
@@ -63,6 +69,22 @@ class Where
      */
     public function __construct()
     {
+    }
+
+    /**
+     * @param Sql $query
+     */
+    public function setQuery( $query )
+    {
+        $this->query = $query;
+    }
+
+    /**
+     * @return SqlInterface|QueryInterface
+     */
+    public function endWhere()
+    {
+        return $this->query;
     }
 
     /**
@@ -170,16 +192,17 @@ class Where
      */
     public function orBlock()
     {
-        return $this->startBlock('or');
+        return $this->beginBlock('or');
     }
 
     /**
      * @param string $andOr
      * @return Where
      */
-    public function startBlock($andOr='and')
+    public function beginBlock($andOr='and')
     {
         $block = new self;
+        $block->setQuery( $this->query );
         $this->set( $block, $andOr );
         return $block;
     }

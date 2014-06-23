@@ -301,7 +301,7 @@ class Builder
         if ( !$this->query->order ) return '';
         $sql = [ ];
         foreach ( $this->query->order as $order ) {
-            $sql[ ] = $this->quote( $order[ 0 ], $this->query->getAliasOrTable() ) . " " . $order[ 1 ];
+            $sql[ ] = $this->quote( $order[ 0 ], $this->query->tableAlias ) . " " . $order[ 1 ];
         }
         return 'ORDER BY ' . implode( ', ', $sql );
     }
@@ -346,7 +346,7 @@ class Builder
      */
     protected function buildWhere()
     {
-        $criteria = $this->query->getWhere();
+        $criteria = $this->query->beginWhere();
         $sql  = $criteria->build( $this->bind, $this->quote, $this->query->tableAlias );
         return $sql ? 'WHERE ' . $sql : '';
     }

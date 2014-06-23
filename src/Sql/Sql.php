@@ -1,7 +1,7 @@
 <?php
 namespace WScore\SqlBuilder\Sql;
 
-class Sql
+class Sql implements SqlInterface
 {
     /**
      * @var Where
@@ -80,6 +80,15 @@ class Sql
 
     // +----------------------------------------------------------------------+
     /**
+     * @param $column
+     * @return Where
+     */
+    public function __get( $column )
+    {
+        return Where::column( $column );
+    }
+
+    /**
      * @param $value
      * @return callable
      */
@@ -117,8 +126,12 @@ class Sql
     /**
      * @return Where
      */
-    public function getWhere()
+    public function beginWhere()
     {
+        if( !$this->where ) {
+            $this->where = Where::column(null);
+            $this->where->setQuery($this);
+        }
         return $this->where;
     }
 

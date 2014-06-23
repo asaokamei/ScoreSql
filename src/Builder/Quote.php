@@ -10,14 +10,18 @@ class Quote
      */
     protected $format = '"%s"';
 
-    protected $quote = '"';
+    protected $quote1 = '"';
+
+    protected $quote2 = '"';
 
     /**
-     * @param string $q
+     * @param string $q1
+     * @param string $q2
      */
-    public function setQuote( $q ) {
-        $this->quote = $q;
-        $this->format = $q . '%s' . $q;
+    public function setQuote( $q1, $q2=null ) {
+        $this->quote1 = $q1;
+        $this->quote2 = $q2 ?: $q1;
+        $this->format = $q1 . '%s' . $this->quote2;
     }
 
     /**
@@ -76,8 +80,8 @@ class Quote
      */
     public function isQuoted( $name )
     {
-        if( substr( $name, 0, 1 ) == $this->quote &&
-            substr( $name, -1 ) == $this->quote ) {
+        if( substr( $name, 0, 1 ) == $this->quote1 &&
+            substr( $name, -1 ) == $this->quote2 ) {
             return true;
         }
         return false;

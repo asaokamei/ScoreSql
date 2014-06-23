@@ -1,6 +1,7 @@
 <?php
 namespace WScore\SqlBuilder\Builder;
 
+use Mockery\CountValidator\Exception;
 use WScore\SqlBuilder\Sql\Sql;
 
 class Quote
@@ -35,29 +36,24 @@ class Quote
         }, $list );
         return $list;
     }
-    
+
     /**
      * @param string $name
-     * @param array|string $separator
+     * @param string $prefix
      * @return string
      */
-    public function quote( $name, $separator=[' AS ', ' as ', '.'] )
+    public function quote( $name, $prefix=null )
     {
         if( !$name ) return $name;
         if( is_object($name) && is_callable( $name ) ) return $name();
-        if( !$separator ) return $this->quoteString( $name );
-        if( !is_array( $separator ) ) $separator = array($separator);
-        while( $sep = array_shift( $separator ) ) {
-            if( false !== stripos( $name, $sep ) ) {
-                $list = explode( $sep, $name );
-                foreach( $list as $key => $str ) {
-                    $list[$key] = $this->quote( $str, $separator );
-                }
-                return implode( $sep, $list );
-                break;
+        if( $prefix ) {
+            if( $this->isQuoted( $name ) ) {
+                $name = $prefix . '.' . $name;
+            } elseif( false === strpos( $name, '.' ) ) {
+                $name = $prefix . '.'  . $name;
             }
         }
-        return $this->quoteString($name);
+        return $this->qt( $name, [' AS ', ' as ', '.'] );
     }
 
     /**
@@ -85,5 +81,27 @@ class Quote
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param $name
+     * @param $separator
+     * @return string
+     */
+    protected function qt( $name, $separator )
+    {
+        if ( !$separator ) return $this->quoteString( $name );
+        if ( !is_array( $separator ) ) $separator = array( $separator );
+        while ( $sep = array_shift( $separator ) ) {
+            if ( false !== stripos( $name, $sep ) ) {
+                $list = explode( $sep, $name );
+                foreach ( $list as $key => $str ) {
+                    $list[ $key ] = $this->qt( $str, $separator );
+                }
+                return implode( $sep, $list );
+                break;
+            }
+        }
+        return $this->quoteString( $name );
     }
 }

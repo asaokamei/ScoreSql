@@ -90,13 +90,14 @@ class Builder
 
     /**
      * @param string|array $name
+     * @param string $alias
      * @return string
      */
-    protected function quote( $name )
+    protected function quote( $name, $alias=null )
     {
         if( !$this->quote ) return $name;
-        if( is_array( $name ) ) return $this->quote->map( $name );
-        return $this->quote->quote( $name );
+        if( is_array( $name ) ) return $this->quote->map( $name, $alias );
+        return $this->quote->quote( $name, $alias );
     }
 
     // +----------------------------------------------------------------------+
@@ -300,7 +301,7 @@ class Builder
         if ( !$this->query->order ) return '';
         $sql = [ ];
         foreach ( $this->query->order as $order ) {
-            $sql[ ] = $this->quote( $order[ 0 ] ) . " " . $order[ 1 ];
+            $sql[ ] = $this->quote( $order[ 0 ], $this->query->getAliasOrTable() ) . " " . $order[ 1 ];
         }
         return 'ORDER BY ' . implode( ', ', $sql );
     }

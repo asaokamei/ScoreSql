@@ -34,15 +34,10 @@ class BuildWhere
     public function quote( $name, $alias=null )
     {
         if( !$name ) return $name;
-        if( $alias ) {
-            if( $this->quote && $this->quote->isQuoted( $name ) ) {
-                $name = $alias . '.' . $name;
-            } elseif( false === strpos( $name, '.' ) ) {
-                $name = $alias . '.'  . $name;
-            }
-        }
         if( $this->quote ) {
-            $name = $this->quote->quote( $name );
+            $name = $this->quote->quote( $name, $alias );
+        } elseif( $alias ) {
+            $name = $alias . '.' . $name;
         }
         return $name;
     }

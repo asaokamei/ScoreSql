@@ -109,7 +109,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT "colTest" AS "aliasAs" FROM "testTable" ' .
-            'WHERE "my table"."name" LIKE :db_prep_1 ORDER BY "pKey" ASC',
+            'WHERE "my table"."name" LIKE :db_prep_1 ORDER BY "testTable"."pKey" ASC',
             $sql );
         $this->assertEquals( 'bob', $bind[':db_prep_1'] );
         $this->assertEquals( 1, count( $bind ) );
@@ -133,7 +133,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "name" LIKE :db_prep_1 AND "status" IN ( :db_prep_2, :db_prep_3 ) ' .
-            'ORDER BY "pKey" ASC',
+            'ORDER BY "testTable"."pKey" ASC',
             $sql );
         $this->assertEquals( '%bob%', $bind[':db_prep_1'] );
         $this->assertEquals( $in[0], $bind[':db_prep_2'] );
@@ -155,7 +155,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT * FROM "testTable" ' .
             'WHERE "value" BETWEEN :db_prep_1 AND :db_prep_2 ' .
-            'ORDER BY "pKey" ASC',
+            'ORDER BY "testTable"."pKey" ASC',
             $sql );
         $this->assertEquals( '123', $bind[':db_prep_1'] );
         $this->assertEquals( '345', $bind[':db_prep_2'] );
@@ -210,6 +210,8 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->having( Where::column( Sql::raw('COUNT(*)'))->gt(5) )
             ->group( 'grouped' )
             ->order( 'pKey' )
+            ->order( 'status', 'desc' )
+            ->order( 't1.order' )
             ->limit(5)
             ->offset(10);
         $sql = $this->builder->toSelect( $this->query );
@@ -218,7 +220,8 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             'SELECT DISTINCT "colTest" AS "aliasAs" ' .
             'FROM "testTable" "aliasTable" WHERE "name" LIKE :db_prep_1 ' .
             'GROUP BY "grouped" HAVING COUNT(*) > :db_prep_2 ' .
-            'ORDER BY "pKey" ASC LIMIT 5 OFFSET 10 FOR UPDATE',
+            'ORDER BY "aliasTable"."pKey" ASC, "aliasTable"."status" desc, "t1"."order" ASC ' .
+            'LIMIT 5 OFFSET 10 FOR UPDATE',
             $sql );
         $this->assertEquals( '%bob%', $bind[':db_prep_1'] );
     }

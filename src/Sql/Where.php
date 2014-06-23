@@ -2,6 +2,7 @@
 namespace WScore\SqlBuilder\Sql;
 
 use WScore\SqlBuilder\Builder\Bind;
+use WScore\SqlBuilder\Builder\BuildWhere;
 use WScore\SqlBuilder\Builder\Quote;
 
 /**
@@ -147,6 +148,14 @@ class Where
     }
 
     /**
+     * @return bool
+     */
+    public function getParenthesis()
+    {
+        return $this->parenthesis;
+    }
+
+    /**
      * @return Where
      */
     public function packBlock()
@@ -203,75 +212,13 @@ class Where
     /**
      * @param Bind $bind
      * @param Quote $quote
+     * @param string $alias
      * @return string
      */
-    public function build( $bind=null, $quote=null )
+    public function build( $bind=null, $quote=null, $alias=null )
     {
-        $where = $this->where;
-        $sql   = '';
-        foreach ( $where as $w ) {
-            if ( is_array( $w ) ) {
-                $op = isset( $w['op'] ) ? $w['op'] : 'and';
-                $sql .= strtoupper($op) . ' '. $this->formWhere( $bind, $quote, $w );
-            } elseif ( is_string( $w ) ) {
-                $sql .= 'and ' . $w;
-            }
-        }
-        $sql = trim( $sql );
-        $sql = preg_replace( '/^(and|or) /i', '', $sql );
-        if( $this->parenthesis ) {
-            $sql = '( ' . $sql . ' )';
-        }
-        return $sql;
-    }
-
-    /**
-     * @param Bind $bind
-     * @param Quote $quote
-     * @param array $w
-     * @return string
-     */
-    protected function formWhere( $bind, $quote, $w )
-    {
-        $col = $w[ 'col' ];
-        $val = $w[ 'val' ];
-        $rel = $w[ 'rel' ];
-        if ( !$rel ) return '';
-        if( $rel instanceof Where ) {
-            return $rel->build( $bind, $quote ) . ' ';
-        }
-        if( is_callable( $rel ) ) {
-            return $rel() . ' ';
-        }
-        $rel = strtoupper( $rel );
-
-        // making $val.
-        if ( $rel == 'IN' || $rel == 'NOT IN' ) {
-
-            $val = $bind ? $bind->prepare( $val ) : $val;
-            $tmp = is_array( $val ) ? implode( ", ", $val ) : "{$val}";
-            $val = "( " . $tmp . " )";
-
-        } elseif ( $rel == 'BETWEEN' ) {
-
-            $val = $bind ? $bind->prepare( $val ) : $val;
-            $val = "{$val[0]} AND {$val[1]}";
-
-        } elseif ( is_callable( $val ) ) {
-
-            $val = $val();
-
-        } elseif ( $val !== false ) {
-
-            $val = $bind ? $bind->prepare( $val ) : $val;
-        }
-        if( is_string($col) ) {
-            $col = $quote ? $quote->quote( $col ) : $col;
-        } elseif( is_callable( $col ) ) {
-            $col = $col();
-        }
-        $where = trim( "{$col} {$rel} {$val}" ) . ' ';
-        return $where;
+        $builder = new BuildWhere( $bind, $quote );
+        return $builder->build( $this, $alias );
     }
 
     // +----------------------------------------------------------------------+
@@ -341,6 +288,16 @@ class Where
     // +----------------------------------------------------------------------+
     //  where clause.
     // +----------------------------------------------------------------------+
+    /**
+     * for equal columns, i.e. myColumn=youColumn.
+     *
+     * @param string $column
+     * @return Where
+     */
+    public function identical( $column ) {
+        return $this->where( $this->column, $column, 'eq' );
+    }
+
     /**
      * @param $val
      * @return Where

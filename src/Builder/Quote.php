@@ -40,6 +40,7 @@ class Quote
     public function quote( $name, $separator=[' AS ', ' as ', '.'] )
     {
         if( !$name ) return $name;
+        if( is_callable( $name ) ) return $name();
         if( !$separator ) return $this->quoteString( $name );
         if( !is_array( $separator ) ) $separator = array($separator);
         while( $sep = array_shift( $separator ) ) {

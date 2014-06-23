@@ -11,7 +11,7 @@ class Bind
     /**
      * @var int
      */
-    protected static $prepared_counter = 1;
+    protected $prepared_counter = 1;
 
     /**
      * @var array    stores prepared values and holder name
@@ -41,7 +41,6 @@ class Bind
      * reset the counter to 1. 
      */
     public static function reset() {
-        static::$prepared_counter = 1;
     }
 
     // +----------------------------------------------------------------------+
@@ -71,7 +70,7 @@ class Bind
         if( is_callable( $val ) ) return $val;
 
         $holder  = ( static::$useColumnInBindValues ) ? ':' : ''; 
-        $holder .=  'db_prep_' . static::$prepared_counter++;
+        $holder .=  'db_prep_' . $this->prepared_counter++;
         $this->prepared_values[ $holder ] = $val;
         if( $type ) {
             $this->prepared_types[ $holder ] = $type;

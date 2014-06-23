@@ -16,7 +16,6 @@ class Where_Test extends \PHPUnit_Framework_TestCase
 
     function setup()
     {
-        Bind::reset();
         $this->w = new Where();
     }
 

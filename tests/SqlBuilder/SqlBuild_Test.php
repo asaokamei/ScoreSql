@@ -26,7 +26,6 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     {
         $this->builder = Factory::buildBuilder();
         $this->query   = new Sql();
-        Bind::reset();
     }
     
     function get($head='value') {

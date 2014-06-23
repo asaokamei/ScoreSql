@@ -87,6 +87,17 @@ class Builder
         $this->query = $query;
     }
 
+    /**
+     * @param string|array $name
+     * @return string
+     */
+    protected function quote( $name )
+    {
+        if( !$this->quote ) return $name;
+        if( is_array( $name ) ) return $this->quote->map( $name );
+        return $this->quote->quote( $name );
+    }
+
     // +----------------------------------------------------------------------+
     //  convert to SQL statements.
     // +----------------------------------------------------------------------+
@@ -161,7 +172,7 @@ class Builder
         $keys    = array_keys( $this->query->values );
         $columns = [ ];
         foreach ( $keys as $col ) {
-            $columns[ ] = $this->quote->quote( $col );
+            $columns[ ] = $this->quote( $col );
         }
         return '( ' . implode( ', ', $columns ) . ' )';
     }
@@ -191,8 +202,8 @@ class Builder
             if ( is_callable( $val ) ) {
                 $val = $val();
             }
-            $col       = $this->quote->quote( $col );
-            $setter[ ] = $this->quote->quote( $col ) . '=' . $val;
+            $col       = $this->quote( $col );
+            $setter[ ] = $this->quote( $col ) . '=' . $val;
         }
         return 'SET ' . implode( ', ', $setter );
     }
@@ -210,7 +221,7 @@ class Builder
      */
     protected function buildTable()
     {
-        return $this->quote->quote( $this->query->table );
+        return $this->quote( $this->query->table );
     }
 
     /**
@@ -218,7 +229,7 @@ class Builder
      */
     protected function buildFrom()
     {
-        return 'FROM ' . $this->quote->quote( $this->query->table );
+        return 'FROM ' . $this->quote( $this->query->table );
     }
 
     /**
@@ -226,7 +237,7 @@ class Builder
      */
     protected function buildTableAlias()
     {
-        return $this->query->tableAlias ? $this->quote->quote( $this->query->tableAlias ) : '';
+        return $this->query->tableAlias ? $this->quote( $this->query->tableAlias ) : '';
     }
 
     /**
@@ -251,10 +262,10 @@ class Builder
             if( is_callable($col) ) {
                 $col = $col();
             } else {
-                $col = $this->quote->quote( $col );
+                $col = $this->quote( $col );
             }
             if ( !is_numeric( $alias ) ) {
-                $col .= ' AS ' . $this->quote->quote( $alias );
+                $col .= ' AS ' . $this->quote( $alias );
             }
             $columns[ ] = $col;
         }
@@ -267,7 +278,7 @@ class Builder
     protected function buildGroupBy()
     {
         if ( !$this->query->group ) return '';
-        $group = $this->quote->map( $this->query->group );
+        $group = $this->quote( $this->query->group );
         return $this->query->group ? 'GROUP BY ' . implode( ', ', $group ) : '';
     }
 
@@ -279,7 +290,7 @@ class Builder
         if ( !$this->query->order ) return '';
         $sql = [ ];
         foreach ( $this->query->order as $order ) {
-            $sql[ ] = $this->quote->quote( $order[ 0 ] ) . " " . $order[ 1 ];
+            $sql[ ] = $this->quote( $order[ 0 ] ) . " " . $order[ 1 ];
         }
         return 'ORDER BY ' . implode( ', ', $sql );
     }

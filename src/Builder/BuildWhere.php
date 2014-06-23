@@ -101,8 +101,6 @@ class BuildWhere
      */
     protected function formWhere( $w )
     {
-        $col = $w[ 'col' ];
-        $val = $w[ 'val' ];
         $rel = $w[ 'rel' ];
         if ( !$rel ) return '';
         if( $rel instanceof Where ) {
@@ -115,19 +113,18 @@ class BuildWhere
 
         // making $val based on $rel.
         if ( $rel == 'IN' || $rel == 'NOT IN' ) {
+            return $this->buildIn( $w, $rel );
+        }
+        if ( $rel == 'BETWEEN' ) {
+            return $this->buildBetween( $w );
+        }
 
-            $val = $this->prepare( $val );
-            $tmp = is_array( $val ) ? implode( ", ", $val ) : "{$val}";
-            $val = "( " . $tmp . " )";
-
-        } elseif ( $rel == 'EQ' ) {
+        $col = $w[ 'col' ];
+        $val = $w[ 'val' ];
+        if ( $rel == 'EQ' ) {
 
             $val = $this->quote( $val, $this->alias );
             $rel = '=';
-
-        } elseif ( $rel == 'BETWEEN' ) {
-
-            return $this->buildBetween( $w );
 
         } elseif ( is_callable( $val ) ) {
 
@@ -151,6 +148,10 @@ class BuildWhere
         return $where;
     }
 
+    /**
+     * @param $w
+     * @return string
+     */
     protected function buildBetween( $w )
     {
         $col = $w[ 'col' ];
@@ -160,4 +161,19 @@ class BuildWhere
         return "{$col} BETWEEN {$val[0]} AND {$val[1]} ";
     }
 
+    /**
+     * @param $w
+     * @param $rel
+     * @return string
+     */
+    protected function buildIn( $w, $rel )
+    {
+        $col = $w[ 'col' ];
+        $col = $this->quote( $col, $this->alias );
+        $val = $w[ 'val' ];
+        $val = $this->prepare( $val );
+        $tmp = is_array( $val ) ? implode( ", ", $val ) : $val;
+        $val = "( " . $tmp . " )";
+        return "{$col} {$rel} {$val} ";
+    }
 }

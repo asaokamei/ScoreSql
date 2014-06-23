@@ -64,10 +64,22 @@ class Quote
     {
         if( !$name ) return $name;
         if( $name == '*' ) return $name;
-        if( substr( $name, 0, 1 ) == $this->quote && 
-            substr( $name, -1 ) == $this->quote ) {
+        if( $this->isQuoted( $name ) ) {
             return $name;
         }
         return sprintf( $this->format, $name );
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function isQuoted( $name )
+    {
+        if( substr( $name, 0, 1 ) == $this->quote &&
+            substr( $name, -1 ) == $this->quote ) {
+            return true;
+        }
+        return false;
     }
 }

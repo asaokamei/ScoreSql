@@ -309,14 +309,6 @@ class Builder
     /**
      * @return string
      */
-    protected function buildReturning()
-    {
-        return $this->query->returning ? 'RETURNING ' . $this->query->returning : '';
-    }
-
-    /**
-     * @return string
-     */
     protected function buildForUpdate()
     {
         if ( $this->query->forUpdate ) {

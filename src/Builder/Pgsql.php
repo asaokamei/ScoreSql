@@ -41,17 +41,9 @@ class Pgsql extends Builder
     /**
      * @return string
      */
-    protected function buildLimitOffset()
+    protected function buildReturning()
     {
-        $sql = '';
-        if ( $this->query->limit && $this->query->offset ) {
-            $sql .= ' LIMIT ' . $this->query->offset . ' , ' . $this->query->limit;
-        } elseif ( $this->query->limit ) {
-            $sql .= ' LIMIT ' . $this->query->limit;
-        } elseif ( $this->query->offset ) {
-            $sql .= ' OFFSET ' . $this->query->offset;
-        }
-        return $sql;
+        return $this->query->returning ? 'RETURNING ' . $this->query->returning : '';
     }
 
 }

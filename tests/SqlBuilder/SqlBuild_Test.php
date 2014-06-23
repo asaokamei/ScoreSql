@@ -239,6 +239,45 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             'WHERE "value" IS NULL OR "value" = :db_prep_1',
             $sql );
         $this->assertEquals( '', $bind[':db_prep_1'] );
+    }
 
+    /**
+     * @test
+     */
+    function left_join_using_key()
+    {
+        $this->query->table( 'testTable', 'tt' )
+            ->where( Where::column('test')->eq('tested') )
+            ->join( 'anotherOne', 'ao' )->left()->using( 'pKey');
+        $sql = $this->builder->toSelect( $this->query );
+        $bind = $this->builder->getBind()->getBinding();
+        $this->assertEquals(
+            'SELECT * FROM "testTable" "tt" ' .
+            'LEFT OUTER JOIN "anotherOne" "ao" USING( "pKey" ) ' .
+            'WHERE "test" = :db_prep_1',
+            $sql );
+        $this->assertEquals( 1, count( $bind ) );
+        $this->assertEquals( 'tested', $bind[':db_prep_1'] );
+    }
+
+    /**
+     * @test
+     */
+    function join()
+    {
+        $this->query->table( 'testTable', 'tt' )
+            ->where( Where::column('test')->eq('tested') )
+            ->join( 'anotherOne', 'ao' )->left()->using( 'pKey')->on( Where::column('status')->eq('1') );
+        $sql = $this->builder->toSelect( $this->query );
+        $bind = $this->builder->getBind()->getBinding();
+        $this->assertEquals(
+            'SELECT * FROM "testTable" "tt" ' .
+            'LEFT OUTER JOIN "anotherOne" "ao" ' .
+                'ON ( "ao"."pKey"="tt"."pKey" AND ( "ao"."status" = :db_prep_1 ) ) ' .
+            'WHERE "test" = :db_prep_2',
+            $sql );
+        $this->assertEquals( 2, count( $bind ) );
+        $this->assertEquals( '1', $bind[':db_prep_1'] );
+        $this->assertEquals( 'tested', $bind[':db_prep_2'] );
     }
 }

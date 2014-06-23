@@ -1,6 +1,7 @@
 <?php
 namespace WScore\SqlBuilder\Builder;
 
+use WScore\SqlBuilder\Sql\Join;
 use WScore\SqlBuilder\Sql\Sql;
 
 class Builder
@@ -245,7 +246,16 @@ class Builder
      */
     protected function buildJoin()
     {
-        return '';
+        if( !$this->query->join ) return '';
+        $joined = '';
+        foreach( $this->query->join as $join ) {
+            if( is_string( $join ) ) {
+                $joined .= $join;
+            } elseif( $join instanceof Join ) {
+                $joined .= $join->build( $this->bind, $this->quote, $this->query->getAliasOrTable() );
+            }
+        }
+        return $joined;
     }
 
     /**

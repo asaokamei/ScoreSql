@@ -19,7 +19,7 @@ class Sql
     public $keyName;
 
     /**
-     * @var array            join for table
+     * @var Join[]           join for table
      */
     public $join = [ ];
 
@@ -122,6 +122,18 @@ class Sql
         return $this->where;
     }
 
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return Join
+     */
+    public function join( $table, $alias=null )
+    {
+        $join = new Join( $this->getAliasOrTable(), $table, $alias );
+        $this->join[] = $join;
+        return $join;
+    }
+
     // +----------------------------------------------------------------------+
     //  Setting string, array, and data to build SQL statement.
     // +----------------------------------------------------------------------+
@@ -135,6 +147,14 @@ class Sql
         $this->table   = $this->table = $table;
         $this->tableAlias = $alias ? : null;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAliasOrTable()
+    {
+        return $this->tableAlias ?: $this->table;
     }
 
     /**

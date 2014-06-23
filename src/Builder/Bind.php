@@ -37,12 +37,6 @@ class Bind
         $this->col_data_types[$column] = $type;
     }
 
-    /**
-     * reset the counter to 1. 
-     */
-    public static function reset() {
-    }
-
     // +----------------------------------------------------------------------+
     //  preparing for Insert and Update statement.
     // +----------------------------------------------------------------------+
@@ -88,14 +82,6 @@ class Bind
     public function getBinding()
     {
         return $this->prepared_values;
-    }
-
-    /**
-     * @param Bind $bind
-     */
-    public function mergeBinding( $bind )
-    {
-        $this->prepared_values = array_merge( $this->prepared_values, $bind->getBinding() );
     }
 
     /**

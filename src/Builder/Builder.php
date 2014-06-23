@@ -347,7 +347,7 @@ class Builder
     protected function buildWhere()
     {
         $criteria = $this->query->getWhere();
-        $sql  = $criteria->build( $this->bind, $this->quote );
+        $sql  = $criteria->build( $this->bind, $this->quote, $this->query->tableAlias );
         return $sql ? 'WHERE ' . $sql : '';
     }
 

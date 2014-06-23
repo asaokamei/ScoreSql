@@ -218,7 +218,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT DISTINCT "colTest" AS "aliasAs" ' .
-            'FROM "testTable" "aliasTable" WHERE "name" LIKE :db_prep_1 ' .
+            'FROM "testTable" "aliasTable" WHERE "aliasTable"."name" LIKE :db_prep_1 ' .
             'GROUP BY "grouped" HAVING COUNT(*) > :db_prep_2 ' .
             'ORDER BY "aliasTable"."pKey" ASC, "aliasTable"."status" desc, "t1"."order" ASC ' .
             'LIMIT 5 OFFSET 10 FOR UPDATE',
@@ -257,7 +257,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT * FROM "testTable" "tt" ' .
             'LEFT OUTER JOIN "anotherOne" "ao" USING( "pKey" ) ' .
-            'WHERE "test" = :db_prep_1',
+            'WHERE "tt"."test" = :db_prep_1',
             $sql );
         $this->assertEquals( 1, count( $bind ) );
         $this->assertEquals( 'tested', $bind[':db_prep_1'] );
@@ -277,7 +277,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             'SELECT * FROM "testTable" "tt" ' .
             'LEFT OUTER JOIN "anotherOne" "ao" ' .
                 'ON ( "ao"."pKey"="tt"."pKey" AND ( "ao"."status" = :db_prep_1 ) ) ' .
-            'WHERE "test" = :db_prep_2',
+            'WHERE "tt"."test" = :db_prep_2',
             $sql );
         $this->assertEquals( 2, count( $bind ) );
         $this->assertEquals( '1', $bind[':db_prep_1'] );

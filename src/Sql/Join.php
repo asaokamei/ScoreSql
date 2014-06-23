@@ -185,19 +185,19 @@ class Join
      */
     protected function buildOn()
     {
-        $sql = 'ON ( ';
-        if( $this->usingKey ) {
-            $sql .= $this->quote( $this->alias() . '.' . $this->usingKey ) .
-                '=' .
-                $this->quote( $this->queryTable . '.' . $this->usingKey ) .
-            ' AND ';
-        }
+        $sql = '';
         if( is_object( $this->criteria ) && $this->criteria instanceof Where ) {
-            $sql .= $this->criteria->build( $this->bind, $this->quote );
+            $sql .= $this->criteria->build( $this->bind, $this->quote, $this->alias );
         }
         elseif( is_string( $this->criteria ) ) {
             $sql .= (string) $this->criteria;
         }
-        return $sql . ' )';
+        if( $this->usingKey ) {
+            $sql = $this->quote( $this->alias() . '.' . $this->usingKey ) .
+                '=' .
+                $this->quote( $this->queryTable . '.' . $this->usingKey ) .
+                ' AND ( ' . $sql . ' )';
+        }
+        return 'ON ( ' . $sql . ' )';
     }
 }

@@ -15,6 +15,9 @@ class BuildWhere
      */
     protected $quote;
 
+    /**
+     * @var string
+     */
     protected $alias;
 
     public function __construct( $bind=null, $quote=null )
@@ -24,11 +27,20 @@ class BuildWhere
     }
 
     /**
-     * @param $name
+     * @param string $name
+     * @param string $alias
      * @return mixed
      */
-    public function quote( $name )
+    public function quote( $name, $alias=null )
     {
+        if( !$name ) return $name;
+        if( $alias ) {
+            if( $this->quote && $this->quote->isQuoted( $name ) ) {
+                $name = $alias . '.' . $name;
+            } elseif( false === strpos( $name, '.' ) ) {
+                $name = $alias . '.'  . $name;
+            }
+        }
         if( $this->quote ) {
             $name = $this->quote->quote( $name );
         }
@@ -64,6 +76,7 @@ class BuildWhere
      */
     public function build( $criteria, $alias=null )
     {
+        $this->alias = $alias;
         $where = $criteria->getCriteria();
         $sql   = '';
         foreach ( $where as $w ) {
@@ -100,7 +113,7 @@ class BuildWhere
         }
         $rel = strtoupper( $rel );
 
-        // making $val.
+        // making $val based on $rel.
         if ( $rel == 'IN' || $rel == 'NOT IN' ) {
 
             $val = $this->prepare( $val );
@@ -109,14 +122,12 @@ class BuildWhere
 
         } elseif ( $rel == 'EQ' ) {
 
-            $col = $this->quote( $col );
-            $val = $this->quote( $val );
+            $val = $this->quote( $val, $this->alias );
             $rel = '=';
 
         } elseif ( $rel == 'BETWEEN' ) {
 
-            $val = $this->prepare( $val );
-            $val = "{$val[0]} AND {$val[1]}";
+            return $this->buildBetween( $w );
 
         } elseif ( is_callable( $val ) ) {
 
@@ -126,15 +137,27 @@ class BuildWhere
 
             $val = $this->prepare( $val );
         }
+
+        // making $col.
         if( is_string($col) ) {
 
-            $col = $this->quote( $col );
+            $col = $this->quote( $col, $this->alias );
 
         } elseif( is_callable( $col ) ) {
+
             $col = $col();
         }
         $where = trim( "{$col} {$rel} {$val}" ) . ' ';
         return $where;
+    }
+
+    protected function buildBetween( $w )
+    {
+        $col = $w[ 'col' ];
+        $col = $this->quote( $col, $this->alias );
+        $val = $w[ 'val' ];
+        $val = $this->prepare( $val );
+        return "{$col} BETWEEN {$val[0]} AND {$val[1]} ";
     }
 
 }

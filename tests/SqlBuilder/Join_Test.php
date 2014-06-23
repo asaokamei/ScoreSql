@@ -40,11 +40,17 @@ class Join_Test extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function right_join_on_where_criteria()
+    function right_join_using_and_where_criteria()
     {
         $j = new Join( 'mt', 'JoinedTable', 'at');
-        $j->right()->on( Where::column('myKey')->identical('mt.youKey')->thisVal->identical('mt.thatVal') );
+        $j->left()->using('pKey')->on(
+            Where::column('myKey')->identical('mt.youKey')->thisVal->identical('mt.thatVal')
+        );
         $join = $j->build( new Bind(), new Quote() );
-        $this->assertEquals( 'RIGHT OUTER JOIN "JoinedTable" "at" ON ( "myKey" = "mt"."youKey" AND "thisVal" = "mt"."thatVal" )', $join );
+        $this->assertEquals(
+            'LEFT OUTER JOIN "JoinedTable" "at" ON ( ' .
+            '"at"."pKey"="mt"."pKey" AND ( ' .
+            '"at"."myKey" = "mt"."youKey" AND ' .
+            '"at"."thisVal" = "mt"."thatVal" ) )', $join );
     }
 }

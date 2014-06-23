@@ -89,7 +89,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $sql = $this->builder->toDelete( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'DELETE "testTable" WHERE "pKey" = :db_prep_1',
+            'DELETE FROM "testTable" WHERE "pKey" = :db_prep_1',
             $sql );
         $this->assertEquals( $keyVal, $bind[':db_prep_1'] );
         $this->assertEquals( 1, count( $bind ) );

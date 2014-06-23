@@ -10,25 +10,68 @@ namespace WScore\SqlBuilder;
 interface QueryInterface
 {
     /**
+     * builds insert statement.
+     *
      * @param array $data
      * @return string
      */
     public function insert( $data = array() );
 
     /**
+     * builds select statement.
+     *
      * @param null|int $limit
      * @return string
      */
     public function select( $limit = null );
 
     /**
+     * builds select statement with $id as primary-key,
+     * or set $column to use another column to select.
+     *
+     * @param int    $id
+     * @param string $column
      * @return string
      */
-    public function delete();
+    public function load( $id, $column=null );
 
     /**
+     * for paginate.
+     *
+     * $perPage is a default number of rows per page, but
+     * does not override the $limit if already set.
+     *
+     * @param int $page
+     * @param int $perPage
+     * @return mixed
+     */
+    public function page( $page, $perPage=20 );
+
+    /**
+     * get the current limit value.
+     *
+     * @return int
+     */
+    public function getLimit();
+
+    /**
+     * builds delete statement.
+     *
+     * @param int $id
+     * @return string
+     */
+    public function delete( $id=null );
+
+    /**
+     * builds update statement.
+     *
      * @param array $data
      * @return string
      */
     public function update( $data = array() );
+
+    /**
+     * resets the query state.
+     */
+    public function reset();
 }

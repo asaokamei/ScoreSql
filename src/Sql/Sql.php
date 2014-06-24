@@ -142,10 +142,14 @@ class Sql implements SqlInterface
     }
 
     /**
+     * @param Where $where
      * @return Where
      */
-    public function beginWhere()
+    public function filter( $where=null )
     {
+        if( $where && $where instanceof Where ) {
+            return $this->where( $where );
+        }
         if( !$this->where ) {
             $this->where = Where::column(null);
             $this->where->setQuery($this);

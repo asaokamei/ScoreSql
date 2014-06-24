@@ -89,7 +89,7 @@ class Where
     /**
      * @return SqlInterface|QueryInterface
      */
-    public function endWhere()
+    public function end()
     {
         return $this->query;
     }

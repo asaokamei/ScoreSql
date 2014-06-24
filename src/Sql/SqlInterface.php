@@ -57,7 +57,7 @@ interface SqlInterface
     /**
      * @return Where
      */
-    public function beginWhere();
+    public function filter();
 
     /**
      * creates SELECT DISTINCT statement.

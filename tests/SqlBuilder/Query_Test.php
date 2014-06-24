@@ -14,12 +14,12 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function select_builds_select_statement()
     {
         $sql = Factory::query( 'pgsql' )->table( 'myTable' )
-            ->beginWhere()
+            ->filter()
             ->pKey->eq('1')
             ->orBlock()
             ->name->startWith('AB')->gender->eq('F')
             ->endBlock()
-            ->endWhere()
+            ->end()
             ->select();
         ;
         $this->assertEquals(
@@ -47,9 +47,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function update_builds_update_statement()
     {
         $sql = Factory::query( 'mysql' )->table( 'myTable' )
-            ->beginWhere()
+            ->filter()
                 ->pKey->in( '1', '2' )
-            ->endWhere()
+            ->end()
             ->update(['test'=>'tested', 'more'=>'done']);
         ;
         $this->assertEquals(
@@ -77,9 +77,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function cool()
     {
         $sql = Factory::query('test')
-            ->beginWhere()
+            ->filter()
                 ->pKey->is('1')->or()->this->is('that')
-            ->endWhere()
+            ->end()
             ->order( 'id' )
             ->select(5);
         $this->assertEquals(

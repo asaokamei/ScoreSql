@@ -11,6 +11,60 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    function simple_example_of_select()
+    {
+        $query = Factory::query();
+        $sql = $query->table('myTable')
+            ->column('col1', 'col2')
+            ->where(
+                $query->status->is('1')
+            )
+            ->select();
+        ;
+        $this->assertEquals(
+            'SELECT "col1" AS "col2" FROM "myTable" WHERE "status" = :db_prep_1',
+            $sql );
+    }
+
+    /**
+     * @test
+     */
+    function simple_example_of_insert()
+    {
+        $query = Factory::query();
+        $sql = $query
+            ->table('myTable')
+            ->insert( [ 'col1' => 'val1', 'col2'=>'val2' ] );
+        ;
+        $this->assertEquals(
+            'INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )',
+            $sql );
+    }
+
+    /**
+     * @test
+     */
+    function simple_example_of_update()
+    {
+        $query = Factory::query();
+        $sql = $query
+            ->table('myTable')
+            ->where(
+                $query->name->like('bob')->or()->status->eq('1')
+            )
+            ->update( [
+                'date' => $query->raw('NOW()'),
+                'col2'=>'val2'
+            ] );
+
+        $this->assertEquals(
+            'UPDATE "myTable" SET "date"=NOW(), "col2"=:db_prep_1 WHERE "name" LIKE :db_prep_2 OR "status" = :db_prep_3',
+            $sql );
+    }
+
+    /**
+     * @test
+     */
     function select_builds_select_statement()
     {
         $sql = Factory::query( 'pgsql' )->table( 'myTable' )
@@ -67,15 +121,15 @@ class Query_Test extends \PHPUnit_Framework_TestCase
 
         $query = Factory::query()->table('myTable');
         $query->test = 'tested';
-        $query->more = 'done';
+        $query->more = $query->raw('NOW()');
         $sql = $query
             ->filter()
             ->pKey->in( '1', '2' )
             ->end()
             ->update();
         $this->assertEquals(
-            'UPDATE "myTable" SET "test"=:db_prep_1, "more"=:db_prep_2 ' .
-            'WHERE "pKey" IN ( :db_prep_3, :db_prep_4 )',
+            'UPDATE "myTable" SET "test"=:db_prep_1, "more"=NOW() ' .
+            'WHERE "pKey" IN ( :db_prep_2, :db_prep_3 )',
             $sql );
     }
 

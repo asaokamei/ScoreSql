@@ -28,10 +28,14 @@ $query = Factory::query( 'mysql' );
 $sqlStatement = $query
     ->table('myTable')
     ->column('col1', 'col2')
-    ->filter(
+    ->where(
         $query->status->is('1')
     )
     ->select();
+```
+
+```sql
+SELECT "col1" AS "col2" FROM "myTable" WHERE "status" = :db_prep_1
 ```
 
 ### simple insert statement
@@ -50,6 +54,12 @@ $query->col2 = 'val2';
 $sqlStatement = $query->table('myTable')->insert();
 ```
 
+both cases will generate sql like:
+
+```sql
+INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )
+```
+
 ### simple update statement
 
 ```php
@@ -59,7 +69,7 @@ $sqlStatement = $query
         $query->name->like('bob')->or()->status->eq('1')
     )
     ->update( [
-        'date' => Query::raw('NOW()'),
+        'date' => $query->raw('NOW()'),
         'col2'=>'val2'
     ] );
 ```
@@ -67,9 +77,18 @@ $sqlStatement = $query
 or, this also works.
 
 ```php
-$query->col1 = 'val1';
+$query->date = $query->raw(NOW()');
 $query->col2 = 'val2';
 $sqlStatement = $query->table('myTable')->update();
+```
+
+will generate update SQL like:
+
+```sql
+UPDATE "myTable" SET
+    "date"=NOW(),
+    "col2"=:db_prep_1
+WHERE "name" LIKE :db_prep_2 OR "status" = :db_prep_3
 ```
 
 ### getting the bound value
@@ -98,15 +117,15 @@ echo $query->table('tab')->filter(
     $query->name->startWith('A')->gender->eq('M')
 )->whereOr(
     $query->name->startWith('B')->gender->eq('F')
-)
-;
+);
 ```
 
 this will builds sql like:
 
 ```sql
 SELECT * FROM "tab" WHERE
-( "name" LIKE 'A%' AND "gender"=:db_prep_1 ) OR ( "name" LIKE 'B%' AND "gender"=:db_prep_2 )
+( "name" LIKE 'A%' AND "gender"=:db_prep_1 ) OR
+( "name" LIKE 'B%' AND "gender"=:db_prep_2 )
 ```
 
 another way of using ```filter()``` method is continue to the

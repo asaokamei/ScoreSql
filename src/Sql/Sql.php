@@ -1,6 +1,8 @@
 <?php
 namespace WScore\SqlBuilder\Sql;
 
+use WScore\SqlBuilder\QueryInterface;
+
 class Sql implements SqlInterface
 {
     /**
@@ -147,9 +149,6 @@ class Sql implements SqlInterface
      */
     public function filter( $where=null )
     {
-        if( $where && $where instanceof Where ) {
-            return $this->where( $where );
-        }
         if( !$this->where ) {
             $this->where = Where::column(null);
             $this->where->setQuery($this);

@@ -10,6 +10,8 @@ use WScore\SqlBuilder\QueryInterface;
  * Class Where
  * @package WScore\DbAccess\Sql
  *
+ * @method Where is( $value )
+ * @method Where eq( $value )
  * @method Where ne( $value )
  * @method Where lt( $value )
  * @method Where le( $value )
@@ -44,7 +46,7 @@ class Where
 
     protected $parenthesis = false;
 
-    protected $methods = [
+    protected $method2rel = [
         'ne'      => '!=',
         'lt'      => '<',
         'gt'      => '>',
@@ -55,6 +57,11 @@ class Where
         'greaterThan'      => '>',
         'lessEq'      => '<=',
         'greaterEq'      => '>=',
+    ];
+
+    protected $method2me = [
+        'eq'   => 'equal',
+        'is'   => 'equal',
     ];
 
     /**
@@ -131,12 +138,11 @@ class Where
             $this->andOr = 'AND';
             return $this;
         }
-        if( isset( $this->methods[$method] ) ) {
-            if( in_array( $method, ['isNull', 'notNull'] ) ) {
-                return $this->where( $this->column, null, $this->methods[$method] );
-            } else {
-                return $this->where( $this->column, $args[0], $this->methods[$method] );
-            }
+        if( isset( $this->method2me[$method] ) ) {
+            return call_user_func_array( [$this,$this->method2me[$method]], $args );
+        }
+        if( isset( $this->method2rel[$method] ) ) {
+            return $this->where( $this->column, $args[0], $this->method2rel[$method] );
         }
         throw new \InvalidArgumentException('no such where relation: '.$method);
     }
@@ -325,7 +331,7 @@ class Where
      * @param $val
      * @return Where
      */
-    public function eq( $val )
+    public function equal( $val )
     {
         if( func_num_args() > 1 ) {
             return $this->where( $this->column, func_get_args(), 'IN' );

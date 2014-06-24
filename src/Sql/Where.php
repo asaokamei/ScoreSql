@@ -186,7 +186,7 @@ class Where
     /**
      * @return Where
      */
-    public function packBlock()
+    public function encloseBracket()
     {
         $where = new self;
         $where->set( $this );
@@ -196,16 +196,16 @@ class Where
     /**
      * @return Where
      */
-    public function orBlock()
+    public function orBracket()
     {
-        return $this->beginBlock('or');
+        return $this->openBracket('or');
     }
 
     /**
      * @param string $andOr
      * @return Where
      */
-    public function beginBlock($andOr='and')
+    public function openBracket($andOr='and')
     {
         $block = new self;
         $block->setQuery( $this->query );
@@ -216,7 +216,7 @@ class Where
     /**
      * @return $this|Where
      */
-    public function endBlock()
+    public function closeBracket()
     {
         if( !$parent = $this->getParent() ) {
             return $this;

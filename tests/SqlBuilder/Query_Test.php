@@ -16,9 +16,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $sql = Factory::query( 'pgsql' )->table( 'myTable' )
             ->filter()
             ->pKey->eq('1')
-            ->orBlock()
+            ->orBracket()
             ->name->startWith('AB')->gender->eq('F')
-            ->endBlock()
+            ->closeBracket()
             ->end()
             ->select();
         ;
@@ -39,6 +39,14 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
+
+        $query = Factory::query('mysql')->table('myTable');
+        $query->test = 'tested';
+        $query->more = 'done';
+        $sql = $query->insert();
+        $this->assertEquals(
+            'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
+            $sql );
     }
 
     /**
@@ -46,15 +54,28 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function update_builds_update_statement()
     {
-        $sql = Factory::query( 'mysql' )->table( 'myTable' )
+        $sql = Factory::query()->table( 'myTable' )
             ->filter()
                 ->pKey->in( '1', '2' )
             ->end()
             ->update(['test'=>'tested', 'more'=>'done']);
         ;
         $this->assertEquals(
-            'UPDATE `myTable` SET `test`=:db_prep_1, `more`=:db_prep_2 ' .
-            'WHERE `pKey` IN ( :db_prep_3, :db_prep_4 )',
+            'UPDATE "myTable" SET "test"=:db_prep_1, "more"=:db_prep_2 ' .
+            'WHERE "pKey" IN ( :db_prep_3, :db_prep_4 )',
+            $sql );
+
+        $query = Factory::query()->table('myTable');
+        $query->test = 'tested';
+        $query->more = 'done';
+        $sql = $query
+            ->filter()
+            ->pKey->in( '1', '2' )
+            ->end()
+            ->update();
+        $this->assertEquals(
+            'UPDATE "myTable" SET "test"=:db_prep_1, "more"=:db_prep_2 ' .
+            'WHERE "pKey" IN ( :db_prep_3, :db_prep_4 )',
             $sql );
     }
 
@@ -72,18 +93,28 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * in README.md
+     *
      * @test
      */
     function cool()
     {
-        $sql = Factory::query('test')
+        $sql = Factory::query('test')->table('table')
             ->filter()
-                ->pKey->is('1')->or()->this->is('that')
+                ->openBracket()
+                    ->gender->is('F')->or()->status->is('1')
+                ->closeBracket()
+                ->openBracket()
+                    ->gender->is('M')->or()->status->is('2')
+                ->closeBracket()
             ->end()
             ->order( 'id' )
             ->select(5);
         $this->assertEquals(
-            'SELECT * FROM  WHERE "pKey" = :db_prep_1 OR "this" = :db_prep_2 ORDER BY "id" ASC LIMIT :db_prep_3',
+            'SELECT * FROM "table" WHERE ' .
+            '( "gender" = :db_prep_1 OR "status" = :db_prep_2 ) AND ' .
+            '( "gender" = :db_prep_3 OR "status" = :db_prep_4 ) ' .
+            'ORDER BY "id" ASC LIMIT :db_prep_5',
             $sql );
     }
 }

@@ -248,12 +248,12 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function block_or_and_or()
     {
         $this->w
-            ->beginBlock()
+            ->openBracket()
                 ->test->eq('tested')->or()->more->eq('moreD')
-            ->endBlock()
-            ->beginBlock()
+            ->closeBracket()
+            ->openBracket()
                 ->test->eq('good')->or()->more->eq('bad')
-            ->endBlock();
+            ->closeBracket();
         $sql = $this->w->build(  $bind=new Bind(), new Quote() );
         $this->assertEquals(
             '( "test" = :db_prep_1 OR "more" = :db_prep_2 ) AND ( "test" = :db_prep_3 OR "more" = :db_prep_4 )',
@@ -273,12 +273,12 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function block_and_or_and()
     {
         $this->w
-            ->beginBlock()
+            ->openBracket()
             ->test->eq('tested')->and()->more->eq('moreD')
-            ->endBlock()
-            ->orBlock()
+            ->closeBracket()
+            ->orBracket()
             ->test->eq('good')->and()->more->eq('bad')
-            ->endBlock();
+            ->closeBracket();
         $sql = $this->w->build(  $bind=new Bind(), new Quote() );
         $this->assertEquals(
             '( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 )',
@@ -301,10 +301,10 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     function block_without_endBlock()
     {
         $w = $this->w
-            ->beginBlock()
+            ->openBracket()
             ->test->eq('tested')->or()->more->eq('moreD')
-            ->endBlock()
-            ->beginBlock()
+            ->closeBracket()
+            ->openBracket()
             ->test->eq('good')->or()->more->eq('bad');
         $w = $w->getRootParent();
         $sql = $w->build(  $bind=new Bind(), new Quote() );
@@ -327,10 +327,10 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     {
         $w = $this->w
             ->test->eq('tested')->more->eq('moreD')
-            ->packBlock()
-            ->orBlock()
+            ->encloseBracket()
+            ->orBracket()
             ->test->eq('good')->more->eq('bad')
-            ->endBlock();
+            ->closeBracket();
         $sql = $w->build(  $bind=new Bind(), new Quote() );
         $this->assertEquals(
             '( "test" = :db_prep_1 AND "more" = :db_prep_2 ) OR ( "test" = :db_prep_3 AND "more" = :db_prep_4 )',
@@ -352,7 +352,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
         $query = Factory::query( 'pgsql' );
         $sql = $query->table( 'table' )->column( 'this', 'that' )
             ->filter()->
-                pKey->eq('1')->orBlock()->pKey->eq('5')
+                pKey->eq('1')->orBracket()->pKey->eq('5')
             ->end()
             ->order( 'sort' )->select();
         $this->assertEquals(

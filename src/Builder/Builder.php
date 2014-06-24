@@ -325,6 +325,7 @@ class Builder
     {
         if( !$limit = $this->getMagicQuery('limit') ) return '';
         if ( is_numeric( $limit ) && $limit > 0 ) {
+            $limit = $this->bind->prepare( $limit );
             return "LIMIT " . $limit;
         }
         return '';
@@ -337,6 +338,7 @@ class Builder
     {
         if( !$offset = $this->getMagicQuery('offset') ) return '';
         if( is_numeric( $offset ) && $offset > 0 ) {
+            $offset = $this->bind->prepare( $offset );
             return "OFFSET " . $offset;
         }
         return '';
@@ -360,7 +362,9 @@ class Builder
      */
     protected function buildWhere()
     {
-        $criteria = $this->getMagicQuery('where');
+        if( !$criteria = $this->getMagicQuery('where') ) {
+            return '';
+        }
         $sql  = $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias') );
         return $sql ? 'WHERE ' . $sql : '';
     }

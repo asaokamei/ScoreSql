@@ -70,4 +70,20 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'DELETE FROM `myTable` WHERE `mt`.`myKey` = :db_prep_1',
             $sql );
     }
+
+    /**
+     * @test
+     */
+    function cool()
+    {
+        $sql = Factory::query('test')
+            ->beginWhere()
+                ->pKey->is('1')->or()->this->is('that')
+            ->endWhere()
+            ->order( 'id' )
+            ->select(5);
+        $this->assertEquals(
+            'SELECT * FROM  WHERE "pKey" = :db_prep_1 OR "this" = :db_prep_2 ORDER BY "id" ASC LIMIT :db_prep_3',
+            $sql );
+    }
 }

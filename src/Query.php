@@ -11,6 +11,13 @@ class Query extends Sql implements QueryInterface
      */
     protected $builder;
 
+    /**
+     * @var string
+     */
+    protected $dbType;
+
+    // +----------------------------------------------------------------------+
+    //  manage Query.
     // +----------------------------------------------------------------------+
     /**
      * @param Builder $builder
@@ -21,13 +28,71 @@ class Query extends Sql implements QueryInterface
     }
 
     /**
+     * set builder based on dbType,
+     * if $this->builder is not set.
+     */
+    protected function setBuilderByType()
+    {
+        if( !$this->builder ) {
+            $this->builder = Factory::buildBuilder( $this->dbType );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getBind()
+    {
+        return $this->builder->getBind()->getBinding();
+    }
+
+    /**
+     *
+     */
+    public function reset()
+    {
+        $this->where     = null;
+        $this->join      = [ ];
+        $this->columns   = [ ];
+        $this->values    = [ ];
+        $this->selFlags  = [ ];
+        $this->order     = [ ];
+        $this->group     = [ ];
+        $this->having    = null;
+        $this->limit     = null;
+        $this->offset    = 0;
+        $this->returning = null;
+        $this->forUpdate = false;
+    }
+
+    // +----------------------------------------------------------------------+
+    //  builds SQL statements.
+    // +----------------------------------------------------------------------+
+    /**
      * @param null|int $limit
      * @return string
      */
     public function select($limit=null)
     {
         if( $limit ) $this->limit($limit);
-        return $this->builder->toSelect( $this );
+        $this->setBuilderByType();
+        $sql = $this->builder->toSelect( $this );
+        $this->reset();
+        return $sql;
+    }
+
+    /**
+     * @param int    $id
+     * @param string $column
+     * @return array
+     */
+    public function load( $id, $column=null )
+    {
+        $this->setId($id, $column);
+        $this->setBuilderByType();
+        $sql = $this->builder->toSelect( $this );
+        $this->reset();
+        return $sql;
     }
 
     /**
@@ -38,7 +103,8 @@ class Query extends Sql implements QueryInterface
         $origColumn = $this->columns;
         $this->column( false ); // reset columns
         $this->column( $this::raw( 'COUNT(*)'), 'count' );
-        $sql = $this->select();
+        $this->setBuilderByType();
+        $sql = $this->builder->toSelect( $this );
         $this->columns = $origColumn;
         return $sql;
     }
@@ -71,17 +137,6 @@ class Query extends Sql implements QueryInterface
     }
 
     /**
-     * @param int    $id
-     * @param string $column
-     * @return array
-     */
-    public function load( $id, $column=null )
-    {
-        $this->setId($id, $column);
-        return $this->select();
-    }
-
-    /**
      * @param        $id
      * @param string $column
      */
@@ -99,7 +154,10 @@ class Query extends Sql implements QueryInterface
     public function insert( $data=array() )
     {
         if( $data ) $this->value($data);
-        return $this->builder->toInsert( $this );
+        $this->setBuilderByType();
+        $sql = $this->builder->toInsert( $this );
+        $this->reset();
+        return $sql;
     }
 
     /**
@@ -109,7 +167,10 @@ class Query extends Sql implements QueryInterface
     public function update( $data=array() )
     {
         if( $data ) $this->value($data);
-        return $this->builder->toUpdate( $this );
+        $this->setBuilderByType();
+        $sql = $this->builder->toUpdate( $this );
+        $this->reset();
+        return $sql;
     }
 
     /**
@@ -119,34 +180,10 @@ class Query extends Sql implements QueryInterface
     public function delete( $id=null )
     {
         $this->setId($id);
-        return $this->builder->toDelete( $this );
-    }
-
-    /**
-     * @return array
-     */
-    public function getBind()
-    {
-        return $this->builder->getBind()->getBinding();
-    }
-
-    /**
-     *
-     */
-    public function reset()
-    {
-        $this->where     = null;
-        $this->join      = [ ];
-        $this->columns   = [ ];
-        $this->values    = [ ];
-        $this->selFlags  = [ ];
-        $this->order     = [ ];
-        $this->group     = [ ];
-        $this->having    = null;
-        $this->limit     = null;
-        $this->offset    = 0;
-        $this->returning = null;
-        $this->forUpdate = false;
+        $this->setBuilderByType();
+        $sql = $this->builder->toDelete( $this );
+        $this->reset();
+        return $sql;
     }
 
 }

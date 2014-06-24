@@ -180,10 +180,12 @@ class Sql implements SqlInterface
 
     /**
      * @param string $keyName
+     * @return $this
      */
-    public function setKeyName( $keyName )
+    public function keyName( $keyName )
     {
         $this->keyName = $keyName;
+        return $this;
     }
 
     /**

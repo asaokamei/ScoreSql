@@ -43,7 +43,7 @@ class Pgsql extends Builder
      */
     protected function buildReturning()
     {
-        return $this->query->returning ? 'RETURNING ' . $this->query->returning : '';
+        return $this->getMagicQuery('returning') ? 'RETURNING ' . $this->getMagicQuery('returning') : '';
     }
 
 }

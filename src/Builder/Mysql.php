@@ -47,12 +47,14 @@ class Mysql extends Builder
     protected function buildLimitOffset()
     {
         $sql = '';
-        if ( $this->query->limit && $this->query->offset ) {
-            $sql .= ' LIMIT ' . $this->query->offset . ' , ' . $this->query->limit;
-        } elseif ( $this->query->limit ) {
-            $sql .= ' LIMIT ' . $this->query->limit;
-        } elseif ( $this->query->offset ) {
-            $sql .= ' OFFSET ' . $this->query->offset;
+        $limit  = $this->getMagicQuery('limit');
+        $offset = $this->getMagicQuery('offset');
+        if ( $limit && $offset ) {
+            $sql .= ' LIMIT ' . $offset . ' , ' . $limit;
+        } elseif ( $limit ) {
+            $sql .= ' LIMIT ' . $limit;
+        } elseif ( $offset ) {
+            $sql .= ' OFFSET ' . $offset;
         }
         return $sql;
     }

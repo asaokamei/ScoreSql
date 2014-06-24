@@ -89,6 +89,18 @@ class Builder
     }
 
     /**
+     * @param $key
+     * @return mixed
+     */
+    protected function getMagicQuery( $key )
+    {
+        if( $key == 'getAliasOrTable' ) {
+            return $this->query->magicGet('tableAlias') ?: $this->query->magicGet('table');
+        }
+        return $this->query->magicGet( $key );
+    }
+
+    /**
      * @param string|array $name
      * @param string $alias
      * @return string
@@ -171,7 +183,7 @@ class Builder
      */
     protected function buildInsertCol()
     {
-        $keys    = array_keys( $this->query->values );
+        $keys    = array_keys( $this->getMagicQuery('values') );
         $columns = [ ];
         foreach ( $keys as $col ) {
             $columns[ ] = $this->quote( $col );
@@ -185,7 +197,7 @@ class Builder
     protected function buildInsertVal()
     {
         $columns = [ ];
-        foreach ( $this->query->values as $col => $val ) {
+        foreach ( $this->getMagicQuery('values') as $col => $val ) {
             $val = $this->bind->prepare( $val, $col );
             if ( is_callable( $val ) ) {
                 $columns[ ] = $val();
@@ -199,7 +211,7 @@ class Builder
     protected function buildUpdateSet()
     {
         $setter = [ ];
-        foreach ( $this->query->values as $col => $val ) {
+        foreach ( $this->getMagicQuery('values') as $col => $val ) {
             $val = $this->bind->prepare( $val, $col );
             if ( is_callable( $val ) ) {
                 $val = $val();
@@ -215,7 +227,7 @@ class Builder
      */
     protected function buildFlags()
     {
-        return $this->query->selFlags ? implode( ' ', $this->query->selFlags ) : '';
+        return $this->getMagicQuery('selFlags') ? implode( ' ', $this->getMagicQuery('selFlags') ) : '';
     }
 
     /**
@@ -223,7 +235,7 @@ class Builder
      */
     protected function buildTable()
     {
-        return $this->quote( $this->query->table );
+        return $this->quote( $this->getMagicQuery('table') );
     }
 
     /**
@@ -231,7 +243,7 @@ class Builder
      */
     protected function buildFrom()
     {
-        return 'FROM ' . $this->quote( $this->query->table );
+        return 'FROM ' . $this->quote( $this->getMagicQuery('table') );
     }
 
     /**
@@ -239,7 +251,7 @@ class Builder
      */
     protected function buildTableAlias()
     {
-        return $this->query->tableAlias ? $this->quote( $this->query->tableAlias ) : '';
+        return $this->getMagicQuery('tableAlias') ? $this->quote( $this->getMagicQuery('tableAlias') ) : '';
     }
 
     /**
@@ -247,13 +259,13 @@ class Builder
      */
     protected function buildJoin()
     {
-        if( !$this->query->join ) return '';
+        if( !$join_list = $this->getMagicQuery('join') ) return '';
         $joined = '';
-        foreach( $this->query->join as $join ) {
+        foreach( $join_list as $join ) {
             if( is_string( $join ) ) {
                 $joined .= $join;
             } elseif( $join instanceof Join ) {
-                $joined .= $join->build( $this->bind, $this->quote, $this->query->getAliasOrTable() );
+                $joined .= $join->build( $this->bind, $this->quote, $this->getMagicQuery('getAliasOrTable') );
             }
         }
         return $joined;
@@ -265,11 +277,11 @@ class Builder
      */
     protected function buildColumn()
     {
-        if ( !$this->query->columns ) {
+        if ( !$column_list = $this->getMagicQuery('columns') ) {
             return '*';
         }
         $columns = [ ];
-        foreach ( $this->query->columns as $alias => $col ) {
+        foreach ( $column_list as $alias => $col ) {
             if( is_callable($col) ) {
                 $col = $col();
             } else {
@@ -288,9 +300,9 @@ class Builder
      */
     protected function buildGroupBy()
     {
-        if ( !$this->query->group ) return '';
-        $group = $this->quote( $this->query->group );
-        return $this->query->group ? 'GROUP BY ' . implode( ', ', $group ) : '';
+        if ( !$group = $this->getMagicQuery('group') ) return '';
+        $group = $this->quote( $group );
+        return $group ? 'GROUP BY ' . implode( ', ', $group ) : '';
     }
 
     /**
@@ -298,10 +310,10 @@ class Builder
      */
     protected function buildOrderBy()
     {
-        if ( !$this->query->order ) return '';
+        if ( !$orders = $this->getMagicQuery('order') ) return '';
         $sql = [ ];
-        foreach ( $this->query->order as $order ) {
-            $sql[ ] = $this->quote( $order[ 0 ], $this->query->tableAlias ) . " " . $order[ 1 ];
+        foreach ( $orders as $order ) {
+            $sql[ ] = $this->quote( $order[ 0 ], $this->getMagicQuery('tableAlias') ) . " " . $order[ 1 ];
         }
         return 'ORDER BY ' . implode( ', ', $sql );
     }
@@ -311,8 +323,9 @@ class Builder
      */
     protected function buildLimit()
     {
-        if ( is_numeric( $this->query->limit ) && $this->query->limit > 0 ) {
-            return "LIMIT " . $this->query->limit;
+        if( !$limit = $this->getMagicQuery('limit') ) return '';
+        if ( is_numeric( $limit ) && $limit > 0 ) {
+            return "LIMIT " . $limit;
         }
         return '';
     }
@@ -322,8 +335,9 @@ class Builder
      */
     protected function buildOffset()
     {
-        if ( is_numeric( $this->query->offset ) && $this->query->offset > 0 ) {
-            return "OFFSET " . $this->query->offset;
+        if( !$offset = $this->getMagicQuery('offset') ) return '';
+        if( is_numeric( $offset ) && $offset > 0 ) {
+            return "OFFSET " . $offset;
         }
         return '';
     }
@@ -333,7 +347,7 @@ class Builder
      */
     protected function buildForUpdate()
     {
-        if ( $this->query->forUpdate ) {
+        if ( $this->getMagicQuery('forUpdate') ) {
             return 'FOR UPDATE';
         }
         return '';
@@ -346,8 +360,8 @@ class Builder
      */
     protected function buildWhere()
     {
-        $criteria = $this->query->beginWhere();
-        $sql  = $criteria->build( $this->bind, $this->quote, $this->query->tableAlias );
+        $criteria = $this->getMagicQuery('where');
+        $sql  = $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias') );
         return $sql ? 'WHERE ' . $sql : '';
     }
 
@@ -356,8 +370,7 @@ class Builder
      */
     protected function buildHaving()
     {
-        if ( !$this->query->having ) return '';
-        $criteria = $this->query->having;
+        if ( !$criteria = $this->getMagicQuery('having') ) return '';
         $sql  = $criteria->build( $this->bind, $this->quote );
         return $sql ? 'HAVING ' . $sql : '';
     }

@@ -11,72 +11,72 @@ class Sql implements SqlInterface
     /**
      * @var string           name of database table
      */
-    public $table;
+    protected $table;
 
     /**
      * @var string           name of id (primary key)
      */
-    public $keyName;
+    protected $keyName;
 
     /**
      * @var Join[]           join for table
      */
-    public $join = [ ];
+    protected $join = [ ];
 
     /**
      * @var string|array     columns to select in array or string
      */
-    public $columns = [ ];
+    protected $columns = [ ];
 
     /**
      * @var array            values for insert/update in array
      */
-    public $values = [ ];
+    protected $values = [ ];
 
     /**
      * @var string[]         such as distinct, for update, etc.
      */
-    public $selFlags = [ ];
+    protected $selFlags = [ ];
 
     /**
      * @var array            order by. [ [ order, dir ], [].. ]
      */
-    public $order = [ ];
+    protected $order = [ ];
 
     /**
      * @var string           group by. [ group, group2, ...]
      */
-    public $group = [ ];
+    protected $group = [ ];
 
     /**
      * @var Where
      */
-    public $having;
+    protected $having;
 
     /**
      * @var int
      */
-    public $limit = null;
+    protected $limit = null;
 
     /**
      * @var int
      */
-    public $offset = 0;
+    protected $offset = 0;
 
     /**
      * @var string
      */
-    public $returning;
+    protected $returning;
 
     /**
      * @var string
      */
-    public $tableAlias;
+    protected $tableAlias;
 
     /**
      * @var bool
      */
-    public $forUpdate = false;
+    protected $forUpdate = false;
 
     // +----------------------------------------------------------------------+
     /**
@@ -86,6 +86,24 @@ class Sql implements SqlInterface
     public function __get( $column )
     {
         return Where::column( $column );
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function __set( $key, $value )
+    {
+        $this->values[ $key ] = $value;
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function magicGet( $key )
+    {
+        return isset( $this->$key ) ? $this->$key : null;
     }
 
     /**
@@ -232,7 +250,7 @@ class Sql implements SqlInterface
     public function value( $name, $value = null )
     {
         if ( is_array( $name ) ) {
-            $this->values = $name;
+            $this->values += $name;
         } elseif ( func_num_args() > 1 ) {
             $this->values[ $name ] = $value;
         }

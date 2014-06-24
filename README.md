@@ -34,6 +34,15 @@ $sqlStatement = $query
     ->select();
 ```
 
+Use ```where( $where )``` methods to set where clause.
+
+The construction of where clause can be easy;
+ Specifying the column as ```$query->var_name```, then
+ continued with the condition, such as ```is()```, ```in()```,
+ ```lessThan()```, etc.
+
+the resulting $sqlStatement will look like:
+
 ```sql
 SELECT "col1" AS "col2" FROM "myTable" WHERE "status" = :db_prep_1
 ```
@@ -77,7 +86,7 @@ $sqlStatement = $query
 or, this also works.
 
 ```php
-$query->date = $query->raw(NOW()');
+$query->date = $query->raw('NOW()');
 $query->col2 = 'val2';
 $sqlStatement = $query->table('myTable')->update();
 ```
@@ -108,12 +117,12 @@ Advanced SQL
 
 ### complex where clause
 
-Use ```filter( $where )``` methods to set where clause;
- The using ```$query->var_name``` will start constructing the
- where clause.
+Use ```whereOr( $where )``` method to construct a OR
+ in the where statement.
 
 ```php
-echo $query->table('tab')->filter(
+echo $query->table('tab')
+->where(
     $query->name->startWith('A')->gender->eq('M')
 )->whereOr(
     $query->name->startWith('B')->gender->eq('F')
@@ -128,10 +137,11 @@ SELECT * FROM "tab" WHERE
 ( "name" LIKE 'B%' AND "gender"=:db_prep_2 )
 ```
 
-another way of using ```filter()``` method is continue to the
- condition using ```filter()->var_name->``` using ```__get()```
- method. constructing of the where clause will start, and
- ends at ```end()``` method.
+another way of building where clause is to use ```filter()```.
+ This method allows to construct where clause continuously,
+ as```filter()->var_name->``` will set the
+ column for filtering. make sure to indicate the end of
+ filtering with ```end()``` method.
 
 ```php
 $query->table('table')->filter()

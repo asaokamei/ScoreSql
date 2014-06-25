@@ -10,6 +10,24 @@ namespace WScore\SqlBuilder\Sql;
 interface SqlInterface
 {
     /**
+     * @param $column
+     * @return Where
+     */
+    public function __get( $column );
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function __set( $key, $value );
+
+    /**
+     * @param string $keyName
+     * @return $this
+     */
+    public function keyName( $keyName );
+
+    /**
      * @param string $group
      * @return $this
      */

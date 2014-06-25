@@ -1,8 +1,6 @@
 <?php
 namespace WScore\SqlBuilder\Sql;
 
-use WScore\SqlBuilder\QueryInterface;
-
 class Sql implements SqlInterface
 {
     /**

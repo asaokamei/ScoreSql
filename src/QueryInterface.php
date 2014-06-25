@@ -7,13 +7,16 @@
  */
 namespace WScore\SqlBuilder;
 
+use InvalidArgumentException;
+use PDOStatement;
+
 interface QueryInterface
 {
     /**
      * builds insert statement.
      *
      * @param array $data
-     * @return string
+     * @return int
      */
     public function insert( $data = array() );
 
@@ -67,9 +70,16 @@ interface QueryInterface
      * builds update statement.
      *
      * @param array $data
-     * @return string
+     * @return PdoStatement
      */
     public function update( $data = array() );
+
+    /**
+     * @param $data
+     * @throws InvalidArgumentException
+     * @return int|PdoStatement
+     */
+    public function save( $data );
 
     /**
      * resets the query state.

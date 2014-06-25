@@ -1,6 +1,8 @@
 <?php
 namespace WScore\SqlBuilder;
 
+use InvalidArgumentException;
+use PDOStatement;
 use WScore\SqlBuilder\Builder\Builder;
 use WScore\SqlBuilder\Sql\Sql;
 
@@ -187,4 +189,13 @@ class Query extends Sql implements QueryInterface
         return $sql;
     }
 
+    /**
+     * @param $data
+     * @throws InvalidArgumentException
+     * @return int|PdoStatement
+     */
+    public function save( $data )
+    {
+        throw new InvalidArgumentException( 'cannot use save method in Query builder. ' );
+    }
 }

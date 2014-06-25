@@ -58,9 +58,10 @@ interface QueryInterface
      * builds delete statement.
      *
      * @param int $id
+     * @param string $column
      * @return string
      */
-    public function delete( $id=null );
+    public function delete( $id=null, $column=null );
 
     /**
      * builds update statement.

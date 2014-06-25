@@ -175,11 +175,12 @@ class Query extends Sql implements QueryInterface
 
     /**
      * @param int $id
+     * @param string $column
      * @return string
      */
-    public function delete( $id=null )
+    public function delete( $id=null, $column=null )
     {
-        $this->setId($id);
+        $this->setId($id, $column);
         $this->setBuilderByType();
         $sql = $this->builder->toDelete( $this );
         $this->reset();

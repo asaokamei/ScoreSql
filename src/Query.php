@@ -102,12 +102,8 @@ class Query extends Sql implements QueryInterface
      */
     public function count()
     {
-        $origColumn = $this->columns;
-        $this->column( false ); // reset columns
-        $this->column( $this::raw( 'COUNT(*)'), 'count' );
         $this->setBuilderByType();
-        $sql = $this->builder->toSelect( $this );
-        $this->columns = $origColumn;
+        $sql = $this->builder->toCount( $this );
         return $sql;
     }
 

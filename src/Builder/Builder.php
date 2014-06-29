@@ -41,6 +41,17 @@ class Builder
         'forUpdate',
     ];
 
+    protected $count = [
+        'flags',
+        'countColumn',
+        'from',
+        'tableAlias',
+        'join',
+        'where',
+        'groupBy',
+        'having',
+    ];
+
     protected $insert = [
         'table',
         'insertCol',
@@ -126,6 +137,17 @@ class Builder
         return $sql;
     }
 
+    /**
+     * @param $query
+     * @return string
+     */
+    public function toCount( $query )
+    {
+        $this->setQuery( $query );
+        $sql = 'SELECT' . $this->buildByList( $this->count );
+        return $sql;
+    }
+    
     /**
      * @param \WScore\SqlBuilder\Sql\Sql $query
      * @return string
@@ -293,6 +315,14 @@ class Builder
             $columns[ ] = $col;
         }
         return implode( ', ', $columns );
+    }
+
+    /**
+     * @return string
+     */
+    protected function buildCountColumn()
+    {
+        return 'COUNT(*) AS count';
     }
 
     /**

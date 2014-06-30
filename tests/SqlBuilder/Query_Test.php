@@ -15,14 +15,15 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     {
         $query = Factory::query();
         $sql = $query->table('myTable')
-            ->column('col1', 'col2')
+            ->column('col1', 'aliased1')
+            ->columns( 'col2', 'col3' )
             ->where(
                 $query->status->is('1')
             )
             ->select();
         ;
         $this->assertEquals(
-            'SELECT "col1" AS "col2" FROM "myTable" WHERE "status" = :db_prep_1',
+            'SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_prep_1',
             $sql );
     }
 
@@ -153,15 +154,15 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function cool()
     {
-        $sql = Factory::query('test')->table('table')
-            ->filter()
-                ->openBracket()
-                    ->gender->is('F')->or()->status->is('1')
-                ->closeBracket()
+        $query = Factory::query('test');
+        $sql = $query->table('table')
+            ->where(
+                $query->gender->is('F')->or()->status->is('1')
+                ->encloseBracket()
                 ->openBracket()
                     ->gender->is('M')->or()->status->is('2')
                 ->closeBracket()
-            ->end()
+            )
             ->order( 'id' )
             ->select(5);
         $this->assertEquals(

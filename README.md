@@ -1,17 +1,19 @@
-WScore.SqlBuilder
-=================
+ScoreSql
+========
 
-SQL Builder component. 
+A SQL builder component, that is easy to use.
 
-Uses named placeholder as default (well, no other choice).
+*   Uses named placeholder as default (well, no other choice),
+*   tested against MySql and PostgreSql.
+
 
 ### license
 
 MIT License
 
 
-Usage
------
+Basic Usage
+-----------
 
 ### construction
 
@@ -22,16 +24,16 @@ optional parameter to select the database type.
 $query = Factory::query( 'mysql' );
 ```
 
-### simple select statement
+### select statement
 
 ```php
 $sqlStatement = $query
     ->table('myTable')
-    ->column('col1', 'col2')
+    ->column('col1', 'aliased1')
+    ->columns( 'col2', 'col3')
     ->where(
         $query->status->is('1')
-    )
-    ->select();
+    )    ->select();
 ```
 
 Use ```where( $where )``` methods to set where clause.
@@ -44,10 +46,10 @@ The construction of where clause can be easy;
 the resulting $sqlStatement will look like:
 
 ```sql
-SELECT "col1" AS "col2" FROM "myTable" WHERE "status" = :db_prep_1
+SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_prep_1
 ```
 
-### simple insert statement
+### insert statement
 
 ```php
 $sqlStatement = $query
@@ -69,7 +71,7 @@ both cases will generate sql like:
 INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )
 ```
 
-### simple update statement
+### update statement
 
 ```php
 $sqlStatement = $query
@@ -137,21 +139,15 @@ SELECT * FROM "tab" WHERE
 ( "name" LIKE 'B%' AND "gender"=:db_prep_2 )
 ```
 
-another way of building where clause is to use ```filter()```.
- This method allows to construct where clause continuously,
- as```filter()->var_name->``` will set the
- column for filtering. make sure to indicate the end of
- filtering with ```end()``` method.
 
 ```php
-$query->table('table')->filter()
-    ->openBracket()
-        ->gender->is('F')->or()->status->is('1')
-    ->closeBracket()
+$query->table('table')->where(
+    $query->gender->is('F')->or()->status->is('1')
+    ->encloseBracket()
     ->openBracket()
         ->gender->is('M')->or()->status->is('2')
     ->closeBracket()
-->end()
+)
 ->select();
 ```
 
@@ -165,9 +161,10 @@ ORDER BY "id" ASC LIMIT :db_prep_5
 ```
 
 
+
 ### join
 
-it is implemented now, but not really tested.
+it is implemented now, but not tested against real database.
 
 
 History

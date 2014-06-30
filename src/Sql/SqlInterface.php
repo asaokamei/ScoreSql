@@ -5,7 +5,7 @@
  * Date: 2014/06/23
  * Time: 16:40
  */
-namespace WScore\SqlBuilder\Sql;
+namespace WScore\ScoreSql\Sql;
 
 interface SqlInterface
 {

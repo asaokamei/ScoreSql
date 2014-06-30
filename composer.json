@@ -1,5 +1,5 @@
 {
-    "name": "wscore/sqlbuilder",
+    "name": "wscore/scoresql",
     "description": "SQL Builder.",
     "authors": [
         {
@@ -11,13 +11,10 @@
     "require": {
     },
     "require-dev": {
-        "aura/sqlquery":"2.0.x-dev",
-        "c9s/sqlbuilder": "*",
-        "illuminate/database": "dev-master"
     },
     "autoload": {
         "psr-4": {
-            "WScore\\SqlBuilder\\": "src/"
+            "WScore\\ScoreSql\\": "src/"
         }
     }
 }

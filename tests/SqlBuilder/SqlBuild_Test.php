@@ -1,12 +1,12 @@
 <?php
 namespace tests\Sql;
 
-use WScore\SqlBuilder\Builder\Bind;
-use WScore\SqlBuilder\Builder\Builder;
-use WScore\SqlBuilder\Factory;
-use WScore\SqlBuilder\Sql\Sql;
-use WScore\SqlBuilder\Builder\Quote;
-use WScore\SqlBuilder\Sql\Where;
+use WScore\ScoreSql\Builder\Bind;
+use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\Factory;
+use WScore\ScoreSql\Sql\Sql;
+use WScore\ScoreSql\Builder\Quote;
+use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
@@ -18,7 +18,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     var $builder;
 
     /**
-     * @var \WScore\SqlBuilder\Sql\Sql
+     * @var \WScore\ScoreSql\Sql\Sql
      */
     var $query;
     
@@ -34,8 +34,8 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     
     function test0()
     {
-        $this->assertEquals( 'WScore\SqlBuilder\Builder\Builder', get_class( $this->builder ) );
-        $this->assertEquals( 'WScore\SqlBuilder\Sql\Sql', get_class( $this->query ) );
+        $this->assertEquals( 'WScore\ScoreSql\Builder\Builder', get_class( $this->builder ) );
+        $this->assertEquals( 'WScore\ScoreSql\Sql\Sql', get_class( $this->query ) );
     }
 
     /**

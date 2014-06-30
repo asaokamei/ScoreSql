@@ -1,5 +1,5 @@
 <?php
-namespace WScore\SqlBuilder\Builder;
+namespace WScore\ScoreSql\Builder;
 
 class Pgsql extends Builder
 {

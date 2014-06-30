@@ -1,7 +1,7 @@
 <?php
-namespace WScore\SqlBuilder\Builder;
+namespace WScore\ScoreSql\Builder;
 
-use WScore\SqlBuilder\Sql\Where;
+use WScore\ScoreSql\Sql\Where;
 
 class BuildWhere
 {

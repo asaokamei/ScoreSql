@@ -1,11 +1,11 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\ScoreSql;
 
-use WScore\SqlBuilder\Builder\Bind;
-use WScore\SqlBuilder\Builder\Builder;
-use WScore\SqlBuilder\Builder\Mysql;
-use WScore\SqlBuilder\Builder\Pgsql;
-use WScore\SqlBuilder\Builder\Quote;
+use WScore\ScoreSql\Builder\Bind;
+use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\Builder\Mysql;
+use WScore\ScoreSql\Builder\Pgsql;
+use WScore\ScoreSql\Builder\Quote;
 
 class Factory
 {

@@ -1,5 +1,5 @@
 <?php
-namespace WScore\SqlBuilder\Sql;
+namespace WScore\ScoreSql\Sql;
 
 class Sql implements SqlInterface
 {

@@ -1,10 +1,10 @@
 <?php
-namespace WScore\SqlBuilder\Sql;
+namespace WScore\ScoreSql\Sql;
 
-use WScore\SqlBuilder\Builder\Bind;
-use WScore\SqlBuilder\Builder\BuildWhere;
-use WScore\SqlBuilder\Builder\Quote;
-use WScore\SqlBuilder\QueryInterface;
+use WScore\ScoreSql\Builder\Bind;
+use WScore\ScoreSql\Builder\BuildWhere;
+use WScore\ScoreSql\Builder\Quote;
+use WScore\ScoreSql\QueryInterface;
 
 /**
  * Class Where

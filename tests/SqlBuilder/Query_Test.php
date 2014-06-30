@@ -1,7 +1,7 @@
 <?php
 namespace tests\Sql;
 
-use WScore\SqlBuilder\Factory;
+use WScore\ScoreSql\Factory;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 

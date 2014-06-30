@@ -1,8 +1,8 @@
 <?php
-namespace WScore\SqlBuilder\Builder;
+namespace WScore\ScoreSql\Builder;
 
-use WScore\SqlBuilder\Sql\Join;
-use WScore\SqlBuilder\Sql\Sql;
+use WScore\ScoreSql\Sql\Join;
+use WScore\ScoreSql\Sql\Sql;
 
 class Builder
 {
@@ -92,7 +92,7 @@ class Builder
     }
 
     /**
-     * @param \WScore\SqlBuilder\Sql\Sql $query
+     * @param \WScore\ScoreSql\Sql\Sql $query
      */
     protected function setQuery( $query )
     {
@@ -149,7 +149,7 @@ class Builder
     }
     
     /**
-     * @param \WScore\SqlBuilder\Sql\Sql $query
+     * @param \WScore\ScoreSql\Sql\Sql $query
      * @return string
      */
     public function toInsert( $query )
@@ -160,7 +160,7 @@ class Builder
     }
 
     /**
-     * @param \WScore\SqlBuilder\Sql\Sql $query
+     * @param \WScore\ScoreSql\Sql\Sql $query
      * @return string
      */
     public function toUpdate( $query )
@@ -171,7 +171,7 @@ class Builder
     }
 
     /**
-     * @param \WScore\SqlBuilder\Sql\Sql $query
+     * @param \WScore\ScoreSql\Sql\Sql $query
      * @return string
      */
     public function toDelete( $query )

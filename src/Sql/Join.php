@@ -1,8 +1,8 @@
 <?php
-namespace WScore\SqlBuilder\Sql;
+namespace WScore\ScoreSql\Sql;
 
-use WScore\SqlBuilder\Builder\Bind;
-use WScore\SqlBuilder\Builder\Quote;
+use WScore\ScoreSql\Builder\Bind;
+use WScore\ScoreSql\Builder\Quote;
 
 class Join
 {

@@ -1,10 +1,10 @@
 <?php
-namespace WScore\SqlBuilder;
+namespace WScore\ScoreSql;
 
 use InvalidArgumentException;
 use PDOStatement;
-use WScore\SqlBuilder\Builder\Builder;
-use WScore\SqlBuilder\Sql\Sql;
+use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\Sql\Sql;
 
 class Query extends Sql implements QueryInterface
 {

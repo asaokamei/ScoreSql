@@ -1,8 +1,8 @@
 <?php
-namespace WScore\SqlBuilder\Builder;
+namespace WScore\ScoreSql\Builder;
 
 use Mockery\CountValidator\Exception;
-use WScore\SqlBuilder\Sql\Sql;
+use WScore\ScoreSql\Sql\Sql;
 
 class Quote
 {

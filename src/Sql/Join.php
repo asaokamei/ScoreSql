@@ -4,32 +4,32 @@ namespace WScore\ScoreSql\Sql;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Quote;
 
-class Join
+class Join implements JoinInterface
 {
     /**
      * @var string
      */
-    public $table;
+    protected $table;
 
     /**
      * @var string
      */
-    public $alias;
+    protected $alias;
 
     /**
      * @var string
      */
-    public $type = 'JOIN';
+    protected $type = 'JOIN';
 
     /**
      * @var string
      */
-    public $usingKey;
+    protected $usingKey;
 
     /**
      * @var string|Where
      */
-    public $criteria;
+    protected $criteria;
 
     /**
      * @var Bind
@@ -62,7 +62,7 @@ class Join
     /**
      * @param string $table
      * @param string $alias
-     * @return $this
+     * @return JoinInterface
      */
     public static function table( $table, $alias )
     {
@@ -73,7 +73,7 @@ class Join
     /**
      * @param string $table
      * @param string $alias
-     * @return $this
+     * @return JoinInterface
      */
     public static function left( $table, $alias )
     {
@@ -85,7 +85,7 @@ class Join
     /**
      * @param string $table
      * @param string $alias
-     * @return $this
+     * @return JoinInterface
      */
     public static function right( $table, $alias )
     {
@@ -96,13 +96,18 @@ class Join
 
     /**
      * @param string $type
+     * @return JoinInterface
      */
     public function by( $type )
     {
         $this->type = $type;
+        return $this;
     }
 
     /**
+     * for setting parent query's table or alias name.
+     * will be used in Sql::join method.
+     *
      * @param string $queryTable
      * @return $this
      */
@@ -114,7 +119,7 @@ class Join
 
     /**
      * @param string $key
-     * @return $this
+     * @return JoinInterface
      */
     public function using( $key )
     {
@@ -124,7 +129,7 @@ class Join
 
     /**
      * @param Where|string $criteria
-     * @return $this
+     * @return JoinInterface
      */
     public function on( $criteria )
     {

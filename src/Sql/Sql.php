@@ -142,7 +142,7 @@ class Sql implements SqlInterface
     }
 
     /**
-     * @param Join $join
+     * @param JoinInterface $join
      * @return $this
      */
     public function join( $join )

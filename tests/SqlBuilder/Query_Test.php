@@ -2,6 +2,7 @@
 namespace tests\Sql;
 
 use WScore\ScoreSql\Factory;
+use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
@@ -69,12 +70,12 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function select_builds_select_statement()
     {
         $sql = Factory::query( 'pgsql' )->table( 'myTable' )
-            ->filter()
-            ->pKey->eq('1')
-            ->orBracket()
-            ->name->startWith('AB')->gender->eq('F')
-            ->closeBracket()
-            ->end()
+            ->where(
+                Where::column('pKey')->eq('1')
+                    ->orBracket()
+                    ->name->startWith('AB')->gender->eq('F')
+                    ->closeBracket()
+            )
             ->select();
         ;
         $this->assertEquals(
@@ -110,9 +111,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function update_builds_update_statement()
     {
         $sql = Factory::query()->table( 'myTable' )
-            ->filter()
-                ->pKey->in( '1', '2' )
-            ->end()
+            ->where(
+                Where::column('pKey')->in( '1', '2' )
+            )
             ->update(['test'=>'tested', 'more'=>'done']);
         ;
         $this->assertEquals(
@@ -124,9 +125,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $query->test = 'tested';
         $query->more = $query->raw('NOW()');
         $sql = $query
-            ->filter()
-            ->pKey->in( '1', '2' )
-            ->end()
+            ->where(
+                Where::column('pKey')->in( '1', '2' )
+            )
             ->update();
         $this->assertEquals(
             'UPDATE "myTable" SET "test"=:db_prep_1, "more"=NOW() ' .

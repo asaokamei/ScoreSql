@@ -73,11 +73,6 @@ interface SqlInterface
     public function flag( $flag );
 
     /**
-     * @return Where
-     */
-    public function filter();
-
-    /**
      * creates SELECT DISTINCT statement.
      * @return $this
      */

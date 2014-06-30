@@ -351,9 +351,9 @@ class Where_Test extends \PHPUnit_Framework_TestCase
     {
         $query = Factory::query( 'pgsql' );
         $sql = $query->table( 'table' )->column( 'this', 'that' )
-            ->filter()->
-                pKey->eq('1')->orBracket()->pKey->eq('5')
-            ->end()
+            ->where(
+                $query->pKey->eq('1')->or()->pKey->eq('5')
+            )
             ->order( 'sort' )->select();
         $this->assertEquals(
             'SELECT "this" AS "that" FROM "table" WHERE "pKey" = :db_prep_1 OR "pKey" = :db_prep_2 ORDER BY "sort" ASC',

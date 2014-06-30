@@ -149,7 +149,7 @@ class Sql implements SqlInterface
     {
         $this->join[] = $join;
         $join->setQueryTable( $this->getAliasOrTable() );
-        return $join;
+        return $this;
     }
 
     // +----------------------------------------------------------------------+

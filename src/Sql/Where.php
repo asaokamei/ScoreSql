@@ -168,6 +168,16 @@ class Where
     }
 
     /**
+     * @return Where
+     */
+    public static function bracket()
+    {
+        /** @var self $where */
+        $where = new static;
+        return $where->openBracket();
+    }
+
+    /**
      * @return array
      */
     public function getCriteria() {

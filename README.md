@@ -31,12 +31,13 @@ $sqlStatement = $query
     ->table('myTable')
     ->column('col1', 'aliased1')
     ->columns( 'col2', 'col3')
-    ->where(
-        $query->status->is('1')
-    )    ->select();
+    ->where( Where::column('status')->is('1') )
+    ->select();
 ```
 
-Use ```where( $where )``` methods to set where clause.
+Use ```Where::column('name')``` methods to start where clause.
+ for shorthand notation, use ```$query->var_name``` to start
+ where clause as well.
 
 The construction of where clause can be easy;
  Specifying the column as ```$query->var_name```, then
@@ -117,7 +118,7 @@ $stmt->execute( $bindValues );
 Advanced SQL
 ------------
 
-### complex where clause
+### complex where clause examples
 
 Use ```whereOr( $where )``` method to construct a OR
  in the where statement.
@@ -139,14 +140,19 @@ SELECT * FROM "tab" WHERE
 ( "name" LIKE 'B%' AND "gender"=:db_prep_2 )
 ```
 
+Another example uses ```Where``` class to generate ```$where```
+ object. ```open/close``` methods constructs another ```Where```
+ object to create parenthesis.
+
 
 ```php
 $query->table('table')->where(
-    $query->gender->is('F')->or()->status->is('1')
-    ->encloseBracket()
-    ->openBracket()
+    Where::bracket()
+        ->gender->is('F')->or()->status->is('1')
+    ->enclose()
+    ->open()
         ->gender->is('M')->or()->status->is('2')
-    ->closeBracket()
+    ->close()
 )
 ->select();
 ```
@@ -184,7 +190,7 @@ will produce,
 ```sql
 SELECT *
     FROM `dao_user` `u1`
-        LEFT OUTER JOIN `dao_user` `u2` ON ( `u2`.`status` = `u1`.`status` )
+        JOIN `dao_user` `u2` USING( `status` )
     WHERE `u1`.`user_id` = :db_prep_1
 ```
 
@@ -206,7 +212,7 @@ the following sql statement.
 ```sql
 SELECT *
     FROM `dao_user` `u1`
-        JOIN `dao_user` `u2` USING( `status` )
+        LEFT OUTER JOIN `dao_user` `u2` ON ( `u2`.`status` = `u1`.`status` )
     WHERE `u1`.`user_id` = :db_prep_1
 ```
 

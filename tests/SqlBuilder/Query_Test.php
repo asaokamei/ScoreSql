@@ -158,7 +158,8 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $query = Factory::query('test');
         $sql = $query->table('table')
             ->where(
-                $query->gender->is('F')->or()->status->is('1')
+                Where::bracket()
+                    ->gender->is('F')->or()->status->is('1')
                 ->enclose()
                 ->open()
                     ->gender->is('M')->or()->status->is('2')

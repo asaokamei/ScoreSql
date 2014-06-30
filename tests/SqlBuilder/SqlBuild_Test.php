@@ -1,11 +1,10 @@
 <?php
 namespace tests\Sql;
 
-use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\Factory;
+use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
-use WScore\ScoreSql\Builder\Quote;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
@@ -250,7 +249,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     {
         $this->query->table( 'testTable', 'tt' )
             ->where( Where::column('test')->eq('tested') )
-            ->join( 'anotherOne', 'ao' )->left()->using( 'pKey');
+            ->join( Join::left( 'anotherOne', 'ao' )->using( 'pKey') );
         $sql = $this->builder->toSelect( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
@@ -269,7 +268,11 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     {
         $this->query->table( 'testTable', 'tt' )
             ->where( Where::column('test')->eq('tested') )
-            ->join( 'anotherOne', 'ao' )->left()->using( 'pKey')->on( Where::column('status')->eq('1') );
+            ->join(
+                Join::left('anotherOne', 'ao' )->
+                    using( 'pKey')->
+                    on( Where::column('status')->eq('1') )
+            );
         $sql = $this->builder->toSelect( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(

@@ -50,32 +50,65 @@ class Join
     //  managing objects.
     // +----------------------------------------------------------------------+
     /**
-     * @param string $queryTable
      * @param string $table
      * @param string $alias
      */
-    public function __construct( $queryTable, $table, $alias=null )
+    public function __construct( $table, $alias=null )
     {
-        $this->queryTable = $queryTable;
         $this->table = $table;
         $this->alias = $alias;
     }
 
     /**
+     * @param string $table
+     * @param string $alias
      * @return $this
      */
-    public function left()
+    public static function table( $table, $alias )
     {
-        $this->type = 'LEFT OUTER JOIN';
-        return $this;
+        $join = new self( $table, $alias );
+        return $join;
     }
 
     /**
+     * @param string $table
+     * @param string $alias
      * @return $this
      */
-    public function right()
+    public static function left( $table, $alias )
     {
-        $this->type = 'RIGHT OUTER JOIN';
+        $join = new self( $table, $alias );
+        $join->by( 'LEFT OUTER JOIN' );
+        return $join;
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return $this
+     */
+    public static function right( $table, $alias )
+    {
+        $join = new self( $table, $alias );
+        $join->by( 'RIGHT OUTER JOIN' );
+        return $join;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function by( $type )
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @param string $queryTable
+     * @return $this
+     */
+    public function setQueryTable( $queryTable )
+    {
+        $this->queryTable = $queryTable;
         return $this;
     }
 

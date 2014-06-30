@@ -98,12 +98,12 @@ interface SqlInterface
      */
     public function table( $table, $alias = null );
 
+
     /**
-     * @param string $table
-     * @param string $alias
-     * @return Join
+     * @param Join $join
+     * @return $this
      */
-    public function join( $table, $alias = null );
+    public function join( $join );
 
     /**
      * @param $where

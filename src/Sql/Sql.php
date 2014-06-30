@@ -142,14 +142,13 @@ class Sql implements SqlInterface
     }
 
     /**
-     * @param string $table
-     * @param string $alias
-     * @return Join
+     * @param Join $join
+     * @return $this
      */
-    public function join( $table, $alias=null )
+    public function join( $join )
     {
-        $join = new Join( $this->getAliasOrTable(), $table, $alias );
         $this->join[] = $join;
+        $join->setQueryTable( $this->getAliasOrTable() );
         return $join;
     }
 

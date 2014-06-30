@@ -159,10 +159,10 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $sql = $query->table('table')
             ->where(
                 $query->gender->is('F')->or()->status->is('1')
-                ->encloseBracket()
-                ->openBracket()
+                ->enclose()
+                ->open()
                     ->gender->is('M')->or()->status->is('2')
-                ->closeBracket()
+                ->close()
             )
             ->order( 'id' )
             ->select(5);

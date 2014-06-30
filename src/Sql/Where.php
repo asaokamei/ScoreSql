@@ -24,6 +24,10 @@ use WScore\ScoreSql\QueryInterface;
  * @method Where greaterEq( $value )
  * @method Where and()
  * @method Where or()
+ * @method Where open()
+ * @method Where close()
+ * @method Where openOr()
+ * @method Where enclose()
  */
 class Where
 {
@@ -62,6 +66,10 @@ class Where
     protected $method2me = [
         'eq'   => 'equal',
         'is'   => 'equal',
+        'open'    => 'openBracket',
+        'close'   => 'closeBracket',
+        'openOr'  => 'orBracket',
+        'enclose' => 'encloseBracket',
     ];
 
     /**

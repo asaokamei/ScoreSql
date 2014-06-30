@@ -162,9 +162,53 @@ ORDER BY "id" ASC LIMIT :db_prep_5
 
 
 
-### join
+Join
+----
 
-it is implemented now, but not tested against real database.
+Pass ```Join``` object to ```join``` method to construct
+ table join.
+
+Some examples:
+
+
+```php
+$found2 = $query
+    ->table( 'dao_user', 'u1' )
+    ->join( Join::table( 'dao_user', 'u2' )->using( 'status' ) )
+    ->where( $query->user_id->is(1) )
+    ->select();
+```
+
+will produce,
+
+```sql
+SELECT *
+    FROM `dao_user` `u1`
+        LEFT OUTER JOIN `dao_user` `u2` ON ( `u2`.`status` = `u1`.`status` )
+    WHERE `u1`.`user_id` = :db_prep_1
+```
+
+and this will produce,
+
+```php
+$found = $query
+    ->table( 'dao_user', 'u1' )
+    ->join(
+        Join::left( 'dao_user', 'u2' )
+            ->on( $query->status->identical( 'u1.status' ) )
+    )
+    ->where( $query->user_id->is(1) )
+    ->select();
+```
+
+the following sql statement.
+
+```sql
+SELECT *
+    FROM `dao_user` `u1`
+        JOIN `dao_user` `u2` USING( `status` )
+    WHERE `u1`.`user_id` = :db_prep_1
+```
 
 
 History

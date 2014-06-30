@@ -149,7 +149,7 @@ Another example uses ```Where``` class to generate ```$where```
 $query->table('table')->where(
     Where::bracket()
         ->gender->is('F')->or()->status->is('1')
-    ->enclose()
+    ->close()
     ->open()
         ->gender->is('M')->or()->status->is('2')
     ->close()

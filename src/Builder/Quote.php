@@ -40,9 +40,10 @@ class Quote
     /**
      * @param string $name
      * @param string $prefix
+     * @param string $parent
      * @return string
      */
-    public function quote( $name, $prefix=null )
+    public function quote( $name, $prefix=null, $parent=null )
     {
         if( !$name ) return $name;
         if( is_object($name) && is_callable( $name ) ) return $name();
@@ -51,7 +52,9 @@ class Quote
                 $name = $prefix . '.' . $name;
             } elseif( false === strpos( $name, '.' ) ) {
                 $name = $prefix . '.'  . $name;
-            }
+            } elseif( substr( $name, 0, 2 ) == '$.' && $parent ) {
+                $name = $parent . substr( $name, 1 );
+            } 
         }
         return $this->qt( $name, [' AS ', ' as ', '.'] );
     }

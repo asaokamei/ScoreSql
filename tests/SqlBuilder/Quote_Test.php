@@ -75,4 +75,13 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
         $quoted = $this->q->quote("test.more AS quote");
         $this->assertEquals( '"test"."more" AS "quote"', $quoted );
     }
+
+    /**
+     * @test
+     */
+    function quote_with_prefix_and_parent()
+    {
+        $quoted = $this->q->quote( '$.test', 'sub', 'main' );
+        $this->assertEquals( '"main"."test"', $quoted );
+    }
 }

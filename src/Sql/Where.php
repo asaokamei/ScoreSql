@@ -248,15 +248,16 @@ class Where
     */
     // +----------------------------------------------------------------------+
     /**
-     * @param Bind $bind
-     * @param Quote $quote
+     * @param Bind   $bind
+     * @param Quote  $quote
      * @param string $alias
+     * @param string $parent
      * @return string
      */
-    public function build( $bind=null, $quote=null, $alias=null )
+    public function build( $bind=null, $quote=null, $alias=null, $parent=null )
     {
         $builder = new BuildWhere( $bind, $quote, $this->builder );
-        return $builder->build( $this, $alias );
+        return $builder->build( $this, $alias, $parent );
     }
 
     // +----------------------------------------------------------------------+

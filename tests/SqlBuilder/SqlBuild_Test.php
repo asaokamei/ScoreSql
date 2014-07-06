@@ -296,7 +296,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             ->column(
                 $query->sub('sub')
                     ->column( $query::raw('COUNT(*)'), 'count' )
-                    ->where( $query->status->identical('main.status') ),
+                    ->where( $query->status->identical('$.status') ),
                 'count_sub'
             )
         ;

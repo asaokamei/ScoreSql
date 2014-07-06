@@ -14,6 +14,16 @@ class Sql implements SqlInterface
     protected $table;
 
     /**
+     * @var string           name of aliased table name
+     */
+    protected $tableAlias;
+
+    /**
+     * @var string           name of table of parent query (for sub-query)
+     */
+    protected $tableParent;
+    
+    /**
      * @var string           name of id (primary key)
      */
     protected $keyName;
@@ -69,11 +79,6 @@ class Sql implements SqlInterface
     protected $returning;
 
     /**
-     * @var string
-     */
-    protected $tableAlias;
-
-    /**
      * @var bool
      */
     protected $forUpdate = false;
@@ -109,7 +114,16 @@ class Sql implements SqlInterface
         $sub = new self();
         if( !$alias ) $alias = 'sub_' . $this->subQueryCount ++;
         $sub->table( $table, $alias );
+        $sub->setParentTable( $this->getAliasOrTable() );
         return $sub;
+    }
+
+    /**
+     * @param $name
+     */
+    protected function setParentTable( $name )
+    {
+        $this->tableParent = $name;
     }
 
     /**

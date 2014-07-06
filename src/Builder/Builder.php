@@ -440,7 +440,7 @@ class Builder
             throw new \InvalidArgumentException;
         }
         $criteria->setBuilder( $this );
-        return $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias') );
+        return $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias'), $this->getMagicQuery('tableParent') );
     }
     // +----------------------------------------------------------------------+
 }

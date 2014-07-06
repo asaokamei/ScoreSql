@@ -2,7 +2,6 @@
 namespace tests\Sql;
 
 use WScore\ScoreSql\Builder\Quote;
-use WScore\ScoreSql\Factory;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 

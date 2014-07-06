@@ -27,6 +27,11 @@ class BuildWhere
     protected $builder;
 
     /**
+     * @var string
+     */
+    protected $parentTableName;
+
+    /**
      * @param Bind    $bind
      * @param Quote   $quote
      * @param Builder $builder
@@ -46,7 +51,7 @@ class BuildWhere
     {
         if( !$name ) return $name;
         if( $this->quote ) {
-            $name = $this->quote->quote( $name, $this->aliasedTableName );
+            $name = $this->quote->quote( $name, $this->aliasedTableName, $this->parentTableName );
         } elseif( $this->aliasedTableName ) {
             $name = $this->aliasedTableName . '.' . $name;
         }
@@ -76,13 +81,15 @@ class BuildWhere
     */
     // +----------------------------------------------------------------------+
     /**
-     * @param Where $criteria
+     * @param Where  $criteria
      * @param string $alias
+     * @param string $parent
      * @return string
      */
-    public function build( $criteria, $alias=null )
+    public function build( $criteria, $alias=null, $parent=null )
     {
         $this->aliasedTableName = $alias;
+        $this->parentTableName  = $parent;
         $where = $criteria->getCriteria();
         $sql   = '';
         foreach ( $where as $w ) {

@@ -398,7 +398,8 @@ class Builder
         if( is_callable($string) ) {
             $string = $string();
         } elseif( $string instanceof SqlInterface ) {
-            $string = '( '.$this->toSelect( $string ).' )';
+            $builder = new Builder( $this->bind, $this->quote );
+            $string = '( '.$builder->toSelect( $string ).' )';
         } else {
             $string = $this->quote( $string );
         }

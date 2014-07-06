@@ -294,14 +294,17 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $query = $this->query;
         $query->table( 'main' )
             ->column(
-                $query->sub('sub')->column( $query::raw('COUNT(*)'), 'count' ) ->where( $query->status->is(1) )
+                $query->sub('sub')
+                    ->column( $query::raw('COUNT(*)'), 'count' )
+                    ->where( $query->status->identical('main.status') ),
+                'count_sub'
             )
         ;
         $sql = $this->builder->toSelect( $query );
         $this->assertEquals( 
             'SELECT ( ' .
-            'SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1' . 
-            ' ) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
+            'SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = "main"."status"' . 
+            ' ) AS "count_sub" FROM "main"', $sql );
     }
 
     /**
@@ -317,7 +320,9 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         ;
         $sql = $this->builder->toSelect( $query );
         $this->assertEquals(
-            'SELECT * FROM ( SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) AS "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
+            'SELECT * FROM ( ' .
+            'SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1' . 
+            ' ) WHERE "name" = :db_prep_2', $sql );
     }
 
     /**
@@ -335,6 +340,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         ;
         $sql = $this->builder->toSelect( $query );
         $this->assertEquals(
-            'SELECT * FROM "main" WHERE "status" = ( SELECT "status" FROM "sub" AS "sub_1" WHERE "sub_1"."name" = :db_prep_1 )', $sql );
+            'SELECT * FROM "main" WHERE "status" = ( ' . 
+            'SELECT "status" FROM "sub" AS "sub_1" WHERE "sub_1"."name" = :db_prep_1 )', $sql );
     }
 }

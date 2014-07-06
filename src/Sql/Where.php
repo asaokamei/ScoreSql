@@ -4,7 +4,6 @@ namespace WScore\ScoreSql\Sql;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\BuildWhere;
 use WScore\ScoreSql\Builder\Quote;
-use WScore\ScoreSql\QueryInterface;
 
 /**
  * Class Where
@@ -92,14 +91,6 @@ class Where
     public function setQuery( $query )
     {
         $this->query = $query;
-    }
-
-    /**
-     * @return SqlInterface|QueryInterface
-     */
-    public function end()
-    {
-        return $this->query;
     }
 
     /**
@@ -226,7 +217,6 @@ class Where
     public function openBracket($andOr='and')
     {
         $block = new self;
-        $block->setQuery( $this->query );
         $this->set( $block, $andOr );
         return $block;
     }

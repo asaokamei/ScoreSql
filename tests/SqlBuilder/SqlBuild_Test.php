@@ -319,4 +319,22 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT * FROM ( SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) AS "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
     }
+
+    /**
+     * @test
+     */
+    function sub_query_in_where_is()
+    {
+        $query = $this->query;
+        $query->table( 'main' )
+            ->where(
+                $query->status->is( 
+                    $query->sub('sub')->column('status')->where( $query->name->is('bob') ) 
+                )
+            )
+        ;
+        $sql = $this->builder->toSelect( $query );
+        $this->assertEquals(
+            'SELECT * FROM "main" WHERE "status" = ( SELECT "status" FROM "sub" AS "sub_1" WHERE "sub_1"."name" = :db_prep_1 )', $sql );
+    }
 }

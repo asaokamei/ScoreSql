@@ -438,6 +438,7 @@ class Builder
         if( !$criteria instanceof Where ) {
             throw new \InvalidArgumentException;
         }
+        $criteria->setBuilder( $this );
         return $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias') );
     }
     // +----------------------------------------------------------------------+

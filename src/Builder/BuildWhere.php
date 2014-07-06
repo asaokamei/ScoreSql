@@ -1,6 +1,7 @@
 <?php
 namespace WScore\ScoreSql\Builder;
 
+use WScore\ScoreSql\Sql\SqlInterface;
 use WScore\ScoreSql\Sql\Where;
 
 class BuildWhere
@@ -20,10 +21,21 @@ class BuildWhere
      */
     protected $alias;
 
-    public function __construct( $bind=null, $quote=null )
+    /**
+     * @var Builder
+     */
+    protected $builder;
+
+    /**
+     * @param Bind    $bind
+     * @param Quote   $quote
+     * @param Builder $builder
+     */
+    public function __construct( $bind=null, $quote=null, $builder=null )
     {
         $this->bind = $bind;
         $this->quote = $quote;
+        $this->builder = $builder;
     }
 
     /**
@@ -125,6 +137,10 @@ class BuildWhere
 
             $val = $val();
 
+        } elseif ( $val instanceof SqlInterface ) {
+
+            $val = '( ' . $this->builder->toSelect( $val ) . ' )';
+            
         } elseif ( $val !== false ) {
 
             $val = $this->prepare( $val );

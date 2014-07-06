@@ -2,6 +2,7 @@
 namespace WScore\ScoreSql\Sql;
 
 use WScore\ScoreSql\Builder\Bind;
+use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\Builder\BuildWhere;
 use WScore\ScoreSql\Builder\Quote;
 
@@ -72,9 +73,9 @@ class Where
     ];
 
     /**
-     * @var Sql
+     * @var Builder
      */
-    protected $query;
+    protected $builder;
 
     // +----------------------------------------------------------------------+
     //  managing objects.
@@ -86,11 +87,11 @@ class Where
     }
 
     /**
-     * @param Sql $query
+     * @param Builder $query
      */
-    public function setQuery( $query )
+    public function setBuilder( $query )
     {
-        $this->query = $query;
+        $this->builder = $query;
     }
 
     /**
@@ -254,7 +255,7 @@ class Where
      */
     public function build( $bind=null, $quote=null, $alias=null )
     {
-        $builder = new BuildWhere( $bind, $quote );
+        $builder = new BuildWhere( $bind, $quote, $this->builder );
         return $builder->build( $this, $alias );
     }
 

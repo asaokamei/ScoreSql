@@ -4,6 +4,7 @@ namespace WScore\ScoreSql\Builder;
 use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
 use WScore\ScoreSql\Sql\SqlInterface;
+use WScore\ScoreSql\Sql\Where;
 
 class Builder
 {
@@ -411,10 +412,8 @@ class Builder
      */
     protected function buildWhere()
     {
-        if( !$criteria = $this->getMagicQuery('where') ) {
-            return '';
-        }
-        $sql  = $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias') );
+        if( !$criteria = $this->getMagicQuery('where') ) return '';
+        $sql  = $this->buildCriteria( $criteria );
         return $sql ? 'WHERE ' . $sql : '';
     }
 
@@ -424,8 +423,22 @@ class Builder
     protected function buildHaving()
     {
         if ( !$criteria = $this->getMagicQuery('having') ) return '';
-        $sql  = $criteria->build( $this->bind, $this->quote );
+        $sql  = $this->buildCriteria( $criteria );
         return $sql ? 'HAVING ' . $sql : '';
+    }
+
+    /**
+     * @param Where $criteria
+     * @throws \InvalidArgumentException
+     * @return string
+     */
+    protected function buildCriteria( $criteria )
+    {
+        if( !$criteria ) return '';
+        if( !$criteria instanceof Where ) {
+            throw new \InvalidArgumentException;
+        }
+        return $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias') );
     }
     // +----------------------------------------------------------------------+
 }

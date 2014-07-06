@@ -282,7 +282,7 @@ class Builder
     {
         $alias = $this->getMagicQuery('tableAlias');
         if( $alias ) {
-            $alias = '' . $this->quote( $this->getMagicQuery('tableAlias') );
+            $alias = 'AS ' . $this->quote( $this->getMagicQuery('tableAlias') );
         }
         return $alias;
     }

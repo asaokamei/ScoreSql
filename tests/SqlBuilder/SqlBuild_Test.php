@@ -216,7 +216,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
             'SELECT DISTINCT "colTest" AS "aliasAs" ' .
-            'FROM "testTable" "aliasTable" WHERE "aliasTable"."name" LIKE :db_prep_1 ' .
+            'FROM "testTable" AS "aliasTable" WHERE "aliasTable"."name" LIKE :db_prep_1 ' .
             'GROUP BY "grouped" HAVING COUNT(*) > :db_prep_2 ' .
             'ORDER BY "aliasTable"."pKey" ASC, "aliasTable"."status" desc, "t1"."order" ASC ' .
             'LIMIT :db_prep_3 OFFSET :db_prep_4 FOR UPDATE',
@@ -253,7 +253,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $sql = $this->builder->toSelect( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'SELECT * FROM "testTable" "tt" ' .
+            'SELECT * FROM "testTable" AS "tt" ' .
             'LEFT OUTER JOIN "anotherOne" "ao" USING( "pKey" ) ' .
             'WHERE "tt"."test" = :db_prep_1',
             $sql );
@@ -276,7 +276,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $sql = $this->builder->toSelect( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'SELECT * FROM "testTable" "tt" ' .
+            'SELECT * FROM "testTable" AS "tt" ' .
             'LEFT OUTER JOIN "anotherOne" "ao" ' .
                 'ON ( "ao"."pKey"="tt"."pKey" AND ( "ao"."status" = :db_prep_1 ) ) ' .
             'WHERE "tt"."test" = :db_prep_2',
@@ -300,8 +300,8 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $sql = $this->builder->toSelect( $query );
         $this->assertEquals( 
             'SELECT ( ' .
-            'SELECT COUNT(*) AS "count" FROM "sub" "sub_1" WHERE "sub_1"."status" = :db_prep_1' . 
-            ' ) FROM "sub" "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
+            'SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1' . 
+            ' ) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
     }
 
     /**
@@ -317,6 +317,6 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         ;
         $sql = $this->builder->toSelect( $query );
         $this->assertEquals(
-            'SELECT * FROM ( SELECT * FROM "sub" "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
+            'SELECT * FROM ( SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) AS "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
     }
 }

@@ -267,11 +267,7 @@ class Builder
     protected function buildFrom()
     {
         $table = $this->getMagicQuery('table');
-        if( $table instanceof SqlInterface ) {
-            $table = '( ' . $this->toSelect( $table ) . ' )';
-        } else {
-            $table = $this->quote( $table );
-        }
+        $table = $this->evaluate( $table );
         return 'FROM ' . $table;
     }
 
@@ -315,14 +311,7 @@ class Builder
         }
         $columns = [ ];
         foreach ( $column_list as $alias => $col ) {
-            if( is_callable($col) ) {
-                $col = $col();
-            } elseif( $col instanceof SqlInterface ) {
-                $col = '( '.$this->toSelect( $col ).' )';
-            }
-            else {
-                $col = $this->quote( $col );
-            }
+            $col = $this->evaluate( $col );
             if ( !is_numeric( $alias ) ) {
                 $col .= ' AS ' . $this->quote( $alias );
             }
@@ -397,6 +386,22 @@ class Builder
             return 'FOR UPDATE';
         }
         return '';
+    }
+
+    /**
+     * @param mixed $string
+     * @return string
+     */
+    protected function evaluate( $string )
+    {
+        if( is_callable($string) ) {
+            $string = $string();
+        } elseif( $string instanceof SqlInterface ) {
+            $string = '( '.$this->toSelect( $string ).' )';
+        } else {
+            $string = $this->quote( $string );
+        }
+        return $string;
     }
     // +----------------------------------------------------------------------+
     //  builders for where clause.

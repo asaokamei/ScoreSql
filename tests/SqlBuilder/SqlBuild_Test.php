@@ -285,4 +285,38 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals( '1', $bind[':db_prep_1'] );
         $this->assertEquals( 'tested', $bind[':db_prep_2'] );
     }
+
+    /**
+     * @test
+     */
+    function sub_query_in_column()
+    {
+        $query = $this->query;
+        $query->table( 'main' )
+            ->column(
+                $query->sub('sub')->column( $query::raw('COUNT(*)'), 'count' ) ->where( $query->status->is(1) )
+            )
+        ;
+        $sql = $this->builder->toSelect( $query );
+        $this->assertEquals( 
+            'SELECT ( ' .
+            'SELECT COUNT(*) AS "count" FROM "sub" "sub_1" WHERE "sub_1"."status" = :db_prep_1' . 
+            ' ) FROM "sub" "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
+    }
+
+    /**
+     * @test
+     */
+    function sub_query_as_table()
+    {
+        $query = $this->query;
+        $query->table( $query->sub('sub')->where( $query->status->is(1)) )
+            ->where(
+                $query->name->is('bob')
+            )
+        ;
+        $sql = $this->builder->toSelect( $query );
+        $this->assertEquals(
+            'SELECT * FROM ( SELECT * FROM "sub" "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) "sub_1" WHERE "sub_1"."status" = :db_prep_2', $sql );
+    }
 }

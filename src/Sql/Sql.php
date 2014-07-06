@@ -78,6 +78,8 @@ class Sql implements SqlInterface
      */
     protected $forUpdate = false;
 
+    protected $subQueryCount = 1;
+
     // +----------------------------------------------------------------------+
     /**
      * @param $column
@@ -95,6 +97,19 @@ class Sql implements SqlInterface
     public function __set( $key, $value )
     {
         $this->values[ $key ] = $value;
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return Sql
+     */
+    public function sub( $table, $alias=null )
+    {
+        $sub = new self();
+        if( !$alias ) $alias = 'sub_' . $this->subQueryCount ++;
+        $sub->table( $table, $alias );
+        return $sub;
     }
 
     /**

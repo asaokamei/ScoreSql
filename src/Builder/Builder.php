@@ -3,6 +3,7 @@ namespace WScore\ScoreSql\Builder;
 
 use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
+use WScore\ScoreSql\Sql\SqlInterface;
 
 class Builder
 {
@@ -265,7 +266,13 @@ class Builder
      */
     protected function buildFrom()
     {
-        return 'FROM ' . $this->quote( $this->getMagicQuery('table') );
+        $table = $this->getMagicQuery('table');
+        if( $table instanceof SqlInterface ) {
+            $table = '( ' . $this->toSelect( $table ) . ' )';
+        } else {
+            $table = $this->quote( $table );
+        }
+        return 'FROM ' . $table;
     }
 
     /**
@@ -273,7 +280,11 @@ class Builder
      */
     protected function buildTableAlias()
     {
-        return $this->getMagicQuery('tableAlias') ? $this->quote( $this->getMagicQuery('tableAlias') ) : '';
+        $alias = $this->getMagicQuery('tableAlias');
+        if( $alias ) {
+            $alias = '' . $this->quote( $this->getMagicQuery('tableAlias') );
+        }
+        return $alias;
     }
 
     /**
@@ -306,7 +317,10 @@ class Builder
         foreach ( $column_list as $alias => $col ) {
             if( is_callable($col) ) {
                 $col = $col();
-            } else {
+            } elseif( $col instanceof SqlInterface ) {
+                $col = '( '.$this->toSelect( $col ).' )';
+            }
+            else {
                 $col = $this->quote( $col );
             }
             if ( !is_numeric( $alias ) ) {

@@ -19,7 +19,7 @@ class BuildWhere
     /**
      * @var string
      */
-    protected $alias;
+    protected $aliasedTableName;
 
     /**
      * @var Builder
@@ -40,16 +40,15 @@ class BuildWhere
 
     /**
      * @param string $name
-     * @param string $alias
      * @return mixed
      */
-    public function quote( $name, $alias=null )
+    public function quote( $name )
     {
         if( !$name ) return $name;
         if( $this->quote ) {
-            $name = $this->quote->quote( $name, $alias );
-        } elseif( $alias ) {
-            $name = $alias . '.' . $name;
+            $name = $this->quote->quote( $name, $this->aliasedTableName );
+        } elseif( $this->aliasedTableName ) {
+            $name = $this->aliasedTableName . '.' . $name;
         }
         return $name;
     }
@@ -83,7 +82,7 @@ class BuildWhere
      */
     public function build( $criteria, $alias=null )
     {
-        $this->alias = $alias;
+        $this->aliasedTableName = $alias;
         $where = $criteria->getCriteria();
         $sql   = '';
         foreach ( $where as $w ) {
@@ -130,7 +129,7 @@ class BuildWhere
         $val = $w[ 'val' ];
         if ( $rel == 'EQ' ) {
 
-            $val = $this->quote( $val, $this->alias );
+            $val = $this->quote( $val );
             $rel = '=';
 
         } elseif ( is_callable( $val ) ) {
@@ -149,7 +148,7 @@ class BuildWhere
         // making $col.
         if( is_string($col) ) {
 
-            $col = $this->quote( $col, $this->alias );
+            $col = $this->quote( $col );
 
         } elseif( is_callable( $col ) ) {
 
@@ -166,7 +165,7 @@ class BuildWhere
     protected function buildBetween( $w )
     {
         $col = $w[ 'col' ];
-        $col = $this->quote( $col, $this->alias );
+        $col = $this->quote( $col );
         $val = $w[ 'val' ];
         $val = $this->prepare( $val );
         return "{$col} BETWEEN {$val[0]} AND {$val[1]} ";
@@ -180,7 +179,7 @@ class BuildWhere
     protected function buildIn( $w, $rel )
     {
         $col = $w[ 'col' ];
-        $col = $this->quote( $col, $this->alias );
+        $col = $this->quote( $col );
         $val = $w[ 'val' ];
         $val = $this->prepare( $val );
         $tmp = is_array( $val ) ? implode( ", ", $val ) : $val;

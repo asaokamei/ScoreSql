@@ -145,7 +145,7 @@ class BuildWhere
 
         } elseif ( $val instanceof SqlInterface ) {
 
-            $val = '( ' . $this->builder->toSelect( $val ) . ' )';
+            $val = '( ' . $this->builder->toSql( $val ) . ' )';
             
         } elseif ( $val !== false ) {
 

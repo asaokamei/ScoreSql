@@ -132,6 +132,17 @@ class Builder
      * @param Sql $query
      * @return string
      */
+    public function toSql( $query )
+    {
+        $type = $query->magicGet( 'sqlType' );
+        $method = 'to' . ucwords($type);
+        return $this->$method( $query );
+    }
+
+    /**
+     * @param Sql $query
+     * @return string
+     */
     public function toSelect( $query )
     {
         $this->setQuery( $query );
@@ -399,7 +410,7 @@ class Builder
             $string = $string();
         } elseif( $string instanceof SqlInterface ) {
             $builder = new Builder( $this->bind, $this->quote );
-            $string = '( '.$builder->toSelect( $string ).' )';
+            $string = '( '.$builder->toSql( $string ).' )';
         } else {
             $string = $this->quote( $string );
         }

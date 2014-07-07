@@ -4,6 +4,11 @@ namespace WScore\ScoreSql\Sql;
 class Sql implements SqlInterface
 {
     /**
+     * @var string
+     */
+    protected $sqlType = 'select';
+
+    /**
      * @var Where
      */
     protected $where;
@@ -87,6 +92,8 @@ class Sql implements SqlInterface
 
     // +----------------------------------------------------------------------+
     /**
+     * starts a Where clause with column name set.
+     *
      * @param $column
      * @return Where
      */
@@ -96,6 +103,8 @@ class Sql implements SqlInterface
     }
 
     /**
+     * set values (key&val) for insert or update.
+     *
      * @param $key
      * @param $value
      */
@@ -105,6 +114,8 @@ class Sql implements SqlInterface
     }
 
     /**
+     * return a new Sql|Query object as sub-query.
+     *
      * @param string $table
      * @param string $alias
      * @return Sql
@@ -119,6 +130,8 @@ class Sql implements SqlInterface
     }
 
     /**
+     * for sub query; sets the parent query's table name.
+     *
      * @param $name
      */
     protected function setParentTable( $name )
@@ -259,6 +272,8 @@ class Sql implements SqlInterface
     }
 
     /**
+     * set values for insert or update.
+     *
      * @param string|array $name
      * @param string|null $value
      * @return $this

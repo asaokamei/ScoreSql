@@ -1,10 +1,17 @@
 ScoreSql
 ========
 
-A SQL builder component, that is easy to use.
+A simple and easy SQL builder component.
+
+The objective is to make the construction of SQL statements easy,
+ even for the complex statements with sub-queries and complex OR conditions.
 
 *   Uses named placeholder as default (well, no other choice),
 *   tested against MySql and PostgreSql.
+
+CURRENT STATUS: Beta.
+
+i.e. the API is still under design.
 
 
 ### license
@@ -17,32 +24,36 @@ Basic Usage
 
 ### construction
 
-use ```Factory``` class to get the query object, with
+use ```Query``` class to get the query object, with
 optional parameter to select the database type.
 
 ```php
-$query = Factory::query( 'mysql' );
+$query = Query::connect( 'mysql' )->from( 'myTable' );
+// omitting connect returns standard SQL builder.
+$query = Query::from( 'thisTable' );
 ```
 
 ### select statement
 
 ```php
-$sqlStatement = $query
-    ->table('myTable')
+$sqlStatement = Query::from('myTable')
     ->column('col1', 'aliased1')
     ->columns( 'col2', 'col3')
-    ->where( Where::column('status')->is('1') )
+    ->filter( Query::if()->status->is('1') )
     ->select();
 ```
 
-Use ```Where::column('name')``` methods to start where clause.
+Use ```Query::if()``` methods to start where clause.
  for shorthand notation, use ```$query->var_name``` to start
- where clause as well.
+ where clause as well. as such,
 
-The construction of where clause can be easy;
- Specifying the column as ```$query->var_name```, then
- continued with the condition, such as ```is()```, ```in()```,
- ```lessThan()```, etc.
+```php
+Query::from('myTable')
+    ->column('col1', 'aliased1')
+    ->columns( 'col1', 'col2' )
+    ->filter( $query->status->is(1) )
+    ->select();
+```
 
 the resulting $sqlStatement will look like:
 
@@ -53,8 +64,7 @@ SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_
 ### insert statement
 
 ```php
-$sqlStatement = $query
-    ->table('myTable')
+$sqlStatement = Query::from('myTable')
     ->insert( [ 'col1' => 'val1', 'col2'=>'val2' ] );
 ```
 
@@ -63,7 +73,7 @@ or, this also works.
 ```php
 $query->col1 = 'val1';
 $query->col2 = 'val2';
-$sqlStatement = $query->table('myTable')->insert();
+$sqlStatement = Query::from('myTable')->insert();
 ```
 
 both cases will generate sql like:
@@ -75,10 +85,9 @@ INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )
 ### update statement
 
 ```php
-$sqlStatement = $query
-    ->table('myTable')
-    ->where(
-        $query->name->like('bob')->or()->status->eq('1')
+$sqlStatement = Query::from('myTable')
+    ->filter(
+        Query::if()->name->like('bob')->or()->status->eq('1')
     )
     ->update( [
         'date' => $query->raw('NOW()'),
@@ -91,7 +100,7 @@ or, this also works.
 ```php
 $query->date = $query->raw('NOW()');
 $query->col2 = 'val2';
-$sqlStatement = $query->table('myTable')->update();
+$sqlStatement = Query::from('myTable')->update();
 ```
 
 will generate update SQL like:
@@ -103,33 +112,43 @@ UPDATE "myTable" SET
 WHERE "name" LIKE :db_prep_2 OR "status" = :db_prep_3
 ```
 
-### getting the bound value
+### getting the bound values
 
-use ```getBind()``` method to retrieve the bound value for
+use ```getBind()``` method to retrieve the bound values for
 prepared statement as follows.
 
 ```php
-$sqlStatement = ...
 $bindValues = $query->getBind();
+```
+
+If you start query with ```Query```, use ```Query::bind()```
+ method to get the bound values.
+
+as such,
+
+```php
+$sqlStatement = Query::from()... // construct SQL statement.
+$bindValues   = Query::bind();   // get the binding values from last query.
 $stmt = $pdo->prepare( $sqlStatement );
 $stmt->execute( $bindValues );
 ```
 
-Advanced SQL
-------------
 
-### complex where clause examples
+Complex Conditions
+------------------
 
-Use ```whereOr( $where )``` method to construct a OR
+### or conditions
+
+Use ```filterOr( $where )``` method to construct a OR
  in the where statement.
 
 ```php
-echo $query->table('tab')
-->where(
-    $query->name->startWith('A')->gender->eq('M')
-)->whereOr(
-    $query->name->startWith('B')->gender->eq('F')
-);
+echo Query::from('tab')
+    ->filter(
+        Query::if()->name->startWith('A')->gender->eq('M')
+    )->filterOr(
+        Query::if()->name->startWith('B')->gender->eq('F')
+    );
 ```
 
 this will builds sql like:
@@ -146,15 +165,25 @@ Another example uses ```Where``` class to generate ```$where```
 
 
 ```php
-$query->table('table')->where(
-    Where::bracket()
-        ->gender->is('F')->or()->status->is('1')
-    ->close()
-    ->open()
-        ->gender->is('M')->or()->status->is('2')
-    ->close()
-)
-->select();
+echo Query::from('table')
+    ->filter(
+        Query::if()->gender->is('F')->or()->status->is('1')
+    )->filter(
+        Query::if()->gender->is('M')->or()->status->is('2')
+    )
+    ->select();
+
+// alternative way of writing the same sql.
+echo Query::from('table')
+    ->filter(
+        Query::bracket()
+            ->gender->is('F')->or()->status->is('1')
+        ->close()
+        ->open()
+            ->gender->is('M')->or()->status->is('2')
+        ->close()
+    )
+    ->select();
 ```
 
 this will builds sql like:
@@ -166,22 +195,23 @@ SELECT * FROM "table" WHERE
 ORDER BY "id" ASC LIMIT :db_prep_5
 ```
 
+### having clause
+
+to-be-written
 
 
-Join
-----
+Join Clause
+-----------
 
-Pass ```Join``` object to ```join``` method to construct
- table join.
+To construct table join, use ```Query::join``` method
+ to start join clause (which is a Join object).
 
-Some examples:
-
+examples:
 
 ```php
-$found2 = $query
-    ->table( 'dao_user', 'u1' )
-    ->join( Join::table( 'dao_user', 'u2' )->using( 'status' ) )
-    ->where( $query->user_id->is(1) )
+$found2 = Query::from( 'dao_user', 'u1' )
+    ->join( Query::join( 'dao_user', 'u2' )->using( 'status' ) )
+    ->filter( Query::if()->user_id->is(1) )
     ->select();
 ```
 
@@ -197,13 +227,12 @@ SELECT *
 and this will produce,
 
 ```php
-$found = $query
-    ->table( 'dao_user', 'u1' )
+$found = Query::from( 'dao_user', 'u1' )
     ->join(
-        Join::left( 'dao_user', 'u2' )
-            ->on( $query->status->identical( 'u1.status' ) )
+        Query::joinLeft( 'dao_user', 'u2' )
+            ->on( Query::if()->status->identical( 'u1.status' ) )
     )
-    ->where( $query->user_id->is(1) )
+    ->filter( Query::if()->user_id->is(1) )
     ->select();
 ```
 
@@ -215,6 +244,13 @@ SELECT *
         LEFT OUTER JOIN `dao_user` `u2` ON ( `u2`.`status` = `u1`.`status` )
     WHERE `u1`.`user_id` = :db_prep_1
 ```
+
+
+Sub Queries
+-----------
+
+Sub queries is implemented for several cases but are not
+ tested against real databases, yet.
 
 
 History

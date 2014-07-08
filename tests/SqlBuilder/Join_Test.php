@@ -20,6 +20,7 @@ class Join_Test extends \PHPUnit_Framework_TestCase
      */
     function left_join_using_key()
     {
+        /** @var Join $j */
         $j = Join::left( 'JoinedTable', 'at');
         $j->setQueryTable( 'mt' );
         $j->using( 'myKey' );
@@ -32,6 +33,7 @@ class Join_Test extends \PHPUnit_Framework_TestCase
      */
     function right_join_on_string_criteria()
     {
+        /** @var Join $j */
         $j = Join::right( 'JoinedTable', 'at');
         $j->setQueryTable( 'mt' );
         $j->on( 'myKey=youKey AND thisVal=thatVal' );
@@ -44,6 +46,7 @@ class Join_Test extends \PHPUnit_Framework_TestCase
      */
     function right_join_using_and_where_criteria()
     {
+        /** @var Join $j */
         $j = Join::left( 'JoinedTable', 'at');
         $j->setQueryTable( 'mt' );
         $j->using('pKey')->on(

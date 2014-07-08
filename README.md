@@ -3,8 +3,9 @@ ScoreSql
 
 A simple and easy SQL builder component.
 
-The objective is to make the construction of SQL statements easy,
- even for the complex statements with sub-queries and complex OR conditions.
+The objective is to make the construction of SQL statements
+ as easy and intuitive as possible; even for the complex SQL
+ statements with sub-queries and complex OR conditions.
 
 *   Uses named placeholder as default (well, no other choice),
 *   tested against MySql and PostgreSql.
@@ -206,6 +207,8 @@ Join Clause
 To construct table join, use ```Query::join``` method
  to start join clause (which is a Join object).
 
+### join using
+
 examples:
 
 ```php
@@ -224,7 +227,9 @@ SELECT *
     WHERE `u1`.`user_id` = :db_prep_1
 ```
 
-and this will produce,
+### join on
+
+Meanwhile, the following PHP code,
 
 ```php
 $found = Query::from( 'dao_user', 'u1' )
@@ -236,7 +241,7 @@ $found = Query::from( 'dao_user', 'u1' )
     ->select();
 ```
 
-the following sql statement.
+, will produce the sql statement as shown below.
 
 ```sql
 SELECT *

@@ -29,7 +29,7 @@ use ```Query``` class to get the query object, with
 optional parameter to select the database type.
 
 ```php
-$query = Query::connect( 'mysql' )->from( 'myTable' );
+$query = Query::db( 'mysql' )->from( 'myTable' );
 // omitting connect returns standard SQL builder.
 $query = Query::from( 'thisTable' );
 ```
@@ -40,11 +40,11 @@ $query = Query::from( 'thisTable' );
 $sqlStatement = Query::from('myTable')
     ->column('col1', 'aliased1')
     ->columns( 'col2', 'col3')
-    ->filter( Query::if('status')->is('1') )
+    ->filter( Query::given('status')->is('1') )
     ->select();
 ```
 
-Use ```Query::if()``` methods to start where clause.
+Use ```Query::given()``` methods to start where clause.
  for shorthand notation, use ```$query->var_name``` to start
  where clause as well. as such,
 
@@ -88,7 +88,7 @@ INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )
 ```php
 $sqlStatement = Query::from('myTable')
     ->filter(
-        Query::if('name')->like('bob')->or()->status->eq('1')
+        Query::given('name')->like('bob')->or()->status->eq('1')
     )
     ->update( [
         'date' => $query->raw('NOW()'),
@@ -146,9 +146,9 @@ Use ```filterOr( $where )``` method to construct a OR
 ```php
 echo Query::from('tab')
     ->filter(
-        Query::if('name')->startWith('A')->gender->eq('M')
+        Query::given('name')->startWith('A')->gender->eq('M')
     )->filterOr(
-        Query::if('name')->startWith('B')->gender->eq('F')
+        Query::given('name')->startWith('B')->gender->eq('F')
     );
 ```
 
@@ -168,9 +168,9 @@ Another example uses ```Where``` class to generate ```$where```
 ```php
 echo Query::from('table')
     ->filter(
-        Query::if('gender')->is('F')->or()->status->is('1')
+        Query::given('gender')->is('F')->or()->status->is('1')
     )->filter(
-        Query::if('gender')->is('M')->or()->status->is('2')
+        Query::given('gender')->is('M')->or()->status->is('2')
     )
     ->select();
 
@@ -214,7 +214,7 @@ examples:
 ```php
 $found2 = Query::from( 'dao_user', 'u1' )
     ->join( Query::join( 'dao_user', 'u2' )->using( 'status' ) )
-    ->filter( Query::if('user_id')->is(1) )
+    ->filter( Query::given('user_id')->is(1) )
     ->select();
 ```
 
@@ -235,9 +235,9 @@ Meanwhile, the following PHP code,
 $found = Query::from( 'dao_user', 'u1' )
     ->join(
         Query::joinLeft( 'dao_user', 'u2' )
-            ->on( Query::if('status')->identical( 'u1.status' ) )
+            ->on( Query::given('status')->identical( 'u1.status' ) )
     )
-    ->filter( Query::if()->user_id->is(1) )
+    ->filter( Query::given()->user_id->is(1) )
     ->select();
 ```
 

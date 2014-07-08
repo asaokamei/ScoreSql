@@ -225,7 +225,7 @@ class Join implements JoinInterface
     {
         $sql = '';
         if( is_object( $this->criteria ) && $this->criteria instanceof Where ) {
-            $sql .= $this->criteria->build( $this->bind, $this->quote, $this->alias );
+            $sql .= $this->criteria->build( $this->bind, $this->quote, $this->alias, $this->queryTable );
         }
         elseif( is_string( $this->criteria ) ) {
             $sql .= (string) $this->criteria;

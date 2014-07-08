@@ -3,6 +3,7 @@ namespace tests\Sql;
 
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Quote;
+use WScore\ScoreSql\Query;
 use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Where;
 
@@ -50,7 +51,7 @@ class Join_Test extends \PHPUnit_Framework_TestCase
         $j = Join::left( 'JoinedTable', 'at');
         $j->setQueryTable( 'mt' );
         $j->using('pKey')->on(
-            Where::column('myKey')->identical('mt.youKey')->thisVal->identical('mt.thatVal')
+            Query::given('myKey')->identical('mt.youKey')->thisVal->identical('$.thatVal')
         );
         $join = $j->build( new Bind(), new Quote() );
         $this->assertEquals(

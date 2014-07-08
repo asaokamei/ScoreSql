@@ -1,13 +1,23 @@
 <?php
 namespace WScore\ScoreSql;
 
-use InvalidArgumentException;
-use PDOStatement;
 use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\Sql\Sql;
+use WScore\ScoreSql\Sql\Where;
 
-class Query extends Sql implements QueryInterface
+/**
+ * Class Query
+ *
+ * @package WScore\ScoreSql
+ *          
+ */
+class Query extends Sql
 {
+    /**
+     * @var Query
+     */
+    static $query;
+    
     /**
      * @var Builder
      */
@@ -19,8 +29,73 @@ class Query extends Sql implements QueryInterface
     protected $dbType;
 
     // +----------------------------------------------------------------------+
+    //  manage objects, aka Facade.
+    // +----------------------------------------------------------------------+
+    /**
+     * @param string $dbType
+     * @return Query
+     */
+    public static function db( $dbType=null )
+    {
+        $self = Factory::buildQuery();
+        $self->dbType( $dbType );
+        static::$query = $self;
+        return $self;
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return Query
+     */
+    public static function from( $table, $alias = null )
+    {
+        $self = Factory::buildQuery();
+        $self->table( $table, $alias );
+        static::$query = $self;
+        return $self;
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return Sql|self
+     */
+    public static function subQuery( $table, $alias = null )
+    {
+        return static::$query->sub( $table, $alias );
+    }
+
+    /**
+     * @return array
+     */
+    public static function bind()
+    {
+        return static::$query->getBind();
+    }
+
+    /**
+     * @param string $column
+     * @return Where
+     */
+    public static function given( $column=null )
+    {
+        return Where::column($column);
+    }
+
+    // +----------------------------------------------------------------------+
     //  manage Query.
     // +----------------------------------------------------------------------+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function dbType( $type )
+    {
+        $this->dbType = $type;
+        return $this;
+    }
+    
     /**
      * @param Builder $builder
      */
@@ -48,49 +123,14 @@ class Query extends Sql implements QueryInterface
         return $this->builder->getBind()->getBinding();
     }
 
-    /**
-     *
-     */
-    public function reset()
-    {
-        $this->where     = null;
-        $this->join      = [ ];
-        $this->columns   = [ ];
-        $this->values    = [ ];
-        $this->selFlags  = [ ];
-        $this->order     = [ ];
-        $this->group     = [ ];
-        $this->having    = null;
-        $this->limit     = null;
-        $this->offset    = 0;
-        $this->returning = null;
-        $this->forUpdate = false;
-    }
-
     // +----------------------------------------------------------------------+
     //  builds SQL statements.
     // +----------------------------------------------------------------------+
     /**
-     * @param null|int $limit
      * @return string
      */
-    public function select($limit=null)
+    public function select()
     {
-        if( $limit ) $this->limit($limit);
-        $this->setBuilderByType();
-        $sql = $this->builder->toSelect( $this );
-        $this->reset();
-        return $sql;
-    }
-
-    /**
-     * @param int    $id
-     * @param string $column
-     * @return array
-     */
-    public function load( $id, $column=null )
-    {
-        $this->setId($id, $column);
         $this->setBuilderByType();
         $sql = $this->builder->toSelect( $this );
         $this->reset();
@@ -108,33 +148,6 @@ class Query extends Sql implements QueryInterface
     }
 
     /**
-     * for paginate.
-     *
-     * $perPage is a default number of rows per page, but
-     * does not override the $limit if already set.
-     *
-     * @param int $page
-     * @param int $perPage
-     * @return $this
-     */
-    public function page( $page, $perPage=20 )
-    {
-        $page = (int) ( $page > 0 ?: 1 );
-        if( !$this->limit ) {
-            $this->limit( $perPage );
-        }
-        $this->offset( $perPage * ($page - 1) );
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLimit() {
-        return $this->limit;
-    }
-
-    /**
      * @param        $id
      * @param string $column
      */
@@ -146,12 +159,10 @@ class Query extends Sql implements QueryInterface
     }
 
     /**
-     * @param array $data
      * @return string
      */
-    public function insert( $data=array() )
+    public function insert()
     {
-        if( $data ) $this->value($data);
         $this->setBuilderByType();
         $sql = $this->builder->toInsert( $this );
         $this->reset();
@@ -159,12 +170,10 @@ class Query extends Sql implements QueryInterface
     }
 
     /**
-     * @param array $data
      * @return string
      */
-    public function update( $data=array() )
+    public function update()
     {
-        if( $data ) $this->value($data);
         $this->setBuilderByType();
         $sql = $this->builder->toUpdate( $this );
         $this->reset();
@@ -172,26 +181,13 @@ class Query extends Sql implements QueryInterface
     }
 
     /**
-     * @param int $id
-     * @param string $column
      * @return string
      */
-    public function delete( $id=null, $column=null )
+    public function delete()
     {
-        $this->setId($id, $column);
         $this->setBuilderByType();
         $sql = $this->builder->toDelete( $this );
         $this->reset();
         return $sql;
-    }
-
-    /**
-     * @param $data
-     * @throws InvalidArgumentException
-     * @return int|PdoStatement
-     */
-    public function save( $data )
-    {
-        throw new InvalidArgumentException( 'cannot use save method in Query builder. ' );
     }
 }

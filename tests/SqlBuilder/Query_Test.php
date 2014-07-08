@@ -1,7 +1,7 @@
 <?php
 namespace tests\Sql;
 
-use WScore\ScoreSql\Factory;
+use WScore\ScoreSql\Query;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
@@ -14,18 +14,18 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_select()
     {
-        $query = Factory::query();
-        $sql = $query->table('myTable')
+        $sql = Query::from('myTable')
             ->column('col1', 'aliased1')
             ->columns( 'col2', 'col3' )
             ->where(
-                $query->status->is('1')
+                Query::given('status')->is('4')
             )
             ->select();
         ;
         $this->assertEquals(
             'SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_prep_1',
             $sql );
+        $this->assertEquals( [ ':db_prep_1' => 4 ], Query::bind() );
     }
 
     /**
@@ -33,14 +33,14 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_insert()
     {
-        $query = Factory::query();
-        $sql = $query
-            ->table('myTable')
-            ->insert( [ 'col1' => 'val1', 'col2'=>'val2' ] );
+        $sql = Query::from('myTable')
+            ->value( [ 'col1' => 'val1', 'col2'=>'val2' ] )
+            ->insert();
         ;
         $this->assertEquals(
             'INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
+        $this->assertEquals( [ ':db_prep_1' => 'val1', ':db_prep_2' => 'val2' ], Query::bind() );
     }
 
     /**
@@ -48,20 +48,20 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_update()
     {
-        $query = Factory::query();
-        $sql = $query
-            ->table('myTable')
+        $sql = Query::from('myTable')
             ->where(
-                $query->name->like('bob')->or()->status->eq('1')
+                Query::given('name')->like('bob')->or()->status->eq('1')
             )
-            ->update( [
-                'date' => $query->raw('NOW()'),
+            ->value( [
+                'date' => Query::raw('NOW()'),
                 'col2'=>'val2'
-            ] );
+            ] )
+            ->update();
 
         $this->assertEquals(
             'UPDATE "myTable" SET "date"=NOW(), "col2"=:db_prep_1 WHERE "name" LIKE :db_prep_2 OR "status" = :db_prep_3',
             $sql );
+        $this->assertEquals( [ ':db_prep_1' => 'val2', ':db_prep_2' => 'bob', ':db_prep_3' => '1' ], Query::bind() );
     }
 
     /**
@@ -69,9 +69,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function select_builds_select_statement()
     {
-        $sql = Factory::query( 'pgsql' )->table( 'myTable' )
+        $sql = Query::db( 'pgsql' )->table( 'myTable' )
             ->where(
-                Where::column('pKey')->eq('1')
+                Query::given('pKey')->eq('1')
                     ->orBracket()
                     ->name->startWith('AB')->gender->eq('F')
                     ->closeBracket()
@@ -82,6 +82,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'SELECT * FROM "myTable" ' .
             'WHERE "pKey" = :db_prep_1 OR ( "name" LIKE :db_prep_2 AND "gender" = :db_prep_3 )',
             $sql );
+        $this->assertEquals( [ ':db_prep_1' => '1', ':db_prep_2' => 'AB%', ':db_prep_3' => 'F' ], Query::bind() );
     }
 
     /**
@@ -89,20 +90,22 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function insert_builds_insert_statement()
     {
-        $sql = Factory::query( 'mysql' )->table( 'myTable' )
-            ->insert(['test'=>'tested', 'more'=>'done']);
+        $sql = Query::db( 'mysql' )->table( 'myTable' )
+            ->value(['test'=>'tested', 'more'=>'done'])->insert();
         ;
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
+        $this->assertEquals( [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done' ], Query::bind() );
 
-        $query = Factory::query('mysql')->table('myTable');
-        $query->test = 'tested';
-        $query->more = 'done';
+        $query = Query::db('mysql')->table('myTable');
+        $query->test = 'tested2';
+        $query->more = 'done2';
         $sql = $query->insert();
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
+        $this->assertEquals( [ ':db_prep_1' => 'tested2', ':db_prep_2' => 'done2' ], Query::bind() );
     }
 
     /**
@@ -110,18 +113,22 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function update_builds_update_statement()
     {
-        $sql = Factory::query()->table( 'myTable' )
+        $sql = Query::from( 'myTable' )
             ->where(
                 Where::column('pKey')->in( '1', '2' )
             )
-            ->update(['test'=>'tested', 'more'=>'done']);
+            ->value(['test'=>'tested', 'more'=>'done'])
+            ->update();
         ;
         $this->assertEquals(
             'UPDATE "myTable" SET "test"=:db_prep_1, "more"=:db_prep_2 ' .
             'WHERE "pKey" IN ( :db_prep_3, :db_prep_4 )',
             $sql );
+        $this->assertEquals( 
+            [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done', ':db_prep_3' => '1', ':db_prep_4' => '2' ], 
+            Query::bind() );
 
-        $query = Factory::query()->table('myTable');
+        $query = Query::from('myTable');
         $query->test = 'tested';
         $query->more = $query->raw('NOW()');
         $sql = $query
@@ -133,6 +140,9 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'UPDATE "myTable" SET "test"=:db_prep_1, "more"=NOW() ' .
             'WHERE "pKey" IN ( :db_prep_2, :db_prep_3 )',
             $sql );
+        $this->assertEquals(
+            [ ':db_prep_1' => 'tested', ':db_prep_2' => '1', ':db_prep_3' => '2' ],
+            Query::bind() );
     }
 
     /**
@@ -140,8 +150,8 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function delete_builds_delete_statement()
     {
-        $sql = Factory::query( 'mysql' )->table( 'myTable', 'mt' )->keyName('myKey')
-            ->delete('3');
+        $sql = Query::db( 'mysql' )->table( 'myTable', 'mt' )->keyName('myKey')
+            ->where( Query::given('myKey')->eq('3') )->delete();
         ;
         $this->assertEquals(
             'DELETE FROM `myTable` WHERE `mt`.`myKey` = :db_prep_1',
@@ -155,8 +165,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function cool()
     {
-        $query = Factory::query('test');
-        $sql = $query->table('table')
+        $sql = Query::from('table')
             ->where(
                 Where::bracket()
                     ->gender->is('F')->or()->status->is('1')
@@ -166,7 +175,8 @@ class Query_Test extends \PHPUnit_Framework_TestCase
                 ->close()
             )
             ->order( 'id' )
-            ->select(5);
+            ->limit(5)
+            ->select();
         $this->assertEquals(
             'SELECT * FROM "table" WHERE ' .
             '( "gender" = :db_prep_1 OR "status" = :db_prep_2 ) AND ' .

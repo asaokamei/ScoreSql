@@ -114,11 +114,30 @@ class Sql implements SqlInterface
     }
 
     /**
+     *
+     */
+    public function reset()
+    {
+        $this->where     = null;
+        $this->join      = [ ];
+        $this->columns   = [ ];
+        $this->values    = [ ];
+        $this->selFlags  = [ ];
+        $this->order     = [ ];
+        $this->group     = [ ];
+        $this->having    = null;
+        $this->limit     = null;
+        $this->offset    = 0;
+        $this->returning = null;
+        $this->forUpdate = false;
+    }
+
+    /**
      * return a new Sql|Query object as sub-query.
      *
      * @param string $table
      * @param string $alias
-     * @return Sql
+     * @return Sql|$this
      */
     public function sub( $table, $alias=null )
     {

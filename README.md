@@ -39,7 +39,7 @@ $query = Query::from( 'thisTable' );
 $sqlStatement = Query::from('myTable')
     ->column('col1', 'aliased1')
     ->columns( 'col2', 'col3')
-    ->filter( Query::if()->status->is('1') )
+    ->filter( Query::if('status')->is('1') )
     ->select();
 ```
 
@@ -87,7 +87,7 @@ INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )
 ```php
 $sqlStatement = Query::from('myTable')
     ->filter(
-        Query::if()->name->like('bob')->or()->status->eq('1')
+        Query::if('name')->like('bob')->or()->status->eq('1')
     )
     ->update( [
         'date' => $query->raw('NOW()'),
@@ -145,9 +145,9 @@ Use ```filterOr( $where )``` method to construct a OR
 ```php
 echo Query::from('tab')
     ->filter(
-        Query::if()->name->startWith('A')->gender->eq('M')
+        Query::if('name')->startWith('A')->gender->eq('M')
     )->filterOr(
-        Query::if()->name->startWith('B')->gender->eq('F')
+        Query::if('name')->startWith('B')->gender->eq('F')
     );
 ```
 
@@ -167,9 +167,9 @@ Another example uses ```Where``` class to generate ```$where```
 ```php
 echo Query::from('table')
     ->filter(
-        Query::if()->gender->is('F')->or()->status->is('1')
+        Query::if('gender')->is('F')->or()->status->is('1')
     )->filter(
-        Query::if()->gender->is('M')->or()->status->is('2')
+        Query::if('gender')->is('M')->or()->status->is('2')
     )
     ->select();
 
@@ -211,7 +211,7 @@ examples:
 ```php
 $found2 = Query::from( 'dao_user', 'u1' )
     ->join( Query::join( 'dao_user', 'u2' )->using( 'status' ) )
-    ->filter( Query::if()->user_id->is(1) )
+    ->filter( Query::if('user_id')->is(1) )
     ->select();
 ```
 
@@ -230,7 +230,7 @@ and this will produce,
 $found = Query::from( 'dao_user', 'u1' )
     ->join(
         Query::joinLeft( 'dao_user', 'u2' )
-            ->on( Query::if()->status->identical( 'u1.status' ) )
+            ->on( Query::if('status')->identical( 'u1.status' ) )
     )
     ->filter( Query::if()->user_id->is(1) )
     ->select();

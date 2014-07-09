@@ -64,7 +64,7 @@ class Join implements JoinInterface
      * @param string $alias
      * @return JoinInterface
      */
-    public static function table( $table, $alias )
+    public static function table( $table, $alias=null )
     {
         $join = new self( $table, $alias );
         return $join;
@@ -75,7 +75,7 @@ class Join implements JoinInterface
      * @param string $alias
      * @return JoinInterface
      */
-    public static function left( $table, $alias )
+    public static function left( $table, $alias=null )
     {
         $join = new self( $table, $alias );
         $join->by( 'LEFT OUTER JOIN' );

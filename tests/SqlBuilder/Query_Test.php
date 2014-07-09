@@ -2,6 +2,7 @@
 namespace tests\Sql;
 
 use WScore\ScoreSql\Query;
+use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
@@ -180,5 +181,51 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             '( "gender" = :db_prep_3 OR "status" = :db_prep_4 ) ' .
             'ORDER BY "id" ASC LIMIT :db_prep_5',
             $sql );
+    }
+
+    /**
+     * @test
+     */
+    function query_with_join_using()
+    {
+        $sql = Query::from( 'table1' )
+            ->join( Join::table( 'another')->using( 'key' ) )
+            ->where( Query::given('key')->is(1) );
+        $this->assertEquals( 
+            'SELECT * FROM "table1" JOIN "another" USING( "key" ) WHERE "key" = :db_prep_1', 
+            (string) $sql 
+        );
+    }
+
+    /**
+     * @test
+     */
+    function query_with_leftJoin_on()
+    {
+        $sql = Query::from( 'table1' )
+            ->join( Join::left( 'another', 'an' )->on( Query::given('thisKey')->identical('$.thatKey') ) )
+            ->where( Query::given('key')->is(1) );
+        $this->assertEquals(
+            'SELECT * FROM "table1" ' .
+            'LEFT OUTER JOIN "another" "an" ON ( "an"."thisKey" = "table1"."thatKey" ) ' . 
+            'WHERE "key" = :db_prep_1',
+            (string) $sql
+        );
+    }
+
+    /**
+     * @test
+     */
+    function query_with_rightJoin_on_using()
+    {
+        $sql = Query::from( 'table1' )
+            ->join( Join::right( 'another', 'an' )->using('key')->on( Query::given('$.thisKey')->identical('thatKey') ) )
+            ->where( Query::given('key')->is(1) );
+        $this->assertEquals(
+            'SELECT * FROM "table1" ' .
+            'RIGHT OUTER JOIN "another" "an" ON ( "an"."key"="table1"."key" AND ( "table1"."thisKey" = "an"."thatKey" ) ) ' .
+            'WHERE "key" = :db_prep_1',
+            (string) $sql
+        );
     }
 }

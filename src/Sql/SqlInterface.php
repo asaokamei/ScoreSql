@@ -28,6 +28,13 @@ interface SqlInterface
     public function keyName( $keyName );
 
     /**
+     * @param string $id
+     * @param string $column
+     * @return $this
+     */
+    public function setKey( $id, $column=null );
+
+    /**
      * @param string $group
      * @return $this
      */

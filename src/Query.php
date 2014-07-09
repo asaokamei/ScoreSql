@@ -148,17 +148,6 @@ class Query extends Sql
     }
 
     /**
-     * @param        $id
-     * @param string $column
-     */
-    protected function setId( $id, $column=null )
-    {
-        if( !$id ) return;
-        $column = $column ?: $this->keyName;
-        $this->where( $this->$column->eq( $id ) );
-    }
-
-    /**
      * @return string
      */
     public function insert()

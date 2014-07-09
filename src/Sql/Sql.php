@@ -255,6 +255,19 @@ class Sql implements SqlInterface
     }
 
     /**
+     * @param string $id
+     * @param string $column
+     * @return $this
+     */
+    public function setKey( $id, $column=null )
+    {
+        if( !$id ) return $this;
+        $column = $column ?: $this->keyName;
+        $this->where( $this->$column->eq( $id ) );
+        return $this;
+    }
+
+    /**
      * @param string $column
      * @param null|string $as
      * @return $this

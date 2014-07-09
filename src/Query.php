@@ -127,56 +127,65 @@ class Query extends Sql
     //  builds SQL statements.
     // +----------------------------------------------------------------------+
     /**
-     * @return string
+     * @param string $type
+     * @return $this
      */
-    public function select()
+    public function sqlType( $type )
     {
-        $this->setBuilderByType();
-        $sql = $this->builder->toSelect( $this );
-        $this->reset();
-        return $sql;
-    }
-
-    /**
-     * @return int
-     */
-    public function count()
-    {
-        $this->setBuilderByType();
-        $sql = $this->builder->toCount( $this );
-        return $sql;
+        $this->sqlType = strtolower($type);
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function insert()
+    public function __toString()
     {
         $this->setBuilderByType();
-        $sql = $this->builder->toInsert( $this );
-        $this->reset();
+        $sql = $this->builder->toSql( $this );
+        if( $this->sqlType != 'count' ) {
+            $this->reset();
+        }
         return $sql;
     }
 
     /**
      * @return string
      */
-    public function update()
+    public function toSelect()
     {
-        $this->setBuilderByType();
-        $sql = $this->builder->toUpdate( $this );
-        $this->reset();
-        return $sql;
+        return $this->sqlType( 'select' );
     }
 
     /**
-     * @return string
+     * @return $this
      */
-    public function delete()
+    public function toCount()
     {
-        $this->setBuilderByType();
-        $sql = $this->builder->toDelete( $this );
-        $this->reset();
-        return $sql;
+        return $this->sqlType( 'count' );
+    }
+
+    /**
+     * @return $this
+     */
+    public function toInsert()
+    {
+        return $this->sqlType( 'insert' );
+    }
+
+    /**
+     * @return $this
+     */
+    public function toUpdate()
+    {
+        return $this->sqlType( 'update' );
+    }
+
+    /**
+     * @return $this
+     */
+    public function toDelete()
+    {
+        return $this->sqlType( 'delete' );
     }
 }

@@ -354,7 +354,7 @@ class Where_Test extends \PHPUnit_Framework_TestCase
             ->where(
                 $query->pKey->eq('1')->or()->pKey->eq('5')
             )
-            ->order( 'sort' )->select();
+            ->order( 'sort' );
         $this->assertEquals(
             'SELECT "this" AS "that" FROM "table" WHERE "pKey" = :db_prep_1 OR "pKey" = :db_prep_2 ORDER BY "sort" ASC',
             $sql

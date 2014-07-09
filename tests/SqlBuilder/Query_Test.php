@@ -19,8 +19,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             ->columns( 'col2', 'col3' )
             ->where(
                 Query::given('status')->is('4')
-            )
-            ->select();
+            );
         ;
         $this->assertEquals(
             'SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_prep_1',
@@ -35,7 +34,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     {
         $sql = Query::from('myTable')
             ->value( [ 'col1' => 'val1', 'col2'=>'val2' ] )
-            ->insert();
+            ->toInsert();
         ;
         $this->assertEquals(
             'INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )',
@@ -56,7 +55,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
                 'date' => Query::raw('NOW()'),
                 'col2'=>'val2'
             ] )
-            ->update();
+            ->toUpdate();
 
         $this->assertEquals(
             'UPDATE "myTable" SET "date"=NOW(), "col2"=:db_prep_1 WHERE "name" LIKE :db_prep_2 OR "status" = :db_prep_3',
@@ -75,8 +74,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
                     ->orBracket()
                     ->name->startWith('AB')->gender->eq('F')
                     ->closeBracket()
-            )
-            ->select();
+            );
         ;
         $this->assertEquals(
             'SELECT * FROM "myTable" ' .
@@ -91,7 +89,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function insert_builds_insert_statement()
     {
         $sql = Query::db( 'mysql' )->table( 'myTable' )
-            ->value(['test'=>'tested', 'more'=>'done'])->insert();
+            ->value(['test'=>'tested', 'more'=>'done'])->toInsert();
         ;
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
@@ -101,7 +99,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $query = Query::db('mysql')->table('myTable');
         $query->test = 'tested2';
         $query->more = 'done2';
-        $sql = $query->insert();
+        $sql = $query->toInsert();
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
@@ -118,7 +116,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
                 Where::column('pKey')->in( '1', '2' )
             )
             ->value(['test'=>'tested', 'more'=>'done'])
-            ->update();
+            ->toUpdate();
         ;
         $this->assertEquals(
             'UPDATE "myTable" SET "test"=:db_prep_1, "more"=:db_prep_2 ' .
@@ -135,7 +133,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             ->where(
                 Where::column('pKey')->in( '1', '2' )
             )
-            ->update();
+            ->toUpdate();
         $this->assertEquals(
             'UPDATE "myTable" SET "test"=:db_prep_1, "more"=NOW() ' .
             'WHERE "pKey" IN ( :db_prep_2, :db_prep_3 )',
@@ -151,7 +149,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function delete_builds_delete_statement()
     {
         $sql = Query::db( 'mysql' )->table( 'myTable', 'mt' )->keyName('myKey')
-            ->where( Query::given('myKey')->eq('3') )->delete();
+            ->where( Query::given('myKey')->eq('3') )->toDelete();
         ;
         $this->assertEquals(
             'DELETE FROM `myTable` WHERE `mt`.`myKey` = :db_prep_1',
@@ -175,8 +173,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
                 ->close()
             )
             ->order( 'id' )
-            ->limit(5)
-            ->select();
+            ->limit(5);
         $this->assertEquals(
             'SELECT * FROM "table" WHERE ' .
             '( "gender" = :db_prep_1 OR "status" = :db_prep_2 ) AND ' .

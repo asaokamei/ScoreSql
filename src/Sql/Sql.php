@@ -118,6 +118,7 @@ class Sql implements SqlInterface
      */
     public function reset()
     {
+        $this->sqlType   = 'select';
         $this->where     = null;
         $this->join      = [ ];
         $this->columns   = [ ];

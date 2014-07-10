@@ -9,6 +9,10 @@ require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
 class Query_Test extends \PHPUnit_Framework_TestCase
 {
+    function teardown()
+    {
+        Query::refresh();
+    }
 
     /**
      * @test
@@ -227,5 +231,60 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'WHERE "key" = :db_prep_1',
             (string) $sql
         );
+    }
+
+    /**
+     * @test
+     */
+    function sub_query_in_column()
+    {
+        $query = Query::from( 'main' )
+            ->column(
+                Query::subQuery('sub')
+                    ->column( Query::raw('COUNT(*)'), 'count' )
+                    ->where( Query::given('status')->identical('$.status') ),
+                'count_sub'
+            )
+        ;
+        $sql = $query->toSelect( $query );
+        $this->assertEquals(
+            'SELECT ( ' .
+            'SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = "main"."status"' .
+            ' ) AS "count_sub" FROM "main"', (string) $sql );
+    }
+
+    /**
+     * @test
+     */
+    function sub_query_as_table()
+    {
+        $query = Query::from( Query::subQuery('sub')->where( Query::given('status')->is(1)) )
+            ->where(
+                Query::given('name')->is('bob')
+            )
+        ;
+        $sql = $query->toSelect( $query );
+        $this->assertEquals(
+            'SELECT * FROM ( ' .
+            'SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1' .
+            ' ) WHERE "name" = :db_prep_2', (string) $sql );
+    }
+
+    /**
+     * @test
+     */
+    function sub_query_in_where_is()
+    {
+        $query = Query::from( 'main' )
+            ->where(
+                Query::given('status')->is(
+                    Query::subQuery('sub')->column('status')->where( Query::given('name')->is('bob') )
+                )
+            )
+        ;
+        $sql = $query->toSelect( $query );
+        $this->assertEquals(
+            'SELECT * FROM "main" WHERE "status" = ( ' .
+            'SELECT "status" FROM "sub" AS "sub_1" WHERE "sub_1"."name" = :db_prep_1 )', (string) $sql );
     }
 }

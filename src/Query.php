@@ -28,6 +28,19 @@ class Query extends Sql
      */
     protected $dbType;
 
+    public static function refresh()
+    {
+        static::$query = null;
+    }
+    
+    protected static function getQuery( $new=false )
+    {
+        if( !static::$query || $new ) {
+            static::$query = Factory::buildQuery();
+        }
+        return static::$query;
+    }
+    
     // +----------------------------------------------------------------------+
     //  manage objects, aka Facade.
     // +----------------------------------------------------------------------+
@@ -37,7 +50,7 @@ class Query extends Sql
      */
     public static function db( $dbType=null )
     {
-        $self = Factory::buildQuery();
+        $self = static::getQuery(true);
         $self->dbType( $dbType );
         static::$query = $self;
         return $self;
@@ -50,7 +63,7 @@ class Query extends Sql
      */
     public static function from( $table, $alias = null )
     {
-        $self = Factory::buildQuery();
+        $self = static::getQuery(true);
         $self->table( $table, $alias );
         static::$query = $self;
         return $self;
@@ -63,7 +76,7 @@ class Query extends Sql
      */
     public static function subQuery( $table, $alias = null )
     {
-        return static::$query->sub( $table, $alias );
+        return static::getQuery()->sub( $table, $alias );
     }
 
     /**

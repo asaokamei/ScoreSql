@@ -21,11 +21,11 @@ class Factory
 
     /**
      * @param Builder $builder
-     * @return Query
+     * @return Sql
      */
     public static function buildQuery( $builder=null )
     {
-        $query = new Query( $builder );
+        $query = new Sql();
         $query->setBuilder( $builder );
         return $query;
     }

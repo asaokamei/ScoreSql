@@ -3,7 +3,7 @@ namespace tests\Sql;
 
 use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\Factory;
-use WScore\ScoreSql\Query;
+use WScore\ScoreSql\DB;
 use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
 use WScore\ScoreSql\Sql\Where;

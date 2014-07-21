@@ -11,10 +11,10 @@ use WScore\ScoreSql\Sql\Where;
  * @package WScore\ScoreSql
  *          
  */
-class Query
+class DB
 {
     /**
-     * @var Sql
+     * @var Query
      */
     static $query;
     
@@ -28,11 +28,18 @@ class Query
      */
     protected $dbType;
 
+    /**
+     * 
+     */
     public static function refresh()
     {
         static::$query = null;
     }
-    
+
+    /**
+     * @param bool $new
+     * @return Query
+     */
     protected static function getQuery( $new=false )
     {
         if( !static::$query || $new ) {
@@ -72,7 +79,7 @@ class Query
     /**
      * @param string $table
      * @param string $alias
-     * @return Sql|self
+     * @return Sql
      */
     public static function subQuery( $table, $alias = null )
     {

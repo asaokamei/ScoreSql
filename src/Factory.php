@@ -11,7 +11,7 @@ class Factory
 {
     /**
      * @param string $dbType
-     * @return Query
+     * @return DB
      */
     public static function query( $dbType=null )
     {

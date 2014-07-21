@@ -9,7 +9,7 @@ use WScore\ScoreSql\Builder\Builder;
  * @package WScore\ScoreSql
  *
  */
-class Sql extends Sql\Sql
+class Query extends Sql\Sql
 {
     /**
      * @var Builder

@@ -25,31 +25,31 @@ Basic Usage
 
 ### construction
 
-use ```Query``` class to get the query object, with
+use ```DB``` class to get the query object, with
 optional parameter to select the database type.
 
 ```php
-$query = Query::db( 'mysql' )->from( 'myTable' );
+$query = DB::db( 'mysql' )->from( 'myTable' );
 // omitting connect returns standard SQL builder.
-$query = Query::from( 'thisTable' );
+$query = DB::from( 'thisTable' );
 ```
 
 ### select statement
 
 ```php
-$sqlStatement = Query::from('myTable')
+$sqlStatement = DB::from('myTable')
     ->column('col1', 'aliased1')
     ->columns( 'col2', 'col3')
-    ->filter( Query::given('status')->is('1') )
+    ->filter( DB::given('status')->is('1') )
     ->select();
 ```
 
-Use ```Query::given()``` methods to start where clause.
+Use ```DB::given()``` methods to start where clause.
  for shorthand notation, use ```$query->var_name``` to start
  where clause as well. as such,
 
 ```php
-Query::from('myTable')
+DB::from('myTable')
     ->column('col1', 'aliased1')
     ->columns( 'col1', 'col2' )
     ->filter( $query->status->is(1) )
@@ -65,7 +65,7 @@ SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_
 ### insert statement
 
 ```php
-$sqlStatement = Query::from('myTable')
+$sqlStatement = DB::from('myTable')
     ->insert( [ 'col1' => 'val1', 'col2'=>'val2' ] );
 ```
 
@@ -74,7 +74,7 @@ or, this also works.
 ```php
 $query->col1 = 'val1';
 $query->col2 = 'val2';
-$sqlStatement = Query::from('myTable')->insert();
+$sqlStatement = DB::from('myTable')->insert();
 ```
 
 both cases will generate sql like:
@@ -86,9 +86,9 @@ INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )
 ### update statement
 
 ```php
-$sqlStatement = Query::from('myTable')
+$sqlStatement = DB::from('myTable')
     ->filter(
-        Query::given('name')->like('bob')->or()->status->eq('1')
+        DB::given('name')->like('bob')->or()->status->eq('1')
     )
     ->update( [
         'date' => $query->raw('NOW()'),
@@ -101,7 +101,7 @@ or, this also works.
 ```php
 $query->date = $query->raw('NOW()');
 $query->col2 = 'val2';
-$sqlStatement = Query::from('myTable')->update();
+$sqlStatement = DB::from('myTable')->update();
 ```
 
 will generate update SQL like:
@@ -122,14 +122,14 @@ prepared statement as follows.
 $bindValues = $query->getBind();
 ```
 
-If you start query with ```Query```, use ```Query::bind()```
+If you start query with ```Query```, use ```DB::bind()```
  method to get the bound values.
 
 as such,
 
 ```php
-$sqlStatement = Query::from()... // construct SQL statement.
-$bindValues   = Query::bind();   // get the binding values from last query.
+$sqlStatement = DB::from()... // construct SQL statement.
+$bindValues   = DB::bind();   // get the binding values from last query.
 $stmt = $pdo->prepare( $sqlStatement );
 $stmt->execute( $bindValues );
 ```
@@ -144,11 +144,11 @@ Use ```filterOr( $where )``` method to construct a OR
  in the where statement.
 
 ```php
-echo Query::from('tab')
+echo DB::from('tab')
     ->filter(
-        Query::given('name')->startWith('A')->gender->eq('M')
+        DB::given('name')->startWith('A')->gender->eq('M')
     )->filterOr(
-        Query::given('name')->startWith('B')->gender->eq('F')
+        DB::given('name')->startWith('B')->gender->eq('F')
     );
 ```
 
@@ -166,18 +166,18 @@ Another example uses ```Where``` class to generate ```$where```
 
 
 ```php
-echo Query::from('table')
+echo DB::from('table')
     ->filter(
-        Query::given('gender')->is('F')->or()->status->is('1')
+        DB::given('gender')->is('F')->or()->status->is('1')
     )->filter(
-        Query::given('gender')->is('M')->or()->status->is('2')
+        DB::given('gender')->is('M')->or()->status->is('2')
     )
     ->select();
 
 // alternative way of writing the same sql.
-echo Query::from('table')
+echo DB::from('table')
     ->filter(
-        Query::bracket()
+        DB::bracket()
             ->gender->is('F')->or()->status->is('1')
         ->close()
         ->open()
@@ -204,7 +204,7 @@ to-be-written
 Join Clause
 -----------
 
-To construct table join, use ```Query::join``` method
+To construct table join, use ```DB::join``` method
  to start join clause (which is a Join object).
 
 ### join using
@@ -212,9 +212,9 @@ To construct table join, use ```Query::join``` method
 examples:
 
 ```php
-$found2 = Query::from( 'dao_user', 'u1' )
-    ->join( Query::join( 'dao_user', 'u2' )->using( 'status' ) )
-    ->filter( Query::given('user_id')->is(1) )
+$found2 = DB::from( 'dao_user', 'u1' )
+    ->join( DB::join( 'dao_user', 'u2' )->using( 'status' ) )
+    ->filter( DB::given('user_id')->is(1) )
     ->select();
 ```
 
@@ -232,12 +232,12 @@ SELECT *
 Meanwhile, the following PHP code,
 
 ```php
-$found = Query::from( 'dao_user', 'u1' )
+$found = DB::from( 'dao_user', 'u1' )
     ->join(
-        Query::joinLeft( 'dao_user', 'u2' )
-            ->on( Query::given('status')->identical( 'u1.status' ) )
+        DB::joinLeft( 'dao_user', 'u2' )
+            ->on( DB::given('status')->identical( 'u1.status' ) )
     )
-    ->filter( Query::given()->user_id->is(1) )
+    ->filter( DB::given()->user_id->is(1) )
     ->select();
 ```
 

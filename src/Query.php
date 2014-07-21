@@ -2,6 +2,7 @@
 namespace WScore\ScoreSql;
 
 use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\Sql\Sql;
 use WScore\ScoreSql\Sql\Where;
 
 /**
@@ -10,7 +11,7 @@ use WScore\ScoreSql\Sql\Where;
  * @package WScore\ScoreSql
  *          
  */
-class Query extends Sql\Sql
+class Query
 {
     /**
      * @var Sql
@@ -78,6 +79,15 @@ class Query extends Sql\Sql
         return static::getQuery()->sub( $table, $alias );
     }
 
+    /**
+     * @param $value
+     * @return callable
+     */
+    public static function raw( $value )
+    {
+        return Sql::raw( $value );
+    }
+    
     /**
      * @return array
      */

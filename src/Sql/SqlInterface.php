@@ -32,7 +32,7 @@ interface SqlInterface
      * @param string $column
      * @return $this
      */
-    public function setKey( $id, $column=null );
+    public function key( $id, $column=null );
 
     /**
      * @param string $group

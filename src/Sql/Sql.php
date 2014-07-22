@@ -260,7 +260,7 @@ class Sql implements SqlInterface
      * @param string $column
      * @return $this
      */
-    public function setKey( $id, $column=null )
+    public function key( $id, $column=null )
     {
         if( !$id ) return $this;
         $column = $column ?: $this->keyName;

@@ -291,6 +291,33 @@ SELECT * FROM
 WHERE "name" = :db_prep_2'
 ```
 
+### sub query in update and insert
+
+```php
+DB::from( 'main' )
+    ->value( 'count', DB::subQuery('sub')->column(DB::raw('COUNT(*)'))->where(DB::given('status')->is(1)))
+    ->toUpdate();
+```
+
+```sql
+UPDATE "main" SET "count"=( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 )
+```
+
+```php
+DB::from( 'main' )
+    ->value( 'count',
+        DB::subQuery('sub')
+            ->column(DB::raw('COUNT(*)'))
+            ->where( DB::given('status')->is(1) )
+    )
+    ->toInsert();
+```
+
+```sql
+INSERT INTO "main" ( "count" ) VALUES ( ( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) )
+```
+
+
 History
 -------
 

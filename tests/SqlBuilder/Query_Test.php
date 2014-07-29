@@ -287,4 +287,20 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'SELECT * FROM "main" WHERE "status" = ( ' .
             'SELECT "status" FROM "sub" AS "sub_1" WHERE "sub_1"."name" = :db_prep_1 )', (string) $sql );
     }
+
+    /**
+     * @test
+     */
+    function sub_query_in_update_set_and_insert()
+    {
+        $sql = DB::from( 'main' )
+            ->value( 'count', DB::subQuery('sub')->column(DB::raw('COUNT(*)'))->where(DB::given('status')->is(1)))->toUpdate();
+        $this->assertEquals(
+            'UPDATE "main" SET "count"=( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 )', (string) $sql );
+
+        $sql = DB::from( 'main' )
+            ->value( 'count', DB::subQuery('sub')->column(DB::raw('COUNT(*)'))->where(DB::given('status')->is(1)))->toInsert();
+        $this->assertEquals(
+            'INSERT INTO "main" ( "count" ) VALUES ( ( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) )', (string) $sql );
+    }
 }

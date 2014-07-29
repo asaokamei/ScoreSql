@@ -233,10 +233,10 @@ class Builder
     {
         $columns = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $val = $this->bind->prepare( $val, $col );
-            if ( is_callable( $val ) ) {
-                $columns[ ] = $val();
+            if ( is_object($val) || is_callable($val) ) {
+                $columns[ ] = $this->evaluate( $val );
             } else {
+                $val = $this->bind->prepare( $val, $col );
                 $columns[ ] = $val;
             }
         }
@@ -247,9 +247,10 @@ class Builder
     {
         $setter = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $val = $this->bind->prepare( $val, $col );
-            if ( is_callable( $val ) ) {
-                $val = $val();
+            if ( is_object($val) || is_callable($val ) ) {
+                $val = $this->evaluate( $val );
+            } else {
+                $val = $this->bind->prepare( $val, $col );
             }
             $col       = $this->quote( $col );
             $setter[ ] = $this->quote( $col ) . '=' . $val;

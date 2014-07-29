@@ -257,6 +257,39 @@ Sub Queries
 Sub queries is implemented for several cases but are not
  tested against real databases, yet.
 
+### sub query in column
+
+```php
+$query = DB::from( 'main' )
+    ->column(
+        DB::subQuery('sub')
+            ->column( DB::raw('COUNT(*)'), 'count' )
+            ->where( DB::given('status')->identical('$.status') ),
+        'count_sub'
+    );
+```
+
+will generate the following sql.
+
+```sql
+SELECT ( SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = "main"."status" )
+AS "count_sub" FROM "main"
+```php
+
+### sub query as table
+
+```php
+$query = DB::from( DB::subQuery('sub')->where( DB::given('status')->is(1)) )
+    ->where(
+        DB::given('name')->is('bob')
+    );
+```
+
+```sql
+SELECT * FROM
+    ( SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 )
+WHERE "name" = :db_prep_2'
+```
 
 History
 -------

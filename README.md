@@ -274,7 +274,7 @@ will generate the following sql.
 ```sql
 SELECT ( SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = "main"."status" )
 AS "count_sub" FROM "main"
-```php
+```
 
 ### sub query as table
 
@@ -295,7 +295,10 @@ WHERE "name" = :db_prep_2'
 
 ```php
 DB::from( 'main' )
-    ->value( 'count', DB::subQuery('sub')->column(DB::raw('COUNT(*)'))->where(DB::given('status')->is(1)))
+    ->value( 'count', DB::subQuery('sub')
+                        ->column( DB::raw('COUNT(*)') )
+                        ->where( DB::given('status')->is(1) )
+    )
     ->toUpdate();
 ```
 
@@ -305,10 +308,9 @@ UPDATE "main" SET "count"=( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1".
 
 ```php
 DB::from( 'main' )
-    ->value( 'count',
-        DB::subQuery('sub')
-            ->column(DB::raw('COUNT(*)'))
-            ->where( DB::given('status')->is(1) )
+    ->value( 'count', DB::subQuery('sub')
+                        ->column(DB::raw('COUNT(*)'))
+                        ->where( DB::given('status')->is(1) )
     )
     ->toInsert();
 ```

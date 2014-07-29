@@ -71,27 +71,21 @@ class Join implements JoinInterface
     }
 
     /**
-     * @param string $table
-     * @param string $alias
      * @return JoinInterface
      */
-    public static function left( $table, $alias=null )
+    public function left()
     {
-        $join = new self( $table, $alias );
-        $join->by( 'LEFT OUTER JOIN' );
-        return $join;
+        $this->by( 'LEFT OUTER JOIN' );
+        return $this;
     }
 
     /**
-     * @param string $table
-     * @param string $alias
      * @return JoinInterface
      */
-    public static function right( $table, $alias )
+    public function right()
     {
-        $join = new self( $table, $alias );
-        $join->by( 'RIGHT OUTER JOIN' );
-        return $join;
+        $this->by( 'RIGHT OUTER JOIN' );
+        return $this;
     }
 
     /**

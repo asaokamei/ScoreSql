@@ -10,40 +10,37 @@ namespace WScore\ScoreSql\Sql;
 interface JoinInterface
 {
     /**
-     * @param string $table
-     * @param string $alias
-     * @return $this
+     * @return JoinInterface
      */
-    public static function right( $table, $alias );
+    public function right();
 
     /**
-     * @param string $table
-     * @param string $alias
-     * @return $this
+     * @return JoinInterface
      */
-    public static function left( $table, $alias );
+    public function left();
 
     /**
      * @param Where|string $criteria
-     * @return $this
+     * @return JoinInterface
      */
     public function on( $criteria );
 
     /**
      * @param string $table
      * @param string $alias
-     * @return $this
+     * @return JoinInterface
      */
     public static function table( $table, $alias );
 
     /**
      * @param string $type
+     * @return JoinInterface
      */
     public function by( $type );
 
     /**
      * @param string $key
-     * @return $this
+     * @return JoinInterface
      */
     public function using( $key );
 
@@ -52,7 +49,7 @@ interface JoinInterface
      * will be used in Sql::join method.
      *
      * @param string $queryTable
-     * @return $this
+     * @return JoinInterface
      */
     public function setQueryTable( $queryTable );
 }

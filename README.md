@@ -234,7 +234,7 @@ Meanwhile, the following PHP code,
 ```php
 $found = DB::from( 'dao_user', 'u1' )
     ->join(
-        DB::joinLeft( 'dao_user', 'u2' )
+        DB::join( 'dao_user', 'u2' )->left()
             ->on( DB::given('status')->identical( 'u1.status' ) )
     )
     ->filter( DB::given()->user_id->is(1) )

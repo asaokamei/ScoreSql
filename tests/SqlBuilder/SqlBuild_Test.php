@@ -2,6 +2,7 @@
 namespace tests\Sql;
 
 use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\DB;
 use WScore\ScoreSql\Factory;
 use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
@@ -249,7 +250,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     {
         $this->query->table( 'testTable', 'tt' )
             ->where( Where::column('test')->eq('tested') )
-            ->join( Join::left( 'anotherOne', 'ao' )->using( 'pKey') );
+            ->join( DB::join( 'anotherOne', 'ao' )->left()->using( 'pKey') );
         $sql = $this->builder->toSelect( $this->query );
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
@@ -269,8 +270,9 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
         $this->query->table( 'testTable', 'tt' )
             ->where( Where::column('test')->eq('tested') )
             ->join(
-                Join::left('anotherOne', 'ao' )->
-                    using( 'pKey')->
+                DB::join('anotherOne', 'ao' )
+                    ->left()
+                    ->using( 'pKey')->
                     on( Where::column('status')->eq('1') )
             );
         $sql = $this->builder->toSelect( $this->query );

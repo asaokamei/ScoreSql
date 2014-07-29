@@ -2,6 +2,7 @@
 namespace WScore\ScoreSql;
 
 use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
 use WScore\ScoreSql\Sql\Where;
 
@@ -84,6 +85,16 @@ class DB
     public static function subQuery( $table, $alias = null )
     {
         return static::getQuery()->sub( $table, $alias );
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return Join
+     */
+    public static function join( $table, $alias=null )
+    {
+        return new Join( $table, $alias );
     }
 
     /**

@@ -207,7 +207,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function query_with_leftJoin_on()
     {
         $sql = DB::from( 'table1' )
-            ->join( Join::left( 'another', 'an' )->on( DB::given('thisKey')->identical('$.thatKey') ) )
+            ->join( DB::join( 'another', 'an' )->left()->on( DB::given('thisKey')->identical('$.thatKey') ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals(
             'SELECT * FROM "table1" ' .
@@ -223,7 +223,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
     function query_with_rightJoin_on_using()
     {
         $sql = DB::from( 'table1' )
-            ->join( Join::right( 'another', 'an' )->using('key')->on( DB::given('$.thisKey')->identical('thatKey') ) )
+            ->join( DB::join( 'another', 'an' )->right()->using('key')->on( DB::given('$.thisKey')->identical('thatKey') ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals(
             'SELECT * FROM "table1" ' .

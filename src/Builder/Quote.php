@@ -101,7 +101,6 @@ class Quote
                     $list[ $key ] = $this->qt( $str, $separator );
                 }
                 return implode( $sep, $list );
-                break;
             }
         }
         return $this->quoteString( $name );

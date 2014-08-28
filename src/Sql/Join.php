@@ -213,16 +213,18 @@ class Join implements JoinInterface
     }
 
     /**
+     * @throws \InvalidArgumentException
      * @return string
      */
     protected function buildOn()
     {
-        $sql = '';
         if( is_object( $this->criteria ) && $this->criteria instanceof Where ) {
-            $sql .= $this->criteria->build( $this->bind, $this->quote, $this->alias, $this->queryTable );
+            $sql = $this->criteria->build( $this->bind, $this->quote, $this->alias, $this->queryTable );
         }
         elseif( is_string( $this->criteria ) ) {
-            $sql .= (string) $this->criteria;
+            $sql = $this->criteria;
+        } else {
+            throw new \InvalidArgumentException;
         }
         if( $this->usingKey ) {
             $sql = $this->quote( $this->alias() . '.' . $this->usingKey ) .

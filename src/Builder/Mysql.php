@@ -46,17 +46,18 @@ class Mysql extends Builder
      */
     protected function buildLimitOffset()
     {
-        $sql = '';
-        $limit  = $this->getMagicQuery('limit');
-        $offset = $this->getMagicQuery('offset');
+        $limit  = (int) $this->getMagicQuery('limit');
+        $offset = (int) $this->getMagicQuery('offset');
         if ( $limit && $offset ) {
-            $sql .= ' LIMIT ' . $offset . ' , ' . $limit;
-        } elseif ( $limit ) {
-            $sql .= ' LIMIT ' . $limit;
-        } elseif ( $offset ) {
-            $sql .= ' OFFSET ' . $offset;
+            return ' LIMIT ' . $offset . ' , ' . $limit;
         }
-        return $sql;
+        if ( $limit ) {
+            return ' LIMIT ' . $limit;
+        }
+        if ( $offset ) {
+            return ' OFFSET ' . $offset;
+        }
+        return '';
     }
 
 }

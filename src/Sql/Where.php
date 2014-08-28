@@ -8,7 +8,7 @@ use WScore\ScoreSql\Builder\Quote;
 
 /**
  * Class Where
- * @package WScore\DbAccess\Sql
+ * @package WScore\ScoreSql\Sql
  *
  * @method Where is( $value )
  * @method Where eq( $value )
@@ -164,7 +164,7 @@ class Where
      */
     public static function bracket()
     {
-        /** @var self $where */
+        /** @var Where $where */
         $where = new static;
         return $where->openBracket();
     }
@@ -266,10 +266,10 @@ class Where
     /**
      * set where statement with values properly prepared/quoted.
      *
-     * @param string $col
-     * @param string $val
-     * @param string $rel
-     * @param null|string $op
+     * @param string       $col
+     * @param string|bool|array  $val
+     * @param string|Where $rel
+     * @param null|string  $op
      * @return Where
      */
     public function where( $col, $val, $rel = '=', $op=null )

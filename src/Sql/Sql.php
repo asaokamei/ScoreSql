@@ -152,7 +152,7 @@ class Sql implements SqlInterface
     /**
      * for sub query; sets the parent query's table name.
      *
-     * @param $name
+     * @param string $name
      */
     protected function setParentTable( $name )
     {
@@ -161,7 +161,7 @@ class Sql implements SqlInterface
 
     /**
      * @param $key
-     * @return mixed
+     * @return string
      */
     public function magicGet( $key )
     {
@@ -170,7 +170,7 @@ class Sql implements SqlInterface
 
     /**
      * @param $value
-     * @return callable
+     * @return \Closure
      */
     public static function raw( $value )
     {

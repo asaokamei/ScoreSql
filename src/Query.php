@@ -80,7 +80,7 @@ class Query extends Sql\Sql
     }
 
     /**
-     * @return string
+     * @return Query
      */
     public function toSelect()
     {

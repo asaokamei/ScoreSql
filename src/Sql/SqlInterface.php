@@ -18,6 +18,7 @@ interface SqlInterface
     /**
      * @param $key
      * @param $value
+     * @return void
      */
     public function __set( $key, $value );
 

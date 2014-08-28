@@ -301,7 +301,7 @@ class Where
     /**
      * set the where string as is.
      *
-     * @param string|Where $where
+     * @param Where $where
      * @param null|string  $andOr
      * @return Where
      */

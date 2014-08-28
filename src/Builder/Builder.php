@@ -102,7 +102,7 @@ class Builder
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return mixed
      */
     protected function getMagicQuery( $key )

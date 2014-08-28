@@ -1,7 +1,6 @@
 <?php
 namespace WScore\ScoreSql\Builder;
 
-use Mockery\CountValidator\Exception;
 use WScore\ScoreSql\Sql\Sql;
 
 class Quote
@@ -87,8 +86,8 @@ class Quote
     }
 
     /**
-     * @param $name
-     * @param $separator
+     * @param string $name
+     * @param string[] $separator
      * @return string
      */
     protected function qt( $name, $separator )

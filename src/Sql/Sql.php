@@ -59,7 +59,7 @@ class Sql implements SqlInterface
     protected $order = [ ];
 
     /**
-     * @var string           group by. [ group, group2, ...]
+     * @var array           group by. [ group, group2, ...]
      */
     protected $group = [ ];
 
@@ -358,7 +358,7 @@ class Sql implements SqlInterface
      */
     public function limit( $limit )
     {
-        $this->limit = ( is_numeric( $limit ) ) ? $limit : null;
+        $this->limit = ( is_numeric( $limit ) ) ? (int)$limit : null;
         return $this;
     }
 
@@ -368,7 +368,7 @@ class Sql implements SqlInterface
      */
     public function offset( $offset )
     {
-        $this->offset = ( is_numeric( $offset ) ) ? $offset : 0;
+        $this->offset = ( is_numeric( $offset ) ) ? (int) $offset : 0;
         return $this;
     }
 
@@ -392,7 +392,7 @@ class Sql implements SqlInterface
     }
 
     /**
-     * @param $flag
+     * @param string $flag
      * @return $this
      */
     public function flag( $flag )

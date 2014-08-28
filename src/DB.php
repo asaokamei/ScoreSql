@@ -17,7 +17,7 @@ class DB
     /**
      * @var Query
      */
-    static $query;
+    protected static $query;
     
     /**
      * @var Builder

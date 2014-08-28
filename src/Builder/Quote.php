@@ -1,12 +1,10 @@
 <?php
 namespace WScore\ScoreSql\Builder;
 
-use WScore\ScoreSql\Sql\Sql;
-
 class Quote
 {
     /**
-     * @var Sql
+     * @var string
      */
     protected $format = '"%s"';
 

@@ -220,7 +220,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
             'FROM "testTable" AS "aliasTable" WHERE "aliasTable"."name" LIKE :db_prep_1 ' .
             'GROUP BY "grouped" HAVING COUNT(*) > :db_prep_2 ' .
             'ORDER BY "aliasTable"."pKey" ASC, "aliasTable"."status" desc, "t1"."order" ASC ' .
-            'LIMIT :db_prep_3 OFFSET :db_prep_4 FOR UPDATE',
+            'LIMIT 5 OFFSET 10 FOR UPDATE',
             $sql );
         $this->assertEquals( '%bob%', $bind[':db_prep_1'] );
     }

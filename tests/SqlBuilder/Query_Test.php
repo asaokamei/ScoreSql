@@ -183,7 +183,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'SELECT * FROM "table" WHERE ' .
             '( "gender" = :db_prep_1 OR "status" = :db_prep_2 ) AND ' .
             '( "gender" = :db_prep_3 OR "status" = :db_prep_4 ) ' .
-            'ORDER BY "id" ASC LIMIT :db_prep_5',
+            'ORDER BY "id" ASC LIMIT 5',
             $sql );
     }
 

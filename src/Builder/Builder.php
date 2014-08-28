@@ -298,7 +298,7 @@ class Builder
             if( is_string( $join ) ) {
                 $joined .= $join;
             } elseif( $join instanceof Join ) {
-                $joined .= $join->build( $this->bind, $this->quote, $this->getMagicQuery('getAliasOrTable') );
+                $joined .= $join->build( $this->bind, $this->quote );
             }
         }
         return $joined;
@@ -339,7 +339,7 @@ class Builder
     {
         if ( !$group = $this->getMagicQuery('group') ) return '';
         $group = $this->quote( $group );
-        return $group ? 'GROUP BY ' . implode( ', ', $group ) : '';
+        return 'GROUP BY ' . implode( ', ', $group );
     }
 
     /**
@@ -361,11 +361,9 @@ class Builder
     protected function buildLimit()
     {
         if( !$limit = $this->getMagicQuery('limit') ) return '';
-        if ( is_numeric( $limit ) && $limit > 0 ) {
-            $limit = $this->bind->prepare( $limit );
-            return "LIMIT " . $limit;
-        }
-        return '';
+        if( !is_numeric($limit) ) return '';
+        if( $limit <= 0 ) return '';
+        return "LIMIT " . $limit;
     }
 
     /**
@@ -374,11 +372,9 @@ class Builder
     protected function buildOffset()
     {
         if( !$offset = $this->getMagicQuery('offset') ) return '';
-        if( is_numeric( $offset ) && $offset > 0 ) {
-            $offset = $this->bind->prepare( $offset );
-            return "OFFSET " . $offset;
-        }
-        return '';
+        if( !is_numeric( $offset ) ) return '';
+        if( $offset <= 0 ) return '';
+        return "OFFSET " . $offset;
     }
 
     /**

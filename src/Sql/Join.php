@@ -152,7 +152,7 @@ class Join implements JoinInterface
     }
 
     /**
-     * @param string|array $name
+     * @param string $name
      * @return string
      */
     protected function quote( $name )

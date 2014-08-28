@@ -45,7 +45,7 @@ class BuildWhere
 
     /**
      * @param string $name
-     * @return mixed
+     * @return string
      */
     public function quote( $name )
     {
@@ -180,7 +180,7 @@ class BuildWhere
 
     /**
      * @param $w
-     * @param $rel
+     * @param string $rel
      * @return string
      */
     protected function buildIn( $w, $rel )

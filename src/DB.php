@@ -99,7 +99,7 @@ class DB
 
     /**
      * @param $value
-     * @return callable
+     * @return \Closure
      */
     public static function raw( $value )
     {

@@ -8,7 +8,6 @@
 namespace WScore\ScoreSql;
 
 use InvalidArgumentException;
-use PDOStatement;
 
 interface QueryInterface
 {

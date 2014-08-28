@@ -161,7 +161,7 @@ class Sql implements SqlInterface
 
     /**
      * @param $key
-     * @return string
+     * @return string|array|mixed
      */
     public function magicGet( $key )
     {

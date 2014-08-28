@@ -121,7 +121,7 @@ class Builder
     protected function quote( $name, $alias=null )
     {
         if( !$this->quote ) return $name;
-        if( is_array( $name ) ) return $this->quote->map( $name, $alias );
+        if( is_array( $name ) ) return $this->quote->map( $name );
         return $this->quote->quote( $name, $alias );
     }
 
@@ -233,12 +233,7 @@ class Builder
     {
         $columns = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            if ( is_object($val) || is_callable($val) ) {
-                $columns[ ] = $this->evaluate( $val );
-            } else {
-                $val = $this->bind->prepare( $val, $col );
-                $columns[ ] = $val;
-            }
+            $columns[ ] = $this->evaluate( $val ) ?:$this->bind->prepare( $val, $col );
         }
         return 'VALUES ( ' . implode( ', ', $columns ) . ' )';
     }
@@ -247,11 +242,7 @@ class Builder
     {
         $setter = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            if ( is_object($val) || is_callable($val ) ) {
-                $val = $this->evaluate( $val );
-            } else {
-                $val = $this->bind->prepare( $val, $col );
-            }
+            $val = $this->evaluate( $val ) ?: $this->bind->prepare( $val, $col );
             $col       = $this->quote( $col );
             $setter[ ] = $this->quote( $col ) . '=' . $val;
         }
@@ -280,7 +271,7 @@ class Builder
     protected function buildFrom()
     {
         $table = $this->getMagicQuery('table');
-        $table = $this->evaluate( $table );
+        $table = $this->evaluate( $table ) ?: $this->quote($table);
         return 'FROM ' . $table;
     }
 
@@ -324,7 +315,7 @@ class Builder
         }
         $columns = [ ];
         foreach ( $column_list as $alias => $col ) {
-            $col = $this->evaluate( $col );
+            $col = $this->evaluate( $col ) ?: $this->quote($col);
             if ( !is_numeric( $alias ) ) {
                 $col .= ' AS ' . $this->quote( $alias );
             }
@@ -408,14 +399,12 @@ class Builder
     protected function evaluate( $string )
     {
         if( is_callable($string) ) {
-            $string = $string();
-        } elseif( $string instanceof SqlInterface ) {
+            return $string = $string();
+        } elseif( is_object($string) && $string instanceof SqlInterface ) {
             $builder = new Builder( $this->bind, $this->quote );
-            $string = '( '.$builder->toSql( $string ).' )';
-        } else {
-            $string = $this->quote( $string );
+            return $string = '( '.$builder->toSql( $string ).' )';
         }
-        return $string;
+        return null;
     }
     // +----------------------------------------------------------------------+
     //  builders for where clause.

@@ -26,7 +26,7 @@ class Factory
     public static function buildQuery( $builder=null )
     {
         $query = new Query();
-        $query->setBuilder( $builder );
+        if( $builder ) $query->setBuilder( $builder );
         return $query;
     }
 

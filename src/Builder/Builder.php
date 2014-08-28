@@ -129,7 +129,7 @@ class Builder
     //  convert to SQL statements.
     // +----------------------------------------------------------------------+
     /**
-     * @param Sql $query
+     * @param Sql|SqlInterface $query
      * @return string
      */
     public function toSql( $query )
@@ -338,6 +338,7 @@ class Builder
     protected function buildGroupBy()
     {
         if ( !$group = $this->getMagicQuery('group') ) return '';
+        $group = (array) $group;
         $group = $this->quote( $group );
         return 'GROUP BY ' . implode( ', ', $group );
     }
@@ -395,10 +396,10 @@ class Builder
     protected function evaluate( $string )
     {
         if( is_callable($string) ) {
-            return $string = $string();
+            return $string();
         } elseif( is_object($string) && $string instanceof SqlInterface ) {
             $builder = new Builder( $this->bind, $this->quote );
-            return $string = '( '.$builder->toSql( $string ).' )';
+            return '( '.$builder->toSql( $string ).' )';
         }
         return null;
     }

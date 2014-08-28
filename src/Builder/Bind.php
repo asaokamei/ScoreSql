@@ -48,8 +48,8 @@ class Bind
      * types for the place holder is kept in prepared_types array.
      *
      * @param string|array $val
-     * @param null|string  $col     column name. used to find data type
-     * @param null|int     $type    data type
+     * @param null|int|string  $col     column name. used to find data type
+     * @param null|int         $type    data type
      * @return string|array
      */
     public function prepare( $val, $col=null, $type=null )

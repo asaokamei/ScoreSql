@@ -134,33 +134,9 @@ class BuildWhere
 
         $col = $w[ 'col' ];
         $val = $w[ 'val' ];
-        if ( $rel == 'EQ' ) {
+        list( $val, $rel ) = $this->formWhereByRel( $rel, $val );
+        $col = $this->formWhereByCol( $col );
 
-            $val = $this->quote( $val );
-            $rel = '=';
-
-        } elseif ( is_callable( $val ) ) {
-
-            $val = $val();
-
-        } elseif ( $val instanceof SqlInterface ) {
-
-            $val = '( ' . $this->builder->toSql( $val ) . ' )';
-            
-        } elseif ( $val !== false ) {
-
-            $val = $this->prepare( $val );
-        }
-
-        // making $col.
-        if( is_string($col) ) {
-
-            $col = $this->quote( $col );
-
-        } elseif( is_callable( $col ) ) {
-
-            $col = $col();
-        }
         $where = trim( "{$col} {$rel} {$val}" ) . ' ';
         return $where;
     }
@@ -192,5 +168,56 @@ class BuildWhere
         $tmp = is_array( $val ) ? implode( ", ", $val ) : $val;
         $val = "( " . $tmp . " )";
         return "{$col} {$rel} {$val} ";
+    }
+
+    /**
+     * @param $rel
+     * @param $val
+     * @return array
+     */
+    protected function formWhereByRel( $rel, $val )
+    {
+        if ( $rel == 'EQ' ) {
+
+            $val = $this->quote( $val );
+            $rel = '=';
+            return array( $val, $rel );
+
+        } elseif ( is_callable( $val ) ) {
+
+            $val = $val();
+            return array( $val, $rel );
+
+        } elseif ( $val instanceof SqlInterface ) {
+
+            $val = '( ' . $this->builder->toSql( $val ) . ' )';
+            return array( $val, $rel );
+
+        } elseif ( $val !== false ) {
+
+            $val = $this->prepare( $val );
+            return array( $val, $rel );
+        }
+        return array( $val, $rel );
+    }
+
+    /**
+     * @param $col
+     * @return string
+     */
+    protected function formWhereByCol( $col )
+    {
+// making $col.
+        if ( is_string( $col ) ) {
+
+            $col = $this->quote( $col );
+            return $col;
+
+        } elseif ( is_callable( $col ) ) {
+
+            $col = $col();
+            return $col;
+        }
+        return $col;
     }
 }

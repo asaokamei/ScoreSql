@@ -6,7 +6,7 @@ class Bind
     /**
      * @var bool
      */
-    static $useColumnInBindValues = false;
+    public static $useColumnInBindValues = false;
     
     /**
      * @var int
@@ -52,7 +52,7 @@ class Bind
      * @param null $col     column name. used to find data type
      * @return string|array
      */
-    public function prepare( $val, $type=null, $col=null )
+    public function prepare( $val, $col=null, $type=null )
     {
         if( is_array( $val ) ) {
             $holder = [];
@@ -72,7 +72,7 @@ class Bind
         elseif( $col && array_key_exists( $col, $this->col_data_types ) ) {
             $this->prepared_types[ $holder ] = $this->col_data_types[ $col ];
         }
-        $holder  = ( ( static::$useColumnInBindValues ) ? '' : ':' ) . $holder;
+        if( !static::$useColumnInBindValues ) $holder = ':'.$holder;
         return $holder;
     }
 

@@ -45,15 +45,29 @@ class Quote
         if( !$name ) return $name;
         if( is_object($name) && is_callable( $name ) ) return $name();
         if( $prefix ) {
-            if( $this->isQuoted( $name ) ) {
-                $name = $prefix . '.' . $name;
-            } elseif( false === strpos( $name, '.' ) ) {
-                $name = $prefix . '.'  . $name;
-            } elseif( substr( $name, 0, 2 ) == '$.' && $parent ) {
-                $name = $parent . substr( $name, 1 );
-            } 
+            $name = $this->addPrefixToName( $name, $prefix, $parent );
         }
         return $this->qt( $name, [' AS ', ' as ', '.'] );
+    }
+
+    /**
+     * @param $name
+     * @param $prefix
+     * @param $parent
+     * @return string
+     */
+    protected function addPrefixToName( $name, $prefix, $parent )
+    {
+        if ( $this->isQuoted( $name ) ) {
+            return $prefix . '.' . $name;
+        }
+        if ( false === strpos( $name, '.' ) ) {
+            return $prefix . '.' . $name;
+        }
+        if ( substr( $name, 0, 2 ) == '$.' && $parent ) {
+            return $parent . substr( $name, 1 );
+        }
+        return $name;
     }
 
     /**

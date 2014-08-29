@@ -57,7 +57,7 @@ class Bind
         if( is_array( $val ) ) {
             $holder = [];
             foreach( $val as $key => $v ) {
-                $holder[$key] = $this->prepare( $v, $type, $col );
+                $holder[$key] = $this->prepare( $v, $col, $type );
             }
             return $holder;
         }
@@ -66,14 +66,25 @@ class Bind
         $holder  = ( static::$useColumnInBindValues ) ? ':' : ''; 
         $holder .=  'db_prep_' . $this->prepared_counter++;
         $this->prepared_values[ $holder ] = $val;
-        if( $type ) {
-            $this->prepared_types[ $holder ] = $type;
-        }
-        elseif( $col && array_key_exists( $col, $this->col_data_types ) ) {
-            $this->prepared_types[ $holder ] = $this->col_data_types[ $col ];
-        }
+        $this->setPreparedType( $holder, $col, $type );
         if( !static::$useColumnInBindValues ) $holder = ':'.$holder;
         return $holder;
+    }
+
+    /**
+     * @param string $holder
+     * @param string|null $col
+     * @param string|null $type
+     * @return string|null
+     */
+    protected function setPreparedType( $holder, $col, $type )
+    {
+        if( $type ) {
+            $this->prepared_types[ $holder ] = $type;
+        } elseif( $col && isset( $this->col_data_types[$col] ) ) {
+            $this->prepared_types[ $holder ] = $this->col_data_types[ $col ];
+        }
+        return $type;
     }
 
     /**

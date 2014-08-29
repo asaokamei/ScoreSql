@@ -81,24 +81,30 @@ class BuildWhere
     */
     // +----------------------------------------------------------------------+
     /**
-     * @param Where  $criteria
+     * @param Where $criteria
      * @param string $alias
      * @param string $parent
+     * @throws \InvalidArgumentException
      * @return string
      */
     public function build( $criteria, $alias=null, $parent=null )
     {
         $this->aliasedTableName = $alias;
         $this->parentTableName  = $parent;
-        $where = $criteria->getCriteria();
+        $where_list = $criteria->getCriteria();
         $sql   = '';
-        foreach ( $where as $w ) {
-            if ( is_array( $w ) ) {
-                $op = isset( $w['op'] ) ? $w['op'] : 'and';
-                $sql .= strtoupper($op) . ' '. $this->formWhere( $w );
-            } elseif ( is_string( $w ) ) {
-                $sql .= 'and ' . $w;
+
+        foreach ( $where_list as $where ) {
+
+            if ( is_string( $where ) ) {
+                $sql .= 'and ' . $where;
+                continue;
             }
+            if ( !is_array( $where ) ) {
+                throw new \InvalidArgumentException;
+            }
+            $op = isset( $where['op'] ) ? $where['op'] : 'and';
+            $sql .= strtoupper($op) . ' '. $this->formWhere( $where );
         }
         $sql = trim( $sql );
         $sql = preg_replace( '/^(and|or) /i', '', $sql );
@@ -122,7 +128,7 @@ class BuildWhere
         if( is_callable( $rel ) ) {
             return $rel() . ' ';
         }
-        $rel = strtoupper( $rel );
+        $rel = $w[ 'rel' ] = strtoupper( $rel );
 
         // making $val based on $rel.
         if ( $rel == 'IN' || $rel == 'NOT IN' ) {
@@ -131,11 +137,29 @@ class BuildWhere
         if ( $rel == 'BETWEEN' ) {
             return $this->buildBetween( $w );
         }
+        return $this->buildColRelVal( $w );
+    }
 
+    /**
+     * for normal case where condition, like col = val
+     *
+     * @param array $w
+     * @return string
+     */
+    protected function buildColRelVal( $w )
+    {
+        $rel = $w[ 'rel' ];
         $col = $w[ 'col' ];
         $val = $w[ 'val' ];
-        list( $val, $rel ) = $this->formWhereByRel( $rel, $val );
-        $col = $this->formWhereByCol( $col );
+        if ( $rel == 'EQ' ) {
+            // EQ: equal to another column (i.e. val is an identifier.)
+            $val = $this->quote( $val );
+            $rel = '=';
+        } else {
+            $val = $this->formWhereVal( $val );
+        }
+        // normal case. compose where like col = val
+        $col = $this->formWhereCol( $col );
 
         $where = trim( "{$col} {$rel} {$val}" ) . ' ';
         return $where;
@@ -171,43 +195,30 @@ class BuildWhere
     }
 
     /**
-     * @param $rel
-     * @param $val
-     * @return array
+     * @param mixed $val
+     * @return string
      */
-    protected function formWhereByRel( $rel, $val )
+    protected function formWhereVal( $val )
     {
-        if ( $rel == 'EQ' ) {
-
-            $val = $this->quote( $val );
-            $rel = '=';
-            return array( $val, $rel );
-
-        } elseif ( is_callable( $val ) ) {
-
-            $val = $val();
-            return array( $val, $rel );
-
-        } elseif ( $val instanceof SqlInterface ) {
-
-            $val = '( ' . $this->builder->toSql( $val ) . ' )';
-            return array( $val, $rel );
-
-        } elseif ( $val !== false ) {
-
-            $val = $this->prepare( $val );
-            return array( $val, $rel );
+        if ( is_callable( $val ) ) {
+            return $val();
         }
-        return array( $val, $rel );
+        if ( $val instanceof SqlInterface ) {
+            return '( ' . $this->builder->toSql( $val ) . ' )';
+        }
+        if ( $val !== false ) {
+            return $this->prepare( $val );
+        }
+        return '';
     }
 
     /**
-     * @param $col
+     * @param mixed $col
      * @return string
      */
-    protected function formWhereByCol( $col )
+    protected function formWhereCol( $col )
     {
-// making $col.
+        // making $col.
         if ( is_string( $col ) ) {
 
             $col = $this->quote( $col );
@@ -215,8 +226,7 @@ class BuildWhere
 
         } elseif ( is_callable( $col ) ) {
 
-            $col = $col();
-            return $col;
+            return $col();
         }
         return $col;
     }

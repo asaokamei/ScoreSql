@@ -21,24 +21,9 @@ class Query extends Sql\Sql
      */
     protected $bound = [];
 
-    /**
-     * @var string
-     */
-    protected $dbType;
-
     // +----------------------------------------------------------------------+
     //  manage Query.
     // +----------------------------------------------------------------------+
-    /**
-     * @param string $type
-     * @return $this
-     */
-    public function dbType( $type )
-    {
-        $this->dbType = $type;
-        return $this;
-    }
-
     /**
      * @param Builder $builder
      */
@@ -65,7 +50,7 @@ class Query extends Sql\Sql
      */
     public function __toString()
     {
-        $builder = $this->builder ?: Factory::buildBuilder( $this->dbType );
+        $builder = $this->builder ?: Factory::buildBuilder();
         $sql = $builder->toSql( $this );
         $this->bound = $builder->getBind()->getBinding();
         return $sql;

@@ -9,6 +9,11 @@ class Sql implements SqlInterface
     protected $sqlType = 'select';
 
     /**
+     * @var string
+     */
+    protected $dbType = 'GenericSql';
+
+    /**
      * @var Where
      */
     protected $where;
@@ -91,6 +96,16 @@ class Sql implements SqlInterface
     protected $subQueryCount = 1;
 
     // +----------------------------------------------------------------------+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function dbType( $type )
+    {
+        $this->dbType = $type;
+        return $this;
+    }
+
     /**
      * starts a Where clause with column name set.
      *

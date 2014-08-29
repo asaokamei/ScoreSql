@@ -1,7 +1,7 @@
 <?php
 namespace WScore\ScoreSql\Builder;
 
-class Pgsql extends Builder
+class Pgsql extends GenericSql
 {
     protected $select = [
         'flags',

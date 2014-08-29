@@ -31,20 +31,12 @@ class Factory
     }
 
     /**
-     * @param string $dbType
      * @return Builder
      */
-    public static function buildBuilder( $dbType=null )
+    public static function buildBuilder()
     {
-        $dbType = ucwords( $dbType );
         $bind   = static::buildBind();
         $quote  = static::buildQuote();
-        if( $dbType == 'Mysql' ) {
-            return new Mysql( $bind, $quote );
-        }
-        if( $dbType == 'Pgsql' ) {
-            return new Pgsql( $bind, $quote );
-        }
         return new Builder( $bind, $quote );
     }
 

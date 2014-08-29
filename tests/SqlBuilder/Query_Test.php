@@ -28,7 +28,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         ;
         $this->assertEquals(
             'SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_prep_1',
-            $sql );
+            (string) $sql );
         $this->assertEquals( [ ':db_prep_1' => 4 ], DB::bind() );
     }
 

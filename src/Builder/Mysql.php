@@ -1,7 +1,7 @@
 <?php
 namespace WScore\ScoreSql\Builder;
 
-class Mysql extends Builder
+class Mysql extends GenericSql
 {
     /**
      * @var string

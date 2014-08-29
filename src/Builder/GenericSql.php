@@ -19,6 +19,11 @@ class GenericSql
     protected $quote = null;
 
     /**
+     * @var Builder
+     */
+    protected $builder = null;
+
+    /**
      * @var string
      */
     protected $quoteChar = '"';
@@ -78,36 +83,14 @@ class GenericSql
      * @param Bind  $bind
      * @param Quote $quote
      * @param Builder $builder
+     * @param Sql $query
      */
-    public function __construct( $bind, $quote, $builder )
+    public function __construct( $bind, $quote, $builder, $query )
     {
         $this->quote = $quote;
         $this->quote->setQuote( $this->quoteChar );
         $this->bind  = $bind;
         $this->builder = $builder;
-    }
-
-    /**
-     * @return Bind
-     */
-    public function getBind()
-    {
-        return $this->bind;
-    }
-
-    /**
-     * @return Quote
-     */
-    public function getQuote()
-    {
-        return $this->quote;
-    }
-
-    /**
-     * @param Sql $query
-     */
-    public function setQuery( $query )
-    {
         $this->query = $query;
     }
 
@@ -157,6 +140,7 @@ class GenericSql
         $list = $this->$sqlType;
         return $this->buildByList($list);
     }
+    
     /**
      * @param $list
      * @return string
@@ -191,11 +175,11 @@ class GenericSql
      */
     protected function buildInsertVal()
     {
-        $columns = [ ];
+        $values = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $columns[ ] = $this->evaluate( $val ) ?:$this->prepare( $val, $col );
+            $values[ ] = $this->evaluate( $val ) ?: $this->prepare( $val, $col );
         }
-        return 'VALUES ( ' . implode( ', ', $columns ) . ' )';
+        return 'VALUES ( ' . implode( ', ', $values ) . ' )';
     }
 
     protected function buildUpdateSet()
@@ -258,7 +242,7 @@ class GenericSql
             if( is_string( $join ) ) {
                 $joined .= $join;
             } elseif( $join instanceof Join ) {
-                $joined .= $join->build( $this->getBind(), $this->getQuote() );
+                $joined .= $join->build( $this->bind, $this->quote );
             }
         }
         return $joined;
@@ -360,7 +344,7 @@ class GenericSql
         if( is_callable($string) ) {
             return $string();
         } elseif( is_object($string) && $string instanceof SqlInterface ) {
-            $builder = new Builder( $this->getBind(), $this->getQuote() );
+            $builder = new Builder( $this->bind, $this->quote );
             return '( '.$builder->toSql( $string ).' )';
         }
         return null;
@@ -397,7 +381,7 @@ class GenericSql
             throw new \InvalidArgumentException;
         }
         $criteria->setBuilder( $this->builder );
-        $sql = $criteria->build( $this->getBind(), $this->getQuote(), $this->getMagicQuery('tableAlias'), $this->getMagicQuery('tableParent') );
+        $sql = $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias'), $this->getMagicQuery('tableParent') );
         return $sql ? strtoupper($type) . ' ' . $sql : '';
     }
     // +----------------------------------------------------------------------+

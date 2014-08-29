@@ -1,10 +1,8 @@
 <?php
 namespace WScore\ScoreSql\Builder;
 
-use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
 use WScore\ScoreSql\Sql\SqlInterface;
-use WScore\ScoreSql\Sql\Where;
 
 class Builder
 {
@@ -19,11 +17,6 @@ class Builder
     protected $quote = null;
 
     /**
-     * @var string
-     */
-    protected $quoteChar = '"';
-
-    /**
      * @var Sql
      */
     protected $query;
@@ -32,14 +25,6 @@ class Builder
      * @var GenericSql
      */
     protected $builder;
-
-    protected $sqlHeaders = [
-        'select' => 'SELECT',
-        'count'  => 'SELECT',
-        'insert' => 'INSERT INTO',
-        'update' => 'UPDATE',
-        'delete' => 'DELETE FROM',
-    ];
 
     // +----------------------------------------------------------------------+
     //  construction
@@ -80,8 +65,7 @@ class Builder
         $dbType  = ucwords( $dbType );
         /** @var GenericSql $builder */
         $class = '\WScore\ScoreSql\Builder\\'.$dbType;
-        $this->builder = new $class( $this->bind, $this->quote, $this );
-        $this->builder->setQuery($this->query);
+        $this->builder = new $class( $this->bind, $this->quote, $this, $this->query );
     }
 
     // +----------------------------------------------------------------------+

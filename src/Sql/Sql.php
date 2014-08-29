@@ -232,6 +232,14 @@ class Sql implements SqlInterface
     /**
      * @return string
      */
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    /**
+     * @return string
+     */
     public function getAliasOrTable()
     {
         return $this->tableAlias ?: $this->table;

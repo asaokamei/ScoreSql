@@ -87,11 +87,11 @@ class Where
     }
 
     /**
-     * @param Builder $query
+     * @param Builder $builder
      */
-    public function setBuilder( $query )
+    public function setBuilder( $builder )
     {
-        $this->builder = $query;
+        $this->builder = $builder;
     }
 
     /**

@@ -162,12 +162,13 @@ class GenericSql
      */
     protected function buildInsertCol()
     {
-        $keys    = array_keys( $this->getMagicQuery('values') );
-        $columns = [ ];
-        foreach ( $keys as $col ) {
-            $columns[ ] = $this->quote( $col );
-        }
-        return '( ' . implode( ', ', $columns ) . ' )';
+        /** @noinspection PhpUnusedParameterInspection */
+        return '( ' . $this->formatList(
+            $this->getMagicQuery('values'),
+            function( $col, $val ) {
+                return $this->quote( $col );
+            }
+        ) . ' )';
     }
 
     /**
@@ -175,24 +176,43 @@ class GenericSql
      */
     protected function buildInsertVal()
     {
-        $values = [ ];
-        foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $values[ ] = $this->evaluate( $val ) ?: $this->prepare( $val, $col );
-        }
-        return 'VALUES ( ' . implode( ', ', $values ) . ' )';
+        return 'VALUES ( ' . $this->formatList(
+            $this->getMagicQuery('values'),
+            function( $col, $val ) {
+                return $this->evaluate( $val ) ?: $this->prepare( $val, $col );
+            }
+        ) . ' )';
     }
 
+    /**
+     * @return string
+     */
     protected function buildUpdateSet()
     {
-        $setter = [ ];
-        foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $val = $this->evaluate( $val ) ?: $this->prepare( $val, $col );
-            $col       = $this->quote( $col );
-            $setter[ ] = $this->quote( $col ) . '=' . $val;
-        }
-        return 'SET ' . implode( ', ', $setter );
+        return 'SET ' . $this->formatList(
+            $this->getMagicQuery('values'),
+            function( $col, $val ) {
+                $val = $this->evaluate( $val ) ?: $this->prepare( $val, $col );
+                $col = $this->quote( $col );
+                return $this->quote( $col ) . '=' . $val;
+            }
+        );
     }
 
+    /**
+     * @param array    $list
+     * @param \Closure $callable
+     * @param string   $sep
+     * @return string
+     */
+    protected function formatList( $list, $callable, $sep=', ' )
+    {
+        foreach( $list as $col => $val ) {
+            $list[$col] = $callable( $col, $val );
+        }
+        return implode( $sep, $list );
+    }
+    
     /**
      * @return string
      */
@@ -236,16 +256,17 @@ class GenericSql
      */
     protected function buildJoin()
     {
-        if( !$join_list = $this->getMagicQuery('join') ) return '';
-        $joined = '';
-        foreach( $join_list as $join ) {
-            if( is_string( $join ) ) {
-                $joined .= $join;
-            } elseif( $join instanceof Join ) {
-                $joined .= $join->build( $this->bind, $this->quote );
-            }
-        }
-        return $joined;
+        /** @noinspection PhpUnusedParameterInspection */
+        return $this->formatList(
+            $this->getMagicQuery('join'),
+            function( $col, $join ) {
+                if( $join instanceof Join ) {
+                    $join = $join->build( $this->bind, $this->quote );
+                }
+                return $join;
+            },
+            ''
+        );
     }
 
     /**
@@ -254,18 +275,17 @@ class GenericSql
      */
     protected function buildColumn()
     {
-        if ( !$column_list = $this->getMagicQuery('columns') ) {
-            return '*';
-        }
-        $columns = [ ];
-        foreach ( $column_list as $alias => $col ) {
-            $col = $this->evaluate( $col ) ?: $this->quote($col);
-            if ( !is_numeric( $alias ) ) {
-                $col .= ' AS ' . $this->quote( $alias );
+        if ( !$column_list = $this->getMagicQuery('columns') ) return '*';
+        return $this->formatList(
+            $column_list,
+            function( $alias, $col ) {
+                $col = $this->evaluate( $col ) ?: $this->quote($col);
+                if ( !is_numeric( $alias ) ) {
+                    $col .= ' AS ' . $this->quote( $alias );
+                }
+                return $col;
             }
-            $columns[ ] = $col;
-        }
-        return implode( ', ', $columns );
+        );
     }
 
     /**
@@ -293,11 +313,13 @@ class GenericSql
     protected function buildOrderBy()
     {
         if ( !$orders = $this->getMagicQuery('order') ) return '';
-        $sql = [ ];
-        foreach ( $orders as $order ) {
-            $sql[ ] = $this->quote( $order[ 0 ], $this->getMagicQuery('tableAlias') ) . " " . $order[ 1 ];
-        }
-        return 'ORDER BY ' . implode( ', ', $sql );
+        /** @noinspection PhpUnusedParameterInspection */
+        return 'ORDER BY ' . $this->formatList(
+            $orders,
+            function( $col, $order ) {
+                return $this->quote( $order[ 0 ], $this->getMagicQuery('tableAlias') ) . " " . $order[ 1 ];
+            }
+        );
     }
 
     /**
@@ -357,7 +379,8 @@ class GenericSql
      */
     protected function buildWhere()
     {
-        return $this->buildCriteria( 'where' );
+        $criteria = $this->buildCriteria( 'where' );
+        return $criteria ? 'WHERE '.$criteria : '';
     }
 
     /**
@@ -365,7 +388,8 @@ class GenericSql
      */
     protected function buildHaving()
     {
-        return $this->buildCriteria( 'having' );
+        $criteria = $this->buildCriteria( 'having' );
+        return $criteria ? 'HAVING '.$criteria : '';
     }
 
     /**
@@ -376,13 +400,12 @@ class GenericSql
     protected function buildCriteria( $type )
     {
         if( !$criteria = $this->getMagicQuery($type) ) return '';
-        if( !$criteria ) return '';
         if( !$criteria instanceof Where ) {
             throw new \InvalidArgumentException;
         }
         $criteria->setBuilder( $this->builder );
         $sql = $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias'), $this->getMagicQuery('tableParent') );
-        return $sql ? strtoupper($type) . ' ' . $sql : '';
+        return $sql;
     }
     // +----------------------------------------------------------------------+
 }

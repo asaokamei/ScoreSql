@@ -43,7 +43,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         ;
         $this->assertEquals(
             'INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )',
-            $sql );
+            (string) $sql );
         $this->assertEquals( [ ':db_prep_1' => 'val1', ':db_prep_2' => 'val2' ], DB::bind() );
     }
 

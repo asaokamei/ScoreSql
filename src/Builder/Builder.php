@@ -11,12 +11,12 @@ class Builder
     /**
      * @var Bind
      */
-    protected $bind;
+    protected $bind = null;
 
     /**
      * @var Quote
      */
-    protected $quote;
+    protected $quote = null;
 
     /**
      * @var string
@@ -94,6 +94,14 @@ class Builder
     }
 
     /**
+     * @return Quote
+     */
+    public function getQuote()
+    {
+        return $this->quote;
+    }
+
+    /**
      * @param \WScore\ScoreSql\Sql\Sql $query
      */
     protected function setQuery( $query )
@@ -125,6 +133,16 @@ class Builder
         return $this->quote->quote( $name, $alias );
     }
 
+    /**
+     * @param string|array $val
+     * @param null|int|string  $col     column name. used to find data type
+     * @param null|int         $type    data type
+     * @return array|string
+     */
+    protected function prepare( $val, $col, $type=null )
+    {
+        return $this->bind->prepare( $val, $col, $type );
+    }
     // +----------------------------------------------------------------------+
     //  convert to SQL statements.
     // +----------------------------------------------------------------------+
@@ -233,7 +251,7 @@ class Builder
     {
         $columns = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $columns[ ] = $this->evaluate( $val ) ?:$this->bind->prepare( $val, $col );
+            $columns[ ] = $this->evaluate( $val ) ?:$this->prepare( $val, $col );
         }
         return 'VALUES ( ' . implode( ', ', $columns ) . ' )';
     }
@@ -242,7 +260,7 @@ class Builder
     {
         $setter = [ ];
         foreach ( $this->getMagicQuery('values') as $col => $val ) {
-            $val = $this->evaluate( $val ) ?: $this->bind->prepare( $val, $col );
+            $val = $this->evaluate( $val ) ?: $this->prepare( $val, $col );
             $col       = $this->quote( $col );
             $setter[ ] = $this->quote( $col ) . '=' . $val;
         }
@@ -298,7 +316,7 @@ class Builder
             if( is_string( $join ) ) {
                 $joined .= $join;
             } elseif( $join instanceof Join ) {
-                $joined .= $join->build( $this->bind, $this->quote );
+                $joined .= $join->build( $this->getBind(), $this->getQuote() );
             }
         }
         return $joined;
@@ -361,10 +379,7 @@ class Builder
      */
     protected function buildLimit()
     {
-        if( !$limit = $this->getMagicQuery('limit') ) return '';
-        if( !is_numeric($limit) ) return '';
-        if( $limit <= 0 ) return '';
-        return "LIMIT " . $limit;
+        return $this->buildLimitOrOffset('limit');
     }
 
     /**
@@ -372,10 +387,15 @@ class Builder
      */
     protected function buildOffset()
     {
-        if( !$offset = $this->getMagicQuery('offset') ) return '';
-        if( !is_numeric( $offset ) ) return '';
-        if( $offset <= 0 ) return '';
-        return "OFFSET " . $offset;
+        return $this->buildLimitOrOffset('offset');
+    }
+
+    protected function buildLimitOrOffset($type)
+    {
+        if( !$integer = $this->getMagicQuery($type) ) return '';
+        if( !is_numeric( $integer ) ) return '';
+        if( $integer <= 0 ) return '';
+        return strtoupper($type) . " " . $integer;
     }
 
     /**
@@ -398,7 +418,7 @@ class Builder
         if( is_callable($string) ) {
             return $string();
         } elseif( is_object($string) && $string instanceof SqlInterface ) {
-            $builder = new Builder( $this->bind, $this->quote );
+            $builder = new Builder( $this->getBind(), $this->getQuote() );
             return '( '.$builder->toSql( $string ).' )';
         }
         return null;
@@ -411,9 +431,7 @@ class Builder
      */
     protected function buildWhere()
     {
-        if( !$criteria = $this->getMagicQuery('where') ) return '';
-        $sql  = $this->buildCriteria( $criteria );
-        return $sql ? 'WHERE ' . $sql : '';
+        return $this->buildCriteria( 'where' );
     }
 
     /**
@@ -421,24 +439,24 @@ class Builder
      */
     protected function buildHaving()
     {
-        if ( !$criteria = $this->getMagicQuery('having') ) return '';
-        $sql  = $this->buildCriteria( $criteria );
-        return $sql ? 'HAVING ' . $sql : '';
+        return $this->buildCriteria( 'having' );
     }
 
     /**
-     * @param Where $criteria
+     * @param string $type
      * @throws \InvalidArgumentException
      * @return string
      */
-    protected function buildCriteria( $criteria )
+    protected function buildCriteria( $type )
     {
+        if( !$criteria = $this->getMagicQuery($type) ) return '';
         if( !$criteria ) return '';
         if( !$criteria instanceof Where ) {
             throw new \InvalidArgumentException;
         }
         $criteria->setBuilder( $this );
-        return $criteria->build( $this->bind, $this->quote, $this->getMagicQuery('tableAlias'), $this->getMagicQuery('tableParent') );
+        $sql = $criteria->build( $this->getBind(), $this->getQuote(), $this->getMagicQuery('tableAlias'), $this->getMagicQuery('tableParent') );
+        return $sql ? strtoupper($type) . ' ' . $sql : '';
     }
     // +----------------------------------------------------------------------+
 }

@@ -23,6 +23,11 @@ class GenericUtils
     protected $builder = null;
 
     /**
+     * @var Sql
+     */
+    protected $query;
+
+    /**
      * @var string
      */
     protected $quoteChar = '"';

@@ -2,15 +2,9 @@
 namespace WScore\ScoreSql\Builder;
 
 use WScore\ScoreSql\Sql\Join;
-use WScore\ScoreSql\Sql\Sql;
 
 class GenericSql extends GenericUtils
 {
-    /**
-     * @var Sql
-     */
-    protected $query;
-
     protected $select = [
         'flags',
         'column',

@@ -41,7 +41,7 @@ class DB
      * @param bool $new
      * @return Query
      */
-    protected static function getQuery( $new=false )
+    protected static function getQuery( $new=true )
     {
         if( !static::$query || $new ) {
             static::$query = Factory::buildQuery();
@@ -84,7 +84,7 @@ class DB
      */
     public static function subQuery( $table, $alias = null )
     {
-        return static::getQuery()->sub( $table, $alias );
+        return static::getQuery(false)->sub( $table, $alias );
     }
 
     /**

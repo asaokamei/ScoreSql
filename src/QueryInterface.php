@@ -69,14 +69,14 @@ interface QueryInterface
      * builds update statement.
      *
      * @param array $data
-     * @return PdoStatement
+     * @return \PdoStatement
      */
     public function update( $data = array() );
 
     /**
      * @param $data
      * @throws InvalidArgumentException
-     * @return int|PdoStatement
+     * @return int|\PdoStatement
      */
     public function save( $data );
 

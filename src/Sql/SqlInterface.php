@@ -7,6 +7,8 @@
  */
 namespace WScore\ScoreSql\Sql;
 
+use Closure;
+
 interface SqlInterface
 {
     /**
@@ -100,6 +102,12 @@ interface SqlInterface
     public function where( $where, $andOr = null );
 
     /**
+     * @param string|Closure $column
+     * @return Where
+     */
+    public function given( $column );
+
+    /**
      * @param string $table
      * @param string $alias
      * @return $this
@@ -137,7 +145,7 @@ interface SqlInterface
 
     /**
      * @param $value
-     * @return callable
+     * @return Closure
      */
     public static function raw( $value );
 

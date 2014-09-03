@@ -1,6 +1,8 @@
 <?php
 namespace WScore\ScoreSql\Sql;
 
+use Closure;
+
 class Sql implements SqlInterface
 {
     /**
@@ -114,7 +116,7 @@ class Sql implements SqlInterface
      */
     public function __get( $column )
     {
-        return Where::column( $column );
+        return $this->given( $column );
     }
 
     /**
@@ -185,7 +187,7 @@ class Sql implements SqlInterface
 
     /**
      * @param $value
-     * @return \Closure
+     * @return Closure
      */
     public static function raw( $value )
     {
@@ -216,6 +218,15 @@ class Sql implements SqlInterface
     public function whereOr( $where )
     {
         return $this->where( $where, 'or' );
+    }
+
+    /**
+     * @param string|Closure $column
+     * @return Where
+     */
+    public function given( $column )
+    {
+        return Where::column( $column );
     }
 
     /**

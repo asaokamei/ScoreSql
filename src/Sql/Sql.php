@@ -199,7 +199,7 @@ class Sql implements SqlInterface
     /**
      * @param Where       $where
      * @param string|null $andOr
-     * @return $this
+     * @return $this|static
      */
     public function where( $where, $andOr=null )
     {

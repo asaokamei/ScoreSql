@@ -91,7 +91,7 @@ class GenericUtils
      */
     protected function evaluate( $string )
     {
-        if( is_callable($string) ) {
+        if( is_object($string) && is_callable($string) ) {
             return $string();
         } elseif( is_object($string) && $string instanceof SqlInterface ) {
             $builder = new Builder( $this->bind, $this->quote );

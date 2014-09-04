@@ -61,7 +61,7 @@ class Bind
             }
             return $holder;
         }
-        if( is_callable( $val ) ) return $val;
+        if( is_object($val) && is_callable( $val ) ) return $val;
 
         $holder  = ( static::$useColumnInBindValues ) ? ':' : ''; 
         $holder .=  'db_prep_' . $this->prepared_counter++;

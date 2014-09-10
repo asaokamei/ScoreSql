@@ -125,7 +125,7 @@ class BuildWhere
         if( $rel instanceof Where ) {
             return $rel->build( $this->bind, $this->quote ) . ' ';
         }
-        if( is_callable( $rel ) ) {
+        if( $rel instanceof \Closure ) {
             return $rel() . ' ';
         }
         $rel = strtoupper( $rel );
@@ -201,7 +201,7 @@ class BuildWhere
      */
     protected function formWhereVal( $val )
     {
-        if ( is_callable( $val ) ) {
+        if ( $val instanceof \Closure ) {
             return $val();
         }
         if ( $val instanceof SqlInterface ) {
@@ -225,7 +225,7 @@ class BuildWhere
             $col = $this->quote( $col );
             return $col;
 
-        } elseif ( is_callable( $col ) ) {
+        } elseif ( $col instanceof \Closure ) {
 
             return $col();
         }

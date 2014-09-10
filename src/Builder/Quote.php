@@ -43,7 +43,7 @@ class Quote
     public function quote( $name, $prefix=null, $parent=null )
     {
         if( !$name ) return $name;
-        if( is_object($name) && is_callable( $name ) ) return $name();
+        if( $name instanceof \Closure ) return $name();
         if( $prefix ) {
             $name = $this->addPrefixToName( $name, $prefix, $parent );
         }

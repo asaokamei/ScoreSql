@@ -94,6 +94,7 @@ class GenericUtils
         if( $string instanceof \Closure ) {
             return $string();
         } elseif( is_object($string) && $string instanceof SqlInterface ) {
+            $string->dbType( $this->builder->getDbType() );
             $builder = new Builder( $this->bind, $this->quote );
             return '( '.$builder->toSql( $string ).' )';
         }

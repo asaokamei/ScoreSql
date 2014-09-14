@@ -26,6 +26,14 @@ class Builder
      */
     protected $builder;
 
+    /**
+     * database type (mysql, pgsql, etc.) of original query. 
+     * pass this to the sub-query. 
+     * 
+     * @var string
+     */
+    protected $dbType;
+
     // +----------------------------------------------------------------------+
     //  construction
     // +----------------------------------------------------------------------+
@@ -61,11 +69,21 @@ class Builder
     protected function setQuery( $query )
     {
         $this->query = $query;
-        $dbType  = $query->magicGet('dbType') ?: 'GenericSql';
-        $dbType  = ucwords( $dbType );
+        if( !$this->dbType ) {
+            $this->dbType  = $query->magicGet('dbType') ?: 'GenericSql';
+            $this->dbType  = ucwords( $this->dbType );
+        }
         /** @var GenericSql $builder */
-        $class = '\WScore\ScoreSql\Builder\\'.$dbType;
+        $class = '\WScore\ScoreSql\Builder\\'.$this->dbType;
         $this->builder = new $class( $this->bind, $this->quote, $this, $this->query );
+    }
+
+    /**
+     * @return string
+     */
+    public function getDbType()
+    {
+        return $this->dbType;
     }
 
     // +----------------------------------------------------------------------+

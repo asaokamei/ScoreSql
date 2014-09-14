@@ -12,6 +12,12 @@ use Closure;
 interface SqlInterface
 {
     /**
+     * @param string $type
+     * @return $this
+     */
+    public function dbType( $type );
+    
+    /**
      * @param $column
      * @return Where
      */

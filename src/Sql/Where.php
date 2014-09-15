@@ -353,12 +353,15 @@ class Where
     }
 
     /**
-     * @param array $values
+     * @param array|SqlInterface $values
      * @return Where
      */
     public function in( $values )
     {
-        if( !is_array($values ) ) {
+        if( $values instanceof SqlInterface ) {
+            // use it as is
+        }
+        elseif( !is_array($values ) ) {
             $values = func_get_args();
         }
         return $this->where( $this->column, $values, 'IN' );

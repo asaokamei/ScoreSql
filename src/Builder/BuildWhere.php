@@ -189,7 +189,7 @@ class BuildWhere
         $col = $where[ 'col' ];
         $col = $this->quote( $col );
         $val = $where[ 'val' ];
-        $val = $this->prepare( $val );
+        $val = $this->formWhereVal( $val );
         $tmp = is_array( $val ) ? implode( ", ", $val ) : $val;
         $val = "( " . $tmp . " )";
         return "{$col} {$rel} {$val} ";

@@ -32,13 +32,13 @@ class GenericSql extends GenericUtils
     ];
 
     protected $insert = [
-        'table',
+        'tableAlias',
         'insertCol',
         'insertVal'
     ];
 
     protected $update = [
-        'table',
+        'tableAlias',
         'updateSet',
         'where',
     ];

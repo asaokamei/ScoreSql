@@ -3,7 +3,6 @@ namespace tests\Sql;
 
 use WScore\ScoreSql\DB;
 use WScore\ScoreSql\Query;
-use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
@@ -15,7 +14,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_select()
     {
-        $sql = Query::from('myTable')
+        $sql = DB::from('myTable')
             ->column('col1', 'aliased1')
             ->columns( 'col2', 'col3' )
             ->where(
@@ -33,7 +32,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_insert()
     {
-        $sql = Query::from('myTable')
+        $sql = DB::from('myTable')
             ->value( [ 'col1' => 'val1', 'col2'=>'val2' ] )
             ->toInsert();
         ;
@@ -48,7 +47,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_update()
     {
-        $sql = Query::from('myTable');
+        $sql = DB::from('myTable');
         $sql->where(
                 DB::given('name')->like('bob')->or()->status->eq('1')
             )
@@ -112,7 +111,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function update_builds_update_statement()
     {
-        $sql = Query::from( 'myTable' )
+        $sql = DB::from( 'myTable' )
             ->where(
                 Where::column('pKey')->in( '1', '2' )
             )
@@ -127,7 +126,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done', ':db_prep_3' => '1', ':db_prep_4' => '2' ],
             $sql->getBind() );
 
-        $query = Query::from('myTable');
+        $query = DB::from('myTable');
         $query->test = 'tested';
         $query->more = $query->raw('NOW()');
         $sql = $query
@@ -165,7 +164,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function cool()
     {
-        $sql = Query::from('table')
+        $sql = DB::from('table')
             ->where(
                 Where::bracket()
                     ->gender->is('F')->or()->status->is('1')
@@ -189,8 +188,8 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function query_with_join_using()
     {
-        $sql = Query::from( 'table1' )
-            ->join( Join::table( 'another')->using( 'key' ) )
+        $sql = DB::from( 'table1' )
+            ->join( DB::join( 'another')->using( 'key' ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals( 
             'SELECT * FROM "table1" JOIN "another" USING( "key" ) WHERE "key" = :db_prep_1', 
@@ -203,7 +202,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function query_with_leftJoin_on()
     {
-        $sql = Query::from( 'table1' )
+        $sql = DB::from( 'table1' )
             ->join( DB::join( 'another', 'an' )->left()->on( DB::given('thisKey')->identical('$.thatKey') ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals(
@@ -219,7 +218,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function query_with_rightJoin_on_using()
     {
-        $sql = Query::from( 'table1' )
+        $sql = DB::from( 'table1' )
             ->join( DB::join( 'another', 'an' )->right()->using('key')->on( DB::given('$.thisKey')->identical('thatKey') ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals(
@@ -235,7 +234,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_in_column()
     {
-        $query = Query::from( 'main' );
+        $query = DB::from( 'main' );
         $query->column(
                 $query->subQuery('sub')
                     ->column( $query->raw('COUNT(*)'), 'count' )
@@ -273,7 +272,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_in_where_is()
     {
-        $query = Query::from( 'main' );
+        $query = DB::from( 'main' );
         $query->where(
             $query->given('status')->is(
                     $query->subQuery('sub')->column('status')->where( $query->given('name')->is('bob') )
@@ -291,12 +290,12 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_in_update_set_and_insert()
     {
-        $sql = Query::from( 'main' );
+        $sql = DB::from( 'main' );
         $sql->value( 'count', $sql->subQuery('sub')->column($sql->raw('COUNT(*)'))->where($sql->given('status')->is(1)))->toUpdate();
         $this->assertEquals(
             'UPDATE "main" SET "count"=( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 )', (string) $sql );
 
-        $sql = Query::from( 'main' );
+        $sql = DB::from( 'main' );
         $sql->value( 'count', $sql->subQuery('sub')->column($sql->raw('COUNT(*)'))->where($sql->given('status')->is(1)))->toInsert();
         $this->assertEquals(
             'INSERT INTO "main" ( "count" ) VALUES ( ( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) )', (string) $sql );

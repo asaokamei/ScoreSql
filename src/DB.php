@@ -18,6 +18,18 @@ class DB
     /**
      * @param string $table
      * @param string $alias
+     * @return Query
+     */
+    public static function from( $table, $alias = null )
+    {
+        $self = Query::forge();
+        $self->table( $table, $alias );
+        return $self;
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
      * @return Join
      */
     public static function join( $table, $alias=null )

@@ -155,7 +155,7 @@ class Where
     {
         /** @var self $where */
         $where = new static;
-        $where->col( $name );
+        $where->given( $name );
         return $where;
     }
 
@@ -267,7 +267,7 @@ class Where
      * set where statement with values properly prepared/quoted.
      *
      * @param string       $col
-     * @param string|bool|array  $val
+     * @param mixed        $val
      * @param string|Where $rel
      * @param null|string  $op
      * @return Where
@@ -285,14 +285,14 @@ class Where
      * @return Where
      */
     public function __get( $name ) {
-        return $this->col( $name );
+        return $this->given( $name );
     }
 
     /**
      * @param string $col
      * @return Where
      */
-    public function col( $col )
+    public function given( $col )
     {
         $this->column = $col;
         return $this;

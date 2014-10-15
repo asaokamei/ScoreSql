@@ -3,8 +3,6 @@ namespace tests\Sql;
 
 use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\DB;
-use WScore\ScoreSql\Factory;
-use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Sql;
 use WScore\ScoreSql\Sql\Where;
 
@@ -24,7 +22,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
     
     function setup()
     {
-        $this->builder = Factory::buildBuilder();
+        $this->builder = Builder::forge();
         $this->query   = new Sql();
     }
     

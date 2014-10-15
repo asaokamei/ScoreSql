@@ -74,7 +74,7 @@ class Query extends Sql\Sql
      */
     public function __toString()
     {
-        $builder = $this->builder ?: Factory::buildBuilder();
+        $builder = $this->builder ?: Builder::forge();
         $sql = $builder->toSql( $this );
         $this->bound = $builder->getBind()->getBinding();
         return $sql;

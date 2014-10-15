@@ -1,9 +1,9 @@
 <?php
 namespace tests\Sql;
 
+use WScore\ScoreDB\Query;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Quote;
-use WScore\ScoreSql\Factory;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
@@ -349,10 +349,10 @@ class Where_Test extends \PHPUnit_Framework_TestCase
      */
     function where_ends()
     {
-        $query = Factory::query( 'pgsql' );
+        $query = Query::forge()->dbType( 'pgsql' );
         $sql = $query->table( 'table' )->column( 'this', 'that' )
             ->where(
-                $query->pKey->eq('1')->or()->pKey->eq('5')
+                $query->given('pKey')->eq('1')->or()->pKey->eq('5')
             )
             ->order( 'sort' );
         $this->assertEquals(

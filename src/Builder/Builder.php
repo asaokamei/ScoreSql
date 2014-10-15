@@ -48,6 +48,16 @@ class Builder
     }
 
     /**
+     * @return Builder
+     */
+    public static function forge()
+    {
+        $bind   = new Bind();
+        $quote  = new Quote();
+        return new Builder( $bind, $quote );
+    }
+
+    /**
      * @return Bind
      */
     public function getBind()

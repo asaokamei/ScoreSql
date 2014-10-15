@@ -84,7 +84,7 @@ class DB
      */
     public static function subQuery( $table, $alias = null )
     {
-        return static::getQuery(false)->sub( $table, $alias );
+        return static::getQuery(false)->subQuery( $table, $alias );
     }
 
     /**

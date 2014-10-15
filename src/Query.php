@@ -2,6 +2,7 @@
 namespace WScore\ScoreSql;
 
 use WScore\ScoreSql\Builder\Builder;
+use WScore\ScoreSql\Sql\Join;
 
 /**
  * Class Query

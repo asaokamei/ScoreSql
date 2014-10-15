@@ -155,9 +155,9 @@ class Sql implements SqlInterface
      *
      * @param string $table
      * @param string $alias
-     * @return Sql|$this
+     * @return $this
      */
-    public function sub( $table, $alias=null )
+    public function subQuery( $table, $alias=null )
     {
         $sub = new self();
         if( !$alias ) $alias = 'sub_' . $this->subQueryCount ++;
@@ -199,7 +199,7 @@ class Sql implements SqlInterface
     /**
      * @param Where       $where
      * @param string|null $andOr
-     * @return $this|static
+     * @return $this
      */
     public function where( $where, $andOr=null )
     {
@@ -266,7 +266,7 @@ class Sql implements SqlInterface
     /**
      * @return string
      */
-    public function getAliasOrTable()
+    protected function getAliasOrTable()
     {
         return $this->tableAlias ?: $this->table;
     }

@@ -23,6 +23,29 @@ class Query extends Sql\Sql
     protected $bound = [];
 
     // +----------------------------------------------------------------------+
+    //  managing objects and construction
+    // +----------------------------------------------------------------------+
+    /**
+     * @return $this
+     */
+    public static function forge()
+    {
+        return new static;
+    }
+
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return Query
+     */
+    public static function from( $table, $alias = null )
+    {
+        $self = new static;
+        $self->table( $table, $alias );
+        return $self;
+    }
+
+    // +----------------------------------------------------------------------+
     //  manage Query.
     // +----------------------------------------------------------------------+
     /**

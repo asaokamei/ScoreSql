@@ -2,6 +2,7 @@
 namespace tests\Sql;
 
 use WScore\ScoreSql\DB;
+use WScore\ScoreSql\Query;
 use WScore\ScoreSql\Sql\Join;
 use WScore\ScoreSql\Sql\Where;
 
@@ -9,17 +10,12 @@ require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
 class Query_Test extends \PHPUnit_Framework_TestCase
 {
-    function teardown()
-    {
-        DB::refresh();
-    }
-
     /**
      * @test
      */
     function simple_example_of_select()
     {
-        $sql = DB::from('myTable')
+        $sql = Query::from('myTable')
             ->column('col1', 'aliased1')
             ->columns( 'col2', 'col3' )
             ->where(
@@ -29,7 +25,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'SELECT "col1" AS "aliased1", "col2", "col3" FROM "myTable" WHERE "status" = :db_prep_1',
             (string) $sql );
-        $this->assertEquals( [ ':db_prep_1' => 4 ], DB::bind() );
+        $this->assertEquals( [ ':db_prep_1' => 4 ], $sql->getBind() );
     }
 
     /**
@@ -37,14 +33,14 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_insert()
     {
-        $sql = DB::from('myTable')
+        $sql = Query::from('myTable')
             ->value( [ 'col1' => 'val1', 'col2'=>'val2' ] )
             ->toInsert();
         ;
         $this->assertEquals(
             'INSERT INTO "myTable" ( "col1", "col2" ) VALUES ( :db_prep_1, :db_prep_2 )',
             (string) $sql );
-        $this->assertEquals( [ ':db_prep_1' => 'val1', ':db_prep_2' => 'val2' ], DB::bind() );
+        $this->assertEquals( [ ':db_prep_1' => 'val1', ':db_prep_2' => 'val2' ], $sql->getBind() );
     }
 
     /**
@@ -52,12 +48,12 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function simple_example_of_update()
     {
-        $sql = DB::from('myTable')
-            ->where(
+        $sql = Query::from('myTable');
+        $sql->where(
                 DB::given('name')->like('bob')->or()->status->eq('1')
             )
             ->value( [
-                'date' => DB::raw('NOW()'),
+                'date' => $sql->raw('NOW()'),
                 'col2'=>'val2'
             ] )
             ->toUpdate();
@@ -65,7 +61,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             'UPDATE "myTable" SET "date"=NOW(), "col2"=:db_prep_1 WHERE "name" LIKE :db_prep_2 OR "status" = :db_prep_3',
             $sql );
-        $this->assertEquals( [ ':db_prep_1' => 'val2', ':db_prep_2' => 'bob', ':db_prep_3' => '1' ], DB::bind() );
+        $this->assertEquals( [ ':db_prep_1' => 'val2', ':db_prep_2' => 'bob', ':db_prep_3' => '1' ], $sql->getBind() );
     }
 
     /**
@@ -73,7 +69,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function select_builds_select_statement()
     {
-        $sql = DB::db( 'pgsql' )->table( 'myTable' )
+        $sql = Query::forge()->dbType( 'pgsql' )->table( 'myTable' )
             ->where(
                 DB::given('pKey')->eq('1')
                     ->orBracket()
@@ -85,7 +81,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'SELECT * FROM "myTable" ' .
             'WHERE "pKey" = :db_prep_1 OR ( "name" LIKE :db_prep_2 AND "gender" = :db_prep_3 )',
             $sql );
-        $this->assertEquals( [ ':db_prep_1' => '1', ':db_prep_2' => 'AB%', ':db_prep_3' => 'F' ], DB::bind() );
+        $this->assertEquals( [ ':db_prep_1' => '1', ':db_prep_2' => 'AB%', ':db_prep_3' => 'F' ], $sql->getBind() );
     }
 
     /**
@@ -93,22 +89,22 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function insert_builds_insert_statement()
     {
-        $sql = DB::db( 'mysql' )->table( 'myTable' )
+        $sql = Query::forge()->dbType( 'mysql' )->table( 'myTable' )
             ->value(['test'=>'tested', 'more'=>'done'])->toInsert();
         ;
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
-        $this->assertEquals( [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done' ], DB::bind() );
+        $this->assertEquals( [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done' ], $sql->getBind() );
 
-        $query = DB::db('mysql')->table('myTable');
+        $query = Query::forge()->dbType('mysql')->table('myTable');
         $query->test = 'tested2';
         $query->more = 'done2';
         $sql = $query->toInsert();
         $this->assertEquals(
             'INSERT INTO `myTable` ( `test`, `more` ) VALUES ( :db_prep_1, :db_prep_2 )',
             $sql );
-        $this->assertEquals( [ ':db_prep_1' => 'tested2', ':db_prep_2' => 'done2' ], DB::bind() );
+        $this->assertEquals( [ ':db_prep_1' => 'tested2', ':db_prep_2' => 'done2' ], $sql->getBind() );
     }
 
     /**
@@ -116,7 +112,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function update_builds_update_statement()
     {
-        $sql = DB::from( 'myTable' )
+        $sql = Query::from( 'myTable' )
             ->where(
                 Where::column('pKey')->in( '1', '2' )
             )
@@ -128,10 +124,10 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             'WHERE "pKey" IN ( :db_prep_3, :db_prep_4 )',
             $sql );
         $this->assertEquals( 
-            [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done', ':db_prep_3' => '1', ':db_prep_4' => '2' ], 
-            DB::bind() );
+            [ ':db_prep_1' => 'tested', ':db_prep_2' => 'done', ':db_prep_3' => '1', ':db_prep_4' => '2' ],
+            $sql->getBind() );
 
-        $query = DB::from('myTable');
+        $query = Query::from('myTable');
         $query->test = 'tested';
         $query->more = $query->raw('NOW()');
         $sql = $query
@@ -145,7 +141,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
             $sql );
         $this->assertEquals(
             [ ':db_prep_1' => 'tested', ':db_prep_2' => '1', ':db_prep_3' => '2' ],
-            DB::bind() );
+            $sql->getBind() );
     }
 
     /**
@@ -153,12 +149,13 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function delete_builds_delete_statement()
     {
-        $sql = DB::db( 'mysql' )->table( 'myTable', 'mt' )->keyName('myKey')
-            ->where( DB::given('myKey')->eq('3') )->toDelete();
+        $sql = Query::forge();
+        $sql->dbType( 'mysql' )->table( 'myTable', 'mt' )->keyName('myKey')
+            ->where( $sql->given('myKey')->eq('3') )->toDelete();
         ;
         $this->assertEquals(
             'DELETE FROM `myTable` WHERE `mt`.`myKey` = :db_prep_1',
-            $sql );
+            (string) $sql );
     }
 
     /**
@@ -168,7 +165,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function cool()
     {
-        $sql = DB::from('table')
+        $sql = Query::from('table')
             ->where(
                 Where::bracket()
                     ->gender->is('F')->or()->status->is('1')
@@ -192,7 +189,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function query_with_join_using()
     {
-        $sql = DB::from( 'table1' )
+        $sql = Query::from( 'table1' )
             ->join( Join::table( 'another')->using( 'key' ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals( 
@@ -206,7 +203,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function query_with_leftJoin_on()
     {
-        $sql = DB::from( 'table1' )
+        $sql = Query::from( 'table1' )
             ->join( DB::join( 'another', 'an' )->left()->on( DB::given('thisKey')->identical('$.thatKey') ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals(
@@ -222,7 +219,7 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function query_with_rightJoin_on_using()
     {
-        $sql = DB::from( 'table1' )
+        $sql = Query::from( 'table1' )
             ->join( DB::join( 'another', 'an' )->right()->using('key')->on( DB::given('$.thisKey')->identical('thatKey') ) )
             ->where( DB::given('key')->is(1) );
         $this->assertEquals(
@@ -238,11 +235,11 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_in_column()
     {
-        $query = DB::from( 'main' )
-            ->column(
-                DB::subQuery('sub')
-                    ->column( DB::raw('COUNT(*)'), 'count' )
-                    ->where( DB::given('status')->identical('$.status') ),
+        $query = Query::from( 'main' );
+        $query->column(
+                $query->subQuery('sub')
+                    ->column( $query->raw('COUNT(*)'), 'count' )
+                    ->where( $query->given('status')->identical('$.status') ),
                 'count_sub'
             )
         ;
@@ -258,7 +255,8 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_as_table()
     {
-        $query = DB::from( DB::subQuery('sub')->where( DB::given('status')->is(1)) )
+        $query = new Query;
+        $query->table( $query->subQuery('sub')->where( DB::given('status')->is(1)) )
             ->where(
                 DB::given('name')->is('bob')
             )
@@ -275,10 +273,10 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_in_where_is()
     {
-        $query = DB::from( 'main' )
-            ->where(
-                DB::given('status')->is(
-                    DB::subQuery('sub')->column('status')->where( DB::given('name')->is('bob') )
+        $query = Query::from( 'main' );
+        $query->where(
+            $query->given('status')->is(
+                    $query->subQuery('sub')->column('status')->where( $query->given('name')->is('bob') )
                 )
             )
         ;
@@ -293,13 +291,13 @@ class Query_Test extends \PHPUnit_Framework_TestCase
      */
     function sub_query_in_update_set_and_insert()
     {
-        $sql = DB::from( 'main' )
-            ->value( 'count', DB::subQuery('sub')->column(DB::raw('COUNT(*)'))->where(DB::given('status')->is(1)))->toUpdate();
+        $sql = Query::from( 'main' );
+        $sql->value( 'count', $sql->subQuery('sub')->column($sql->raw('COUNT(*)'))->where($sql->given('status')->is(1)))->toUpdate();
         $this->assertEquals(
             'UPDATE "main" SET "count"=( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 )', (string) $sql );
 
-        $sql = DB::from( 'main' )
-            ->value( 'count', DB::subQuery('sub')->column(DB::raw('COUNT(*)'))->where(DB::given('status')->is(1)))->toInsert();
+        $sql = Query::from( 'main' );
+        $sql->value( 'count', $sql->subQuery('sub')->column($sql->raw('COUNT(*)'))->where($sql->given('status')->is(1)))->toInsert();
         $this->assertEquals(
             'INSERT INTO "main" ( "count" ) VALUES ( ( SELECT COUNT(*) FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1 ) )', (string) $sql );
     }

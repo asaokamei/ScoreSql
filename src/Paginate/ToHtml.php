@@ -24,6 +24,11 @@ class ToHtml
     public function __construct( $uri=null )
     {
         $this->currUri = $uri ?: $this->getRequestUri();
+        if( strpos( $this->currUri, '?' ) === false ) {
+            $this->currUri .= '?';
+        } else {
+            $this->currUri .= '&';
+        }
     }
 
     /**
@@ -78,7 +83,7 @@ class ToHtml
     {
         if( $page != $this->currPage ) {
             $key = $this->pager->getPageKey();
-            $html = "<li><a href='{$this->currUri}?{$key}={$page}' >{$label}</a></li>";
+            $html = "<li><a href='{$this->currUri}{$key}={$page}' >{$label}</a></li>";
         } elseif( $type == 'disable' ) {
             $html = "<li class='disabled'><a href='#' >{$label}</a></li>";
         } else {

@@ -110,14 +110,16 @@ class Pager
      */
     protected function loadQuery()
     {
-        if( $saved        = $this->session[ $this->saveID ] ) {
-            $this->inputs = array_merge( $saved[ 'inputs' ], $this->inputs );
-            $this->perPage = $saved[ 'perPage' ];
-            if( $currPage=$this->getKey($this->pager) ) {
-                $this->currPage = $currPage;
-            } else{
-                $this->currPage = $saved['currPage'];
-            }
+        if( !isset( $this->session[ $this->saveID ] ) ) {
+            return;
+        }
+        $saved        = $this->session[ $this->saveID ];
+        $this->inputs = array_merge( $saved[ 'inputs' ], $this->inputs );
+        $this->perPage = $saved[ 'perPage' ];
+        if( $currPage=$this->getKey($this->pager) ) {
+            $this->currPage = $currPage;
+        } else{
+            $this->currPage = $saved['currPage'];
         }
     }
 

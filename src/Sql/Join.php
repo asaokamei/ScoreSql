@@ -24,9 +24,9 @@ class Join implements JoinInterface
     protected $type = 'JOIN';
 
     /**
-     * @var string
+     * @var string[]
      */
-    protected $usingKey;
+    protected $usingKey = [];
 
     /**
      * @var string|Where
@@ -113,12 +113,19 @@ class Join implements JoinInterface
     }
 
     /**
-     * @param string $key
+     * @param string|array|callable $key
      * @return JoinInterface
      */
     public function using($key)
     {
-        $this->usingKey = $key;
+        if (func_num_args() > 1) {
+            $args = func_get_args();
+        } elseif (is_array($key)) {
+            $args = $key;
+        } else {
+            $args = [$key];
+        }
+        $this->usingKey = $args;
         return $this;
     }
 
@@ -214,10 +221,14 @@ class Join implements JoinInterface
         } else {
             throw new InvalidArgumentException;
         }
-        if ($this->usingKey) {
-            $sql = $this->quote($this->alias() . '.' . $this->usingKey) .
-                '=' .
-                $this->quote($this->queryTable . '.' . $this->usingKey) .
+        if (!empty($this->usingKey)) {
+            $using = [];
+            foreach ($this->usingKey as $item) {
+                $using[] = $this->quote($this->alias() . '.' . $item) .
+                    '=' .
+                    $this->quote($this->queryTable . '.' . $item);
+            }
+            $sql = implode(' AND ', $using) .
                 ' AND ( ' . $sql . ' )';
         }
         return 'ON ( ' . $sql . ' )';
@@ -236,6 +247,10 @@ class Join implements JoinInterface
      */
     protected function buildUsing()
     {
-        return 'USING( ' . $this->quote($this->usingKey) . ' )';
+        $using = [];
+        foreach ($this->usingKey as $item) {
+            $using[] = $this->quote($item);
+        }
+        return 'USING( ' . implode(', ', $using) . ' )';
     }
 }

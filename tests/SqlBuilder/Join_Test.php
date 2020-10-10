@@ -39,6 +39,25 @@ class Join_Test extends TestCase
     /**
      * @test
      */
+    function left_join_using_two_key()
+    {
+        /** @var Join $j */
+        $j = Join::table('JoinedTable', 'at')->left();
+        $j->setQueryTable('mt');
+        $j->using(['myKey', 'anotherKey']);
+        $join = $j->build(new Bind(), new Quote());
+        $this->assertEquals('LEFT OUTER JOIN "JoinedTable" "at" USING( "myKey", "anotherKey" )', $join);
+
+        $j = DB::join('JoinedTable', 'at')->left();
+        $j->setQueryTable('mt');
+        $j->using('myKey', 'anotherKey');
+        $join = $j->build(new Bind(), new Quote());
+        $this->assertEquals('LEFT OUTER JOIN "JoinedTable" "at" USING( "myKey", "anotherKey" )', $join);
+    }
+
+    /**
+     * @test
+     */
     function right_join_on_string_criteria()
     {
         /** @var Join $j */

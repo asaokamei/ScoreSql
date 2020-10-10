@@ -237,7 +237,7 @@ class Query_Test extends TestCase
                 ->where($query->given('status')->identical('$.status')),
             'count_sub'
         );
-        $sql = $query->toSelect($query);
+        $sql = $query->toSelect();
         $this->assertEquals(
             'SELECT ( ' .
             'SELECT COUNT(*) AS "count" FROM "sub" AS "sub_1" WHERE "sub_1"."status" = "main"."status"' .
@@ -254,7 +254,7 @@ class Query_Test extends TestCase
             ->where(
                 DB::given('name')->is('bob')
             );
-        $sql = $query->toSelect($query);
+        $sql = $query->toSelect();
         $this->assertEquals(
             'SELECT * FROM ( ' .
             'SELECT * FROM "sub" AS "sub_1" WHERE "sub_1"."status" = :db_prep_1' .
@@ -272,7 +272,7 @@ class Query_Test extends TestCase
                 $query->subQuery('sub')->column('status')->where($query->given('name')->is('bob'))
             )
         );
-        $sql = $query->toSelect($query);
+        $sql = $query->toSelect();
         $this->assertEquals(
             'SELECT * FROM "main" WHERE "status" = ( ' .
             'SELECT "status" FROM "sub" AS "sub_1" WHERE "sub_1"."name" = :db_prep_1 )', (string)$sql);

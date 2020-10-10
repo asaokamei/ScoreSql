@@ -45,7 +45,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(5, count($bound));
+        $this->assertCount(5, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('good', $bound[':db_prep_2']);
         $this->assertEquals('bad', $bound[':db_prep_3']);
@@ -87,7 +87,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(11, count($bound));
+        $this->assertCount(11, $bound);
         $this->assertEquals('eq', $bound[':db_prep_1']);
         $this->assertEquals('ne', $bound[':db_prep_2']);
         $this->assertEquals('lt', $bound[':db_prep_3']);
@@ -113,7 +113,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('more', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -135,7 +135,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(3, count($bound));
+        $this->assertCount(3, $bound);
         $this->assertEquals('%contains%', $bound[':db_prep_1']);
         $this->assertEquals('starts%', $bound[':db_prep_2']);
         $this->assertEquals('%ends', $bound[':db_prep_3']);
@@ -153,7 +153,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(0, count($bound));
+        $this->assertCount(0, $bound);
     }
 
     /**
@@ -186,7 +186,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -211,7 +211,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -236,7 +236,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -261,7 +261,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -286,7 +286,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -314,7 +314,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);
@@ -338,7 +338,7 @@ class Where_Test extends TestCase
             $sql
         );
         $bound = $bind->getBinding();
-        $this->assertEquals(4, count($bound));
+        $this->assertCount(4, $bound);
         $this->assertEquals('tested', $bound[':db_prep_1']);
         $this->assertEquals('moreD', $bound[':db_prep_2']);
         $this->assertEquals('good', $bound[':db_prep_3']);

@@ -333,7 +333,7 @@ class Sql implements SqlInterface
      * or
      * ->columns( 'col1', 'col2', ... );
      *
-     * @param array $column
+     * @param array|string $column
      * @return $this
      */
     public function columns($column)
@@ -343,6 +343,8 @@ class Sql implements SqlInterface
         } elseif (func_num_args() > 1) {
             $column = func_get_args();
             $this->columns += $column;
+        } else {
+            $this->columns += [$column];
         }
         return $this;
     }

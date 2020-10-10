@@ -104,8 +104,7 @@ class Builder
     public function toSelect($query)
     {
         $this->setQuery($query);
-        $sql = 'SELECT' . $this->builder->build('select');
-        return $sql;
+        return 'SELECT' . $this->builder->build('select');
     }
 
     /**
@@ -130,8 +129,7 @@ class Builder
     public function toCount($query)
     {
         $this->setQuery($query);
-        $sql = 'SELECT' . $this->builder->build('count');
-        return $sql;
+        return 'SELECT' . $this->builder->build('count');
     }
 
     /**
@@ -141,8 +139,7 @@ class Builder
     public function toInsert($query)
     {
         $this->setQuery($query);
-        $sql = 'INSERT INTO' . $this->builder->build('insert');
-        return $sql;
+        return 'INSERT INTO' . $this->builder->build('insert');
     }
 
     /**
@@ -152,8 +149,7 @@ class Builder
     public function toUpdate($query)
     {
         $this->setQuery($query);
-        $sql = 'UPDATE' . $this->builder->build('update');
-        return $sql;
+        return 'UPDATE' . $this->builder->build('update');
     }
 
     /**
@@ -163,8 +159,7 @@ class Builder
     public function toDelete($query)
     {
         $this->setQuery($query);
-        $sql = 'DELETE FROM' . $this->builder->build('delete');
-        return $sql;
+        return 'DELETE FROM' . $this->builder->build('delete');
     }
 
     // +----------------------------------------------------------------------+

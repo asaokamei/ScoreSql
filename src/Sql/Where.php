@@ -94,7 +94,6 @@ class Where
      */
     public static function column($name)
     {
-        /** @var self $where */
         $where = new static;
         $where->given($name);
         return $where;
@@ -115,7 +114,6 @@ class Where
      */
     public static function bracket()
     {
-        /** @var Where $where */
         $where = new static;
         return $where->openBracket();
     }
@@ -364,15 +362,15 @@ class Where
     }
 
     /**
-     * @param array|SqlInterface $values
+     * @param string|array|SqlInterface $values
      * @return Where
      */
     public function in($values)
     {
-        if ($values instanceof SqlInterface) {
-            // use it as is
-        } elseif (!is_array($values)) {
-            $values = func_get_args();
+        if (!($values instanceof SqlInterface)) {
+            if (!is_array($values)) {
+                $values = func_get_args();
+            }
         }
         return $this->where($this->column, $values, 'IN');
     }

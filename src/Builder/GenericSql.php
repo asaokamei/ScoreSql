@@ -55,10 +55,9 @@ class GenericSql extends GenericUtils
      */
     protected function buildInsertCol()
     {
-        /** @noinspection PhpUnusedParameterInspection */
         return '( ' . $this->formatList(
                 $this->getMagicQuery('values'),
-                function ($col, $val) {
+                function ($col) {
                     return $this->quote($col);
                 }
             ) . ' )';
@@ -132,10 +131,10 @@ class GenericSql extends GenericUtils
 
     /**
      * @return string
+     * @noinspection PhpUnusedParameterInspection
      */
     protected function buildJoin()
     {
-        /** @noinspection PhpUnusedParameterInspection */
         return $this->formatList(
             $this->getMagicQuery('join'),
             function ($col, $join) {
@@ -192,13 +191,13 @@ class GenericSql extends GenericUtils
 
     /**
      * @return string
+     * @noinspection PhpUnusedParameterInspection
      */
     protected function buildOrderBy()
     {
         if (!$orders = $this->getMagicQuery('order')) {
             return '';
         }
-        /** @noinspection PhpUnusedParameterInspection */
         return 'ORDER BY ' . $this->formatList(
                 $orders,
                 function ($col, $order) {

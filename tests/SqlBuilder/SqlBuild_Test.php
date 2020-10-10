@@ -45,7 +45,7 @@ class SqlBuild_Test extends TestCase
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals('INSERT INTO "testTable" ( "testCol" ) VALUES ( :db_prep_1 )', $sql);
         $this->assertEquals($value, $bind[':db_prep_1']);
-        $this->assertEquals(1, count($bind));
+        $this->assertCount(1, $bind);
     }
 
     function get($head = 'value')
@@ -74,7 +74,7 @@ class SqlBuild_Test extends TestCase
         $this->assertEquals($keyVal, $bind[':db_prep_3']);
         $this->assertEquals($values['testCol'], $bind[':db_prep_1']);
         $this->assertEquals($values['moreCol'], $bind[':db_prep_2']);
-        $this->assertEquals(3, count($bind));
+        $this->assertCount(3, $bind);
     }
 
     /**
@@ -92,7 +92,7 @@ class SqlBuild_Test extends TestCase
             'DELETE FROM "testTable" WHERE "pKey" = :db_prep_1',
             $sql);
         $this->assertEquals($keyVal, $bind[':db_prep_1']);
-        $this->assertEquals(1, count($bind));
+        $this->assertCount(1, $bind);
     }
 
     /**
@@ -108,11 +108,11 @@ class SqlBuild_Test extends TestCase
         $sql = $this->builder->toSelect($this->query);
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'SELECT "colTest" AS "aliasAs" FROM "testTable" ' .
+            'SELECT ' . '"colTest" AS "aliasAs" FROM "testTable" ' .
             'WHERE "my table"."name" LIKE :db_prep_1 ORDER BY "pKey" ASC',
             $sql);
         $this->assertEquals('bob', $bind[':db_prep_1']);
-        $this->assertEquals(1, count($bind));
+        $this->assertCount(1, $bind);
     }
 
     /**
@@ -131,14 +131,14 @@ class SqlBuild_Test extends TestCase
         $sql = $this->builder->toSelect($this->query);
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'SELECT * FROM "testTable" ' .
+            'SELECT ' . '* FROM "testTable" ' .
             'WHERE "name" LIKE :db_prep_1 AND "status" IN ( :db_prep_2, :db_prep_3 ) ' .
             'ORDER BY "pKey" ASC',
             $sql);
         $this->assertEquals('%bob%', $bind[':db_prep_1']);
         $this->assertEquals($in[0], $bind[':db_prep_2']);
         $this->assertEquals($in[1], $bind[':db_prep_3']);
-        $this->assertEquals(3, count($bind));
+        $this->assertCount(3, $bind);
     }
 
     /**
@@ -153,13 +153,13 @@ class SqlBuild_Test extends TestCase
         $sql = $this->builder->toSelect($this->query);
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'SELECT * FROM "testTable" ' .
+            'SELECT ' . '* FROM "testTable" ' .
             'WHERE "value" BETWEEN :db_prep_1 AND :db_prep_2 ' .
             'ORDER BY "pKey" ASC',
             $sql);
         $this->assertEquals('123', $bind[':db_prep_1']);
         $this->assertEquals('345', $bind[':db_prep_2']);
-        $this->assertEquals(2, count($bind));
+        $this->assertCount(2, $bind);
     }
 
     /**
@@ -255,11 +255,11 @@ class SqlBuild_Test extends TestCase
         $sql = $this->builder->toSelect($this->query);
         $bind = $this->builder->getBind()->getBinding();
         $this->assertEquals(
-            'SELECT * FROM "testTable" AS "tt" ' .
+            'SELECT ' . '* FROM "testTable" AS "tt" ' .
             'LEFT OUTER JOIN "anotherOne" "ao" USING( "pKey" ) ' .
             'WHERE "tt"."test" = :db_prep_1',
             $sql);
-        $this->assertEquals(1, count($bind));
+        $this->assertCount(1, $bind);
         $this->assertEquals('tested', $bind[':db_prep_1']);
     }
 
@@ -284,7 +284,7 @@ class SqlBuild_Test extends TestCase
             'ON ( "ao"."pKey"="tt"."pKey" AND ( "ao"."status" = :db_prep_1 ) ) ' .
             'WHERE "tt"."test" = :db_prep_2',
             $sql);
-        $this->assertEquals(2, count($bind));
+        $this->assertCount(2, $bind);
         $this->assertEquals('1', $bind[':db_prep_1']);
         $this->assertEquals('tested', $bind[':db_prep_2']);
     }

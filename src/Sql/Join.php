@@ -63,13 +63,12 @@ class Join implements JoinInterface
 
     /**
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      * @return JoinInterface
      */
     public static function table($table, $alias = null)
     {
-        $join = new self($table, $alias);
-        return $join;
+        return new self($table, $alias);
     }
 
     /**
@@ -174,8 +173,8 @@ class Join implements JoinInterface
     }
 
     /**
-     * @param string $name
-     * @return string
+     * @param string|array $name
+     * @return string|array
      */
     protected function quote($name)
     {

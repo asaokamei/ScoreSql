@@ -18,7 +18,7 @@ class DB
     // +----------------------------------------------------------------------+
     /**
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      * @return Query
      */
     public static function from($table, $alias = null)
@@ -30,7 +30,7 @@ class DB
 
     /**
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      * @return Join
      */
     public static function join($table, $alias = null)
@@ -39,7 +39,7 @@ class DB
     }
 
     /**
-     * @param string $column
+     * @param string|null $column
      * @return Where
      */
     public static function given($column = null)

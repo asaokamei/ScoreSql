@@ -53,7 +53,7 @@ class Join implements JoinInterface
     // +----------------------------------------------------------------------+
     /**
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      */
     public function __construct($table, $alias = null)
     {
@@ -143,8 +143,8 @@ class Join implements JoinInterface
     //  build sql statement.
     // +----------------------------------------------------------------------+
     /**
-     * @param Bind $bind
-     * @param Quote $quote
+     * @param Bind|null $bind
+     * @param Quote|null $quote
      * @return string
      */
     public function build($bind = null, $quote = null)

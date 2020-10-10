@@ -81,8 +81,8 @@ class GenericUtils
 
     /**
      * @param string|array $name
-     * @param string $alias
-     * @return string
+     * @param string|null $alias
+     * @return string|array
      */
     protected function quote($name, $alias = null)
     {
@@ -154,9 +154,8 @@ class GenericUtils
             throw new InvalidArgumentException;
         }
         $criteria->setBuilder($this->builder);
-        $sql = $criteria->build($this->bind, $this->quote, $this->getMagicQuery('tableAlias'),
+        return $criteria->build($this->bind, $this->quote, $this->getMagicQuery('tableAlias'),
             $this->getMagicQuery('tableParent'));
-        return $sql;
     }
 
     /**

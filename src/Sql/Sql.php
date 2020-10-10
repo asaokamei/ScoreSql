@@ -176,7 +176,7 @@ class Sql implements SqlInterface
      * return a new Sql|Query object as sub-query.
      *
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      * @return $this
      */
     public function subQuery($table, $alias = null)
@@ -191,8 +191,8 @@ class Sql implements SqlInterface
     }
 
     /**
-     * @param string $table
-     * @param string $alias
+     * @param string|null $table
+     * @param string|null $alias
      * @return $this
      */
     public function table($table, $alias = null)
@@ -296,7 +296,7 @@ class Sql implements SqlInterface
 
     /**
      * @param string $id
-     * @param string $column
+     * @param string|null $column
      * @return $this
      */
     public function key($id, $column = null)

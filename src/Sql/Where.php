@@ -311,10 +311,10 @@ class Where
     }
 
     /**
-     * @param Bind $bind
-     * @param Quote $quote
-     * @param string $alias
-     * @param string $parent
+     * @param Bind|null $bind
+     * @param Quote|null $quote
+     * @param string|null $alias
+     * @param string|null $parent
      * @return string
      */
     public function build($bind = null, $quote = null, $alias = null, $parent = null)

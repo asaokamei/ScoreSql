@@ -17,7 +17,7 @@ class Quote
 
     /**
      * @param string $q1
-     * @param string $q2
+     * @param string|null $q2
      */
     public function setQuote($q1, $q2 = null)
     {
@@ -40,8 +40,8 @@ class Quote
 
     /**
      * @param string $name
-     * @param string $prefix
-     * @param string $parent
+     * @param string|null $prefix
+     * @param string|null $parent
      * @return string
      */
     public function quote($name, $prefix = null, $parent = null)

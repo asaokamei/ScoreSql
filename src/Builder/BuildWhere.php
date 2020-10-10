@@ -35,9 +35,9 @@ class BuildWhere
     protected $parentTableName;
 
     /**
-     * @param Bind $bind
-     * @param Quote $quote
-     * @param Builder $builder
+     * @param Bind|null $bind
+     * @param Quote|null $quote
+     * @param Builder|null $builder
      */
     public function __construct($bind = null, $quote = null, $builder = null)
     {
@@ -48,8 +48,8 @@ class BuildWhere
 
     /**
      * @param Where $criteria
-     * @param string $alias
-     * @param string $parent
+     * @param string|null $alias
+     * @param string|null $parent
      * @return string
      * @throws InvalidArgumentException
      */

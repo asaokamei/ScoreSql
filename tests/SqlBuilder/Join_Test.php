@@ -1,6 +1,7 @@
 <?php
 namespace tests\Sql;
 
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Quote;
 use WScore\ScoreSql\DB;
@@ -9,7 +10,7 @@ use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class Join_Test extends \PHPUnit_Framework_TestCase
+class Join_Test extends TestCase
 {
     /**
      * @var Join

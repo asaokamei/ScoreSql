@@ -1,18 +1,19 @@
 <?php
 namespace tests\Sql;
 
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\Builder\Quote;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class Quote_Test extends \PHPUnit_Framework_TestCase
+class Quote_Test extends TestCase
 {
     /**
      * @var Quote
      */
     var $q;
     
-    function setup()
+    function setup(): void
     {
         $this->q = new Quote();
     }

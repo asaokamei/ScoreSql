@@ -1,6 +1,7 @@
 <?php
 namespace tests\Sql;
 
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\DB;
 use WScore\ScoreSql\Sql\Sql;
@@ -8,7 +9,7 @@ use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class SqlBuild_Test extends \PHPUnit_Framework_TestCase
+class SqlBuild_Test extends TestCase
 {
     /**
      * @var Builder
@@ -20,7 +21,7 @@ class SqlBuild_Test extends \PHPUnit_Framework_TestCase
      */
     var $query;
     
-    function setup()
+    function setup(): void
     {
         $this->builder = Builder::forge();
         $this->query   = new Sql();

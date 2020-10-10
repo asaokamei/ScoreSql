@@ -1,13 +1,14 @@
 <?php
 namespace tests\Sql;
 
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\DB;
 use WScore\ScoreSql\Query;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class Query_Test extends \PHPUnit_Framework_TestCase
+class Query_Test extends TestCase
 {
     /**
      * @test

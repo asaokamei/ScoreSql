@@ -1,21 +1,22 @@
 <?php
 namespace tests\Sql;
 
-use WScore\ScoreDB\Query;
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Quote;
+use WScore\ScoreSql\Query;
 use WScore\ScoreSql\Sql\Where;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class Where_Test extends \PHPUnit_Framework_TestCase
+class Where_Test extends TestCase
 {
     /**
      * @var \WScore\ScoreSql\Sql\Where
      */
     var $w;
 
-    function setup()
+    function setup(): void
     {
         $this->w = new Where();
     }

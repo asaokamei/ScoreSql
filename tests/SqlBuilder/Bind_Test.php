@@ -1,18 +1,19 @@
 <?php
 namespace tests\Sql;
 
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\Builder\Bind;
 
 require_once( dirname( __DIR__ ) . '/autoloader.php' );
 
-class Bind_Test extends \PHPUnit_Framework_TestCase
+class Bind_Test extends TestCase
 {
     /**
      * @var Bind
      */
     var $b;
     
-    function setup()
+    function setup(): void
     {
         $this->b = new Bind();
     }

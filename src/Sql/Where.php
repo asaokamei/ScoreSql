@@ -1,6 +1,8 @@
 <?php
+
 namespace WScore\ScoreSql\Sql;
 
+use InvalidArgumentException;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Builder;
 use WScore\ScoreSql\Builder\BuildWhere;
@@ -10,20 +12,20 @@ use WScore\ScoreSql\Builder\Quote;
  * Class Where
  * @package WScore\ScoreSql\Sql
  *
- * @method Where is( $value )
- * @method Where eq( $value )
- * @method Where ne( $value )
- * @method Where lt( $value )
- * @method Where le( $value )
- * @method Where gt( $value )
- * @method Where ge( $value )
- * @method Where notEq( $value )
- * @method Where lessThan( $value )
- * @method Where lessEq( $value )
- * @method Where greaterThan( $value )
- * @method Where greaterEq( $value )
- * @method Where and()
- * @method Where or()
+ * @method Where is($value)
+ * @method Where eq($value)
+ * @method Where ne($value)
+ * @method Where lt($value)
+ * @method Where le($value)
+ * @method Where gt($value)
+ * @method Where ge($value)
+ * @method Where notEq($value)
+ * @method Where lessThan($value)
+ * @method Where lessEq($value)
+ * @method Where greaterThan($value)
+ * @method Where greaterEq($value)
+ * @method Where and ()
+ * @method Where or ()
  * @method Where open()
  * @method Where close()
  * @method Where openOr()
@@ -51,24 +53,24 @@ class Where
     protected $parenthesis = false;
 
     protected $method2rel = [
-        'ne'      => '!=',
-        'lt'      => '<',
-        'gt'      => '>',
-        'le'      => '<=',
-        'ge'      => '>=',
-        'notEq'      => '!=',
-        'lessThan'      => '<',
-        'greaterThan'      => '>',
-        'lessEq'      => '<=',
-        'greaterEq'      => '>=',
+        'ne' => '!=',
+        'lt' => '<',
+        'gt' => '>',
+        'le' => '<=',
+        'ge' => '>=',
+        'notEq' => '!=',
+        'lessThan' => '<',
+        'greaterThan' => '>',
+        'lessEq' => '<=',
+        'greaterEq' => '>=',
     ];
 
     protected $method2me = [
-        'eq'   => 'equal',
-        'is'   => 'equal',
-        'open'    => 'openBracket',
-        'close'   => 'closeBracket',
-        'openOr'  => 'orBracket',
+        'eq' => 'equal',
+        'is' => 'equal',
+        'open' => 'openBracket',
+        'close' => 'closeBracket',
+        'openOr' => 'orBracket',
         'enclose' => 'encloseBracket',
     ];
 
@@ -87,76 +89,25 @@ class Where
     }
 
     /**
-     * @param Builder $builder
-     */
-    public function setBuilder( $builder )
-    {
-        $this->builder = $builder;
-    }
-
-    /**
-     * @param Where $parent
-     */
-    public function setParent( $parent )
-    {
-        $this->parent = $parent;
-    }
-
-    /**
-     * @return Where
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
-     * @return Where
-     */
-    public function getRootParent()
-    {
-        $top = $this;
-        while( $parent = $top->getParent() ) {
-            $top = $parent;
-        }
-        return $top;
-    }
-
-    /**
-     * @param $method
-     * @param $args
-     * @throws \InvalidArgumentException
-     * @return mixed
-     */
-    public function __call( $method, $args )
-    {
-        if( $method == 'or' ) {
-            $this->andOr = 'OR';
-            return $this;
-        }
-        if( $method == 'and' ) {
-            $this->andOr = 'AND';
-            return $this;
-        }
-        if( isset( $this->method2me[$method] ) ) {
-            return call_user_func_array( [$this,$this->method2me[$method]], $args );
-        }
-        if( isset( $this->method2rel[$method] ) ) {
-            return $this->where( $this->column, $args[0], $this->method2rel[$method] );
-        }
-        throw new \InvalidArgumentException('no such where relation: '.$method);
-    }
-
-    /**
      * @param string $name
      * @return Where
      */
-    public static function column( $name )
+    public static function column($name)
     {
         /** @var self $where */
         $where = new static;
-        $where->given( $name );
+        $where->given($name);
         return $where;
+    }
+
+    /**
+     * @param string $col
+     * @return Where
+     */
+    public function given($col)
+    {
+        $this->column = $col;
+        return $this;
     }
 
     /**
@@ -170,70 +121,139 @@ class Where
     }
 
     /**
-     * @return array
+     * @param string $andOr
+     * @return Where
      */
-    public function getCriteria() {
-        return $this->where;
+    public function openBracket($andOr = 'and')
+    {
+        $block = new self;
+        $this->set($block, $andOr);
+        return $block;
+    }
+
+    /**
+     * set the where string as is.
+     *
+     * @param Where $where
+     * @param null|string $andOr
+     * @return Where
+     */
+    public function set($where, $andOr = null)
+    {
+        if ($where instanceof Where) {
+            if ($where->countCriteria() > 1) {
+                $where->parenthesis();
+            }
+            $where->setParent($this);
+            return $this->where('', false, $where, $andOr);
+        }
+        return $this->where('', false, Sql::raw($where), $andOr);
+    }
+
+    /**
+     * @return int
+     */
+    public function countCriteria()
+    {
+        return count($this->where);
     }
 
     /**
      * @param bool $para
      * @return $this
      */
-    public function parenthesis( $para=true ) {
+    public function parenthesis($para = true)
+    {
         $this->parenthesis = $para;
         return $this;
     }
 
     /**
-     * @return bool
+     * @param Builder $builder
      */
-    public function getParenthesis()
+    public function setBuilder($builder)
     {
-        return $this->parenthesis;
+        $this->builder = $builder;
     }
 
     /**
      * @return Where
      */
-    public function encloseBracket()
+    public function getRootParent()
     {
-        $where = new self;
-        $where->set( $this );
-        return $where;
+        $top = $this;
+        while ($parent = $top->getParent()) {
+            $top = $parent;
+        }
+        return $top;
     }
 
     /**
      * @return Where
      */
-    public function orBracket()
+    public function getParent()
     {
-        return $this->openBracket('or');
+        return $this->parent;
     }
 
     /**
-     * @param string $andOr
-     * @return Where
+     * @param Where $parent
      */
-    public function openBracket($andOr='and')
+    public function setParent($parent)
     {
-        $block = new self;
-        $this->set( $block, $andOr );
-        return $block;
+        $this->parent = $parent;
     }
 
     /**
-     * @return $this|Where
+     * @param $method
+     * @param $args
+     * @return mixed
+     * @throws InvalidArgumentException
      */
-    public function closeBracket()
+    public function __call($method, $args)
     {
-        if( !$parent = $this->getParent() ) {
+        if ($method == 'or') {
+            $this->andOr = 'OR';
             return $this;
         }
-        if( $this->countCriteria() > 1 ) {
-            $this->parenthesis();
+        if ($method == 'and') {
+            $this->andOr = 'AND';
+            return $this;
         }
-        return $parent;
+        if (isset($this->method2me[$method])) {
+            return call_user_func_array([$this, $this->method2me[$method]], $args);
+        }
+        if (isset($this->method2rel[$method])) {
+            return $this->where($this->column, $args[0], $this->method2rel[$method]);
+        }
+        throw new InvalidArgumentException('no such where relation: ' . $method);
+    }
+
+    /**
+     * set where statement with values properly prepared/quoted.
+     *
+     * @param string $col
+     * @param mixed $val
+     * @param string|Where $rel
+     * @param null|string $op
+     * @return Where
+     */
+    public function where($col, $val, $rel = '=', $op = null)
+    {
+        if (!$op) {
+            $op = $this->andOr;
+        }
+        $where = array('col' => $col, 'val' => $val, 'rel' => $rel, 'op' => $op);
+        $this->where[] = $where;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCriteria()
+    {
+        return $this->where;
     }
 
     // +----------------------------------------------------------------------+
@@ -247,136 +267,126 @@ class Where
          - val: value. set false to ignore, callable as raw value.
     */
     // +----------------------------------------------------------------------+
+
     /**
-     * @param Bind   $bind
-     * @param Quote  $quote
-     * @param string $alias
-     * @param string $parent
-     * @return string
+     * @return bool
      */
-    public function build( $bind=null, $quote=null, $alias=null, $parent=null )
+    public function getParenthesis()
     {
-        $builder = new BuildWhere( $bind, $quote, $this->builder );
-        return $builder->build( $this, $alias, $parent );
+        return $this->parenthesis;
     }
 
     // +----------------------------------------------------------------------+
     //  setting columns.
     // +----------------------------------------------------------------------+
+
     /**
-     * set where statement with values properly prepared/quoted.
-     *
-     * @param string       $col
-     * @param mixed        $val
-     * @param string|Where $rel
-     * @param null|string  $op
      * @return Where
      */
-    public function where( $col, $val, $rel = '=', $op=null )
+    public function encloseBracket()
     {
-        if( !$op ) $op = $this->andOr;
-        $where          = array( 'col' => $col, 'val' => $val, 'rel' => $rel, 'op' => $op );
-        $this->where[ ] = $where;
-        return $this;
+        $where = new self;
+        $where->set($this);
+        return $where;
+    }
+
+    /**
+     * @return Where
+     */
+    public function orBracket()
+    {
+        return $this->openBracket('or');
+    }
+
+    /**
+     * @return $this|Where
+     */
+    public function closeBracket()
+    {
+        if (!$parent = $this->getParent()) {
+            return $this;
+        }
+        if ($this->countCriteria() > 1) {
+            $this->parenthesis();
+        }
+        return $parent;
+    }
+
+    /**
+     * @param Bind $bind
+     * @param Quote $quote
+     * @param string $alias
+     * @param string $parent
+     * @return string
+     */
+    public function build($bind = null, $quote = null, $alias = null, $parent = null)
+    {
+        $builder = new BuildWhere($bind, $quote, $this->builder);
+        return $builder->build($this, $alias, $parent);
     }
 
     /**
      * @param string $name
      * @return Where
      */
-    public function __get( $name ) {
-        return $this->given( $name );
-    }
-
-    /**
-     * @param string $col
-     * @return Where
-     */
-    public function given( $col )
+    public function __get($name)
     {
-        $this->column = $col;
-        return $this;
-    }
-
-    /**
-     * set the where string as is.
-     *
-     * @param Where $where
-     * @param null|string  $andOr
-     * @return Where
-     */
-    public function set( $where, $andOr=null )
-    {
-        if( $where instanceof Where ) {
-            if( $where->countCriteria() > 1 ) {
-                $where->parenthesis();
-            }
-            $where->setParent( $this );
-            return $this->where( '', false, $where, $andOr );
-        }
-        return $this->where( '', false, Sql::raw($where), $andOr );
-    }
-
-    /**
-     * @return int
-     */
-    public function countCriteria()
-    {
-        return count( $this->where );
+        return $this->given($name);
     }
     // +----------------------------------------------------------------------+
     //  where clause.
     // +----------------------------------------------------------------------+
+
     /**
      * for equal columns, i.e. myColumn=youColumn.
      *
      * @param string $column
      * @return Where
      */
-    public function identical( $column ) {
-        return $this->where( $this->column, $column, 'eq' );
+    public function identical($column)
+    {
+        return $this->where($this->column, $column, 'eq');
     }
 
     /**
      * @param $val
      * @return Where
      */
-    public function equal( $val )
+    public function equal($val)
     {
-        if( func_num_args() > 1 ) {
-            return $this->where( $this->column, func_get_args(), 'IN' );
+        if (func_num_args() > 1) {
+            return $this->where($this->column, func_get_args(), 'IN');
         }
-        if ( is_array( $val ) ) {
-            return $this->where( $this->column, $val, 'IN' );
+        if (is_array($val)) {
+            return $this->where($this->column, $val, 'IN');
         }
-        return $this->where( $this->column, $val, '=' );
+        return $this->where($this->column, $val, '=');
     }
 
     /**
      * @param array|SqlInterface $values
      * @return Where
      */
-    public function in( $values )
+    public function in($values)
     {
-        if( $values instanceof SqlInterface ) {
+        if ($values instanceof SqlInterface) {
             // use it as is
-        }
-        elseif( !is_array($values ) ) {
+        } elseif (!is_array($values)) {
             $values = func_get_args();
         }
-        return $this->where( $this->column, $values, 'IN' );
+        return $this->where($this->column, $values, 'IN');
     }
 
     /**
      * @param $values
      * @return Where
      */
-    public function notIn( $values)
+    public function notIn($values)
     {
-        if( !is_array($values ) ) {
+        if (!is_array($values)) {
             $values = func_get_args();
         }
-        return $this->where( $this->column, $values, 'NOT IN' );
+        return $this->where($this->column, $values, 'NOT IN');
     }
 
     /**
@@ -384,9 +394,9 @@ class Where
      * @param $val2
      * @return Where
      */
-    public function between( $val1, $val2 )
+    public function between($val1, $val2)
     {
-        return $this->where( $this->column, [$val1, $val2], "BETWEEN" );
+        return $this->where($this->column, [$val1, $val2], "BETWEEN");
     }
 
     /**
@@ -394,7 +404,7 @@ class Where
      */
     public function isNull()
     {
-        return $this->where( $this->column, false, 'IS NULL' );
+        return $this->where($this->column, false, 'IS NULL');
     }
 
     /**
@@ -402,43 +412,43 @@ class Where
      */
     public function notNull()
     {
-        return $this->where( $this->column, false, 'IS NOT NULL' );
+        return $this->where($this->column, false, 'IS NOT NULL');
     }
 
     /**
      * @param $val
      * @return Where
      */
-    public function like( $val )
+    public function contain($val)
     {
-        return $this->where( $this->column, $val, 'LIKE' );
+        return $this->like("%{$val}%");
     }
 
     /**
      * @param $val
      * @return Where
      */
-    public function contain( $val )
+    public function like($val)
     {
-        return $this->like( "%{$val}%" );
+        return $this->where($this->column, $val, 'LIKE');
     }
 
     /**
      * @param $val
      * @return Where
      */
-    public function startWith( $val )
+    public function startWith($val)
     {
-        return $this->like( "{$val}%" );
+        return $this->like("{$val}%");
     }
 
     /**
      * @param $val
      * @return Where
      */
-    public function endWith( $val )
+    public function endWith($val)
     {
-        return $this->like( "%{$val}" );
+        return $this->like("%{$val}");
     }
 
 }

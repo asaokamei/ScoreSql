@@ -1,6 +1,9 @@
 <?php
+
 namespace WScore\ScoreSql\Builder;
 
+use Closure;
+use InvalidArgumentException;
 use WScore\ScoreSql\Sql\SqlInterface;
 use WScore\ScoreSql\Sql\Where;
 
@@ -32,11 +35,11 @@ class BuildWhere
     protected $parentTableName;
 
     /**
-     * @param Bind    $bind
-     * @param Quote   $quote
+     * @param Bind $bind
+     * @param Quote $quote
      * @param Builder $builder
      */
-    public function __construct( $bind=null, $quote=null, $builder=null )
+    public function __construct($bind = null, $quote = null, $builder = null)
     {
         $this->bind = $bind;
         $this->quote = $quote;
@@ -44,30 +47,66 @@ class BuildWhere
     }
 
     /**
-     * @param string $name
+     * @param Where $criteria
+     * @param string $alias
+     * @param string $parent
      * @return string
+     * @throws InvalidArgumentException
      */
-    public function quote( $name )
+    public function build($criteria, $alias = null, $parent = null)
     {
-        if( !$name ) return $name;
-        if( $this->quote ) {
-            $name = $this->quote->quote( $name, $this->aliasedTableName, $this->parentTableName );
-        } elseif( $this->aliasedTableName ) {
-            $name = $this->aliasedTableName . '.' . $name;
+        $this->aliasedTableName = $alias;
+        $this->parentTableName = $parent;
+        $where_list = $criteria->getCriteria();
+        $sql = '';
+
+        foreach ($where_list as $where) {
+
+            if (is_string($where)) {
+                $sql .= 'and ' . $where;
+                continue;
+            }
+            if (!is_array($where)) {
+                throw new InvalidArgumentException;
+            }
+            $op = isset($where['op']) ? $where['op'] : 'and';
+            $sql .= strtoupper($op) . ' ' . $this->formWhere($where);
         }
-        return $name;
+        $sql = trim($sql);
+        $sql = preg_replace('/^(and|or) /i', '', $sql);
+        if ($criteria->getParenthesis()) {
+            $sql = '( ' . $sql . ' )';
+        }
+        return $sql;
     }
 
     /**
-     * @param $value
-     * @return array|string
+     * @param array $where
+     * @return string
      */
-    public function prepare( $value )
+    protected function formWhere($where)
     {
-        if( $this->bind ) {
-            $value = $this->bind->prepare( $value );
+        $rel = $where['rel'];
+        if (!$rel) {
+            return '';
         }
-        return $value;
+        if ($rel instanceof Where) {
+            return $rel->build($this->bind, $this->quote) . ' ';
+        }
+        if ($rel instanceof Closure) {
+            return $rel() . ' ';
+        }
+        $rel = strtoupper($rel);
+
+        // making $val based on $rel.
+        if ($rel == 'IN' || $rel == 'NOT IN') {
+            return $this->buildIn($where, $rel);
+        }
+        if ($rel == 'BETWEEN') {
+            return $this->buildBetween($where);
+        }
+        $where['rel'] = $rel;
+        return $this->buildColRelVal($where);
     }
     // +----------------------------------------------------------------------+
     /*  build sql statement.
@@ -80,65 +119,81 @@ class BuildWhere
          - val: value. set false to ignore, callable as raw value.
     */
     // +----------------------------------------------------------------------+
+
     /**
-     * @param Where $criteria
-     * @param string $alias
-     * @param string $parent
-     * @throws \InvalidArgumentException
+     * @param $where
+     * @param string $rel
      * @return string
      */
-    public function build( $criteria, $alias=null, $parent=null )
+    protected function buildIn($where, $rel)
     {
-        $this->aliasedTableName = $alias;
-        $this->parentTableName  = $parent;
-        $where_list = $criteria->getCriteria();
-        $sql   = '';
-
-        foreach ( $where_list as $where ) {
-
-            if ( is_string( $where ) ) {
-                $sql .= 'and ' . $where;
-                continue;
-            }
-            if ( !is_array( $where ) ) {
-                throw new \InvalidArgumentException;
-            }
-            $op = isset( $where['op'] ) ? $where['op'] : 'and';
-            $sql .= strtoupper($op) . ' '. $this->formWhere( $where );
-        }
-        $sql = trim( $sql );
-        $sql = preg_replace( '/^(and|or) /i', '', $sql );
-        if( $criteria->getParenthesis() ) {
-            $sql = '( ' . $sql . ' )';
-        }
-        return $sql;
+        $col = $where['col'];
+        $col = $this->quote($col);
+        $val = $where['val'];
+        $val = $this->formWhereVal($val);
+        $tmp = is_array($val) ? implode(", ", $val) : $val;
+        $val = "( " . $tmp . " )";
+        return "{$col} {$rel} {$val} ";
     }
 
     /**
-     * @param array $where
+     * @param string $name
      * @return string
      */
-    protected function formWhere( $where )
+    public function quote($name)
     {
-        $rel = $where[ 'rel' ];
-        if ( !$rel ) return '';
-        if( $rel instanceof Where ) {
-            return $rel->build( $this->bind, $this->quote ) . ' ';
+        if (!$name) {
+            return $name;
         }
-        if( $rel instanceof \Closure ) {
-            return $rel() . ' ';
+        if ($this->quote) {
+            $name = $this->quote->quote($name, $this->aliasedTableName, $this->parentTableName);
+        } elseif ($this->aliasedTableName) {
+            $name = $this->aliasedTableName . '.' . $name;
         }
-        $rel = strtoupper( $rel );
+        return $name;
+    }
 
-        // making $val based on $rel.
-        if ( $rel == 'IN' || $rel == 'NOT IN' ) {
-            return $this->buildIn( $where, $rel );
+    /**
+     * @param mixed $val
+     * @return string
+     */
+    protected function formWhereVal($val)
+    {
+        if ($val instanceof Closure) {
+            return $val();
         }
-        if ( $rel == 'BETWEEN' ) {
-            return $this->buildBetween( $where );
+        if ($val instanceof SqlInterface) {
+            return '( ' . $this->builder->toSql($val) . ' )';
         }
-        $where[ 'rel' ] = $rel;
-        return $this->buildColRelVal( $where );
+        if ($val !== false) {
+            return $this->prepare($val);
+        }
+        return '';
+    }
+
+    /**
+     * @param $value
+     * @return array|string
+     */
+    public function prepare($value)
+    {
+        if ($this->bind) {
+            $value = $this->bind->prepare($value);
+        }
+        return $value;
+    }
+
+    /**
+     * @param $where
+     * @return string
+     */
+    protected function buildBetween($where)
+    {
+        $col = $where['col'];
+        $col = $this->quote($col);
+        $val = $where['val'];
+        $val = $this->prepare($val);
+        return "{$col} BETWEEN {$val[0]} AND {$val[1]} ";
     }
 
     /**
@@ -147,85 +202,38 @@ class BuildWhere
      * @param array $where
      * @return string
      */
-    protected function buildColRelVal( $where )
+    protected function buildColRelVal($where)
     {
-        $rel = $where[ 'rel' ];
-        $col = $where[ 'col' ];
-        $val = $where[ 'val' ];
-        if ( $rel == 'EQ' ) {
+        $rel = $where['rel'];
+        $col = $where['col'];
+        $val = $where['val'];
+        if ($rel == 'EQ') {
             // EQ: equal to another column (i.e. val is an identifier.)
-            $val = $this->quote( $val );
+            $val = $this->quote($val);
             $rel = '=';
         } else {
-            $val = $this->formWhereVal( $val );
+            $val = $this->formWhereVal($val);
         }
         // normal case. compose where like col = val
-        $col = $this->formWhereCol( $col );
+        $col = $this->formWhereCol($col);
 
-        $where = trim( "{$col} {$rel} {$val}" ) . ' ';
+        $where = trim("{$col} {$rel} {$val}") . ' ';
         return $where;
-    }
-
-    /**
-     * @param $where
-     * @return string
-     */
-    protected function buildBetween( $where )
-    {
-        $col = $where[ 'col' ];
-        $col = $this->quote( $col );
-        $val = $where[ 'val' ];
-        $val = $this->prepare( $val );
-        return "{$col} BETWEEN {$val[0]} AND {$val[1]} ";
-    }
-
-    /**
-     * @param $where
-     * @param string $rel
-     * @return string
-     */
-    protected function buildIn( $where, $rel )
-    {
-        $col = $where[ 'col' ];
-        $col = $this->quote( $col );
-        $val = $where[ 'val' ];
-        $val = $this->formWhereVal( $val );
-        $tmp = is_array( $val ) ? implode( ", ", $val ) : $val;
-        $val = "( " . $tmp . " )";
-        return "{$col} {$rel} {$val} ";
-    }
-
-    /**
-     * @param mixed $val
-     * @return string
-     */
-    protected function formWhereVal( $val )
-    {
-        if ( $val instanceof \Closure ) {
-            return $val();
-        }
-        if ( $val instanceof SqlInterface ) {
-            return '( ' . $this->builder->toSql( $val ) . ' )';
-        }
-        if ( $val !== false ) {
-            return $this->prepare( $val );
-        }
-        return '';
     }
 
     /**
      * @param mixed $col
      * @return string
      */
-    protected function formWhereCol( $col )
+    protected function formWhereCol($col)
     {
         // making $col.
-        if ( is_string( $col ) ) {
+        if (is_string($col)) {
 
-            $col = $this->quote( $col );
+            $col = $this->quote($col);
             return $col;
 
-        } elseif ( $col instanceof \Closure ) {
+        } elseif ($col instanceof Closure) {
 
             return $col();
         }

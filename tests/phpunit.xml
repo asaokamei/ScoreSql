@@ -8,7 +8,7 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-        >
+>
     <testsuites>
         <testsuite name="WScore/SqlBuilder Test Suite">
             <directory>./</directory>

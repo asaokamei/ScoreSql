@@ -1,6 +1,8 @@
 <?php
+
 namespace WScore\ScoreSql\Paginate;
 
+use Closure;
 use WScore\ScoreSql\Query;
 
 class Pager
@@ -20,12 +22,12 @@ class Pager
     /**
      * @var array
      */
-    protected $session = [ ];
+    protected $session = [];
 
     /**
      * @var array
      */
-    protected $inputs = [ ];
+    protected $inputs = [];
 
     // +----------------------------------------------------------------------+
     //  construction
@@ -33,20 +35,20 @@ class Pager
     /**
      * @param array|null $session
      */
-    public function __construct( &$session = null, $input = null )
+    public function __construct(&$session = null, $input = null)
     {
-        if ( is_null( $session ) ) {
+        if (is_null($session)) {
             $this->session = &$_SESSION;
         } else {
             $this->session = &$session;
         }
-        if ( is_null( $input ) ) {
+        if (is_null($input)) {
             $this->inputs = $_GET;
         } else {
             $this->inputs = $input;
         }
         $this->setSaveId();
-        if ( $limit = $this->getKey( $this->limiter ) ) {
+        if ($limit = $this->getKey($this->limiter)) {
             $this->perPage = $limit;
         }
     }
@@ -56,53 +58,45 @@ class Pager
      */
     protected function setSaveId()
     {
-        $this->saveID = 'Paginate-' . md5( $_SERVER[ "SCRIPT_FILENAME" ] );
+        $this->saveID = 'Paginate-' . md5($_SERVER["SCRIPT_FILENAME"]);
     }
 
     /**
      * @param string $key
      * @return mixed
      */
-    protected function getKey( $key )
+    protected function getKey($key)
     {
-        return array_key_exists( $key, $this->inputs ) ? $this->inputs[ $key ] : null;
+        return array_key_exists($key, $this->inputs) ? $this->inputs[$key] : null;
     }
 
     /**
-     * @param string $key
-     * @return bool
+     * @param Closure $callback
+     * @return mixed|Query
      */
-    protected function exists( $key )
+    public function load($callback)
     {
-        return array_key_exists( $key, $this->inputs );
+        if ($this->exists($this->pager)) {
+            $this->loadQuery();
+        }
+        /** @var Query|mixed $query */
+        $query = $callback($this);
+        $this->setPage($query);
+        $this->saveQuery();
+        return $query;
     }
 
     // +----------------------------------------------------------------------+
     //  pagination
     // +----------------------------------------------------------------------+
-    /**
-     * @param \Closure $callback
-     * @return mixed|Query
-     */
-    public function load( $callback )
-    {
-        if ( $this->exists( $this->pager ) ) {
-            $this->loadQuery();
-        }
-        /** @var Query|mixed $query */
-        $query = $callback( $this );
-        $this->setPage( $query );
-        $this->saveQuery();
-        return $query;
-    }
 
     /**
-     * @param Query $query
+     * @param string $key
+     * @return bool
      */
-    protected function setPage( $query )
+    protected function exists($key)
     {
-        $query->limit( $this->perPage );
-        $query->offset( $this->perPage * ($this->currPage - 1) );
+        return array_key_exists($key, $this->inputs);
     }
 
     /**
@@ -110,17 +104,26 @@ class Pager
      */
     protected function loadQuery()
     {
-        if( !isset( $this->session[ $this->saveID ] ) ) {
+        if (!isset($this->session[$this->saveID])) {
             return;
         }
-        $saved        = $this->session[ $this->saveID ];
-        $this->inputs = array_merge( $saved[ 'inputs' ], $this->inputs );
-        $this->perPage = $saved[ 'perPage' ];
-        if( $currPage=$this->getKey($this->pager) ) {
+        $saved = $this->session[$this->saveID];
+        $this->inputs = array_merge($saved['inputs'], $this->inputs);
+        $this->perPage = $saved['perPage'];
+        if ($currPage = $this->getKey($this->pager)) {
             $this->currPage = $currPage;
-        } else{
+        } else {
             $this->currPage = $saved['currPage'];
         }
+    }
+
+    /**
+     * @param Query $query
+     */
+    protected function setPage($query)
+    {
+        $query->limit($this->perPage);
+        $query->offset($this->perPage * ($this->currPage - 1));
     }
 
     /**
@@ -128,21 +131,21 @@ class Pager
      */
     protected function saveQuery()
     {
-        $this->session[ $this->saveID ] = [
-            'perPage'  => $this->perPage,
+        $this->session[$this->saveID] = [
+            'perPage' => $this->perPage,
             'currPage' => $this->currPage,
-            'inputs'   => $this->inputs,
+            'inputs' => $this->inputs,
         ];
     }
 
     /**
      * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      * @return mixed
      */
-    public function push( $key, $default='' )
+    public function push($key, $default = '')
     {
-        if( !array_key_exists( $key, $this->inputs ) ) {
+        if (!array_key_exists($key, $this->inputs)) {
             $this->inputs[$key] = $default;
         }
         return $this->inputs[$key];
@@ -157,31 +160,12 @@ class Pager
     }
 
     /**
-     * @param int $total
-     */
-    public function setTotal( $total )
-    {
-        $this->total = $total;
-    }
-
-    /**
-     * @param int $perPage
-     */
-    public function setPerPage( $perPage )
-    {
-        $this->perPage = $perPage;
-    }
-
-    // +----------------------------------------------------------------------+
-    //  public methods for constructing pagination info.
-    // +----------------------------------------------------------------------+
-    /**
      * @param string $uri
      * @return ToHtml
      */
-    public function html( $uri=null )
+    public function html($uri = null)
     {
-        $toHtml = new ToHtml( $uri );
+        $toHtml = new ToHtml($uri);
         $toHtml->setPager($this);
         return $toHtml;
     }
@@ -189,14 +173,28 @@ class Pager
     /**
      * @return int
      */
-    public function getTotal() {
+    public function getTotal()
+    {
         return $this->total;
+    }
+
+    // +----------------------------------------------------------------------+
+    //  public methods for constructing pagination info.
+    // +----------------------------------------------------------------------+
+
+    /**
+     * @param int $total
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
     }
 
     /**
      * @return int
      */
-    public function getCurrPage() {
+    public function getCurrPage()
+    {
         return $this->currPage;
     }
 
@@ -206,6 +204,14 @@ class Pager
     public function getPerPage()
     {
         return $this->perPage;
+    }
+
+    /**
+     * @param int $perPage
+     */
+    public function setPerPage($perPage)
+    {
+        $this->perPage = $perPage;
     }
 
     /**

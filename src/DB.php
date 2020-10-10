@@ -1,4 +1,5 @@
 <?php
+
 namespace WScore\ScoreSql;
 
 use WScore\ScoreSql\Sql\Join;
@@ -8,7 +9,7 @@ use WScore\ScoreSql\Sql\Where;
  * Class Query
  *
  * @package WScore\ScoreSql
- *          
+ *
  */
 class DB
 {
@@ -20,10 +21,10 @@ class DB
      * @param string $alias
      * @return Query
      */
-    public static function from( $table, $alias = null )
+    public static function from($table, $alias = null)
     {
         $self = Query::forge();
-        $self->table( $table, $alias );
+        $self->table($table, $alias);
         return $self;
     }
 
@@ -32,16 +33,16 @@ class DB
      * @param string $alias
      * @return Join
      */
-    public static function join( $table, $alias=null )
+    public static function join($table, $alias = null)
     {
-        return new Join( $table, $alias );
+        return new Join($table, $alias);
     }
 
     /**
      * @param string $column
      * @return Where
      */
-    public static function given( $column=null )
+    public static function given($column = null)
     {
         return Where::column($column);
     }

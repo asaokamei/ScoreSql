@@ -1,4 +1,5 @@
 <?php
+
 namespace WScore\ScoreSql\Builder;
 
 use WScore\ScoreSql\Sql\Sql;
@@ -27,9 +28,9 @@ class Builder
     protected $builder;
 
     /**
-     * database type (mysql, pgsql, etc.) of original query. 
-     * pass this to the sub-query. 
-     * 
+     * database type (mysql, pgsql, etc.) of original query.
+     * pass this to the sub-query.
+     *
      * @var string
      */
     protected $dbType;
@@ -38,13 +39,13 @@ class Builder
     //  construction
     // +----------------------------------------------------------------------+
     /**
-     * @param Bind  $bind
+     * @param Bind $bind
      * @param Quote $quote
      */
-    public function __construct( $bind, $quote )
+    public function __construct($bind, $quote)
     {
         $this->quote = $quote;
-        $this->bind  = $bind;
+        $this->bind = $bind;
     }
 
     /**
@@ -52,9 +53,9 @@ class Builder
      */
     public static function forge()
     {
-        $bind   = new Bind();
-        $quote  = new Quote();
-        return new Builder( $bind, $quote );
+        $bind = new Bind();
+        $quote = new Quote();
+        return new Builder($bind, $quote);
     }
 
     /**
@@ -74,21 +75,6 @@ class Builder
     }
 
     /**
-     * @param Sql $query
-     */
-    protected function setQuery( $query )
-    {
-        $this->query = $query;
-        if( !$this->dbType ) {
-            $this->dbType  = $query->magicGet('dbType') ?: 'GenericSql';
-            $this->dbType  = ucwords( $this->dbType );
-        }
-        /** @var GenericSql $builder */
-        $class = '\WScore\ScoreSql\Builder\\'.$this->dbType;
-        $this->builder = new $class( $this->bind, $this->quote, $this, $this->query );
-    }
-
-    /**
      * @return string
      */
     public function getDbType()
@@ -96,50 +82,55 @@ class Builder
         return $this->dbType;
     }
 
-    // +----------------------------------------------------------------------+
-    //  convert to SQL statements.
-    // +----------------------------------------------------------------------+
     /**
      * @param Sql|SqlInterface $query
      * @return string
      */
-    public function toSql( $query )
+    public function toSql($query)
     {
-        $type = $query->magicGet( 'sqlType' );
+        $type = $query->magicGet('sqlType');
         $method = 'to' . ucwords($type);
-        return $this->$method( $query );
+        return $this->$method($query);
     }
+
+    // +----------------------------------------------------------------------+
+    //  convert to SQL statements.
+    // +----------------------------------------------------------------------+
 
     /**
      * @param Sql $query
      * @return string
      */
-    public function toSelect( $query )
+    public function toSelect($query)
     {
-        $this->setQuery( $query );
-        $sql = 'SELECT' . $this->builder->build( 'select' );
+        $this->setQuery($query);
+        $sql = 'SELECT' . $this->builder->build('select');
         return $sql;
+    }
+
+    /**
+     * @param Sql $query
+     */
+    protected function setQuery($query)
+    {
+        $this->query = $query;
+        if (!$this->dbType) {
+            $this->dbType = $query->magicGet('dbType') ?: 'GenericSql';
+            $this->dbType = ucwords($this->dbType);
+        }
+        /** @var GenericSql $builder */
+        $class = '\WScore\ScoreSql\Builder\\' . $this->dbType;
+        $this->builder = new $class($this->bind, $this->quote, $this, $this->query);
     }
 
     /**
      * @param $query
      * @return string
      */
-    public function toCount( $query )
+    public function toCount($query)
     {
-        $this->setQuery( $query );
-        $sql = 'SELECT' . $this->builder->build( 'count' );
-        return $sql;
-    }
-    
-    /**
-     * @param Sql $query
-     * @return string
-     */
-    public function toInsert( $query )
-    {
-        $this->setQuery( $query );
-        $sql = 'INSERT INTO' . $this->builder->build( 'insert' );
+        $this->setQuery($query);
+        $sql = 'SELECT' . $this->builder->build('count');
         return $sql;
     }
 
@@ -147,10 +138,10 @@ class Builder
      * @param Sql $query
      * @return string
      */
-    public function toUpdate( $query )
+    public function toInsert($query)
     {
-        $this->setQuery( $query );
-        $sql = 'UPDATE' . $this->builder->build( 'update' );
+        $this->setQuery($query);
+        $sql = 'INSERT INTO' . $this->builder->build('insert');
         return $sql;
     }
 
@@ -158,10 +149,21 @@ class Builder
      * @param Sql $query
      * @return string
      */
-    public function toDelete( $query )
+    public function toUpdate($query)
     {
-        $this->setQuery( $query );
-        $sql = 'DELETE FROM' . $this->builder->build( 'delete' );
+        $this->setQuery($query);
+        $sql = 'UPDATE' . $this->builder->build('update');
+        return $sql;
+    }
+
+    /**
+     * @param Sql $query
+     * @return string
+     */
+    public function toDelete($query)
+    {
+        $this->setQuery($query);
+        $sql = 'DELETE FROM' . $this->builder->build('delete');
         return $sql;
     }
 

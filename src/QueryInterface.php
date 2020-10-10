@@ -5,9 +5,11 @@
  * Date: 2014/06/23
  * Time: 16:40
  */
+
 namespace WScore\ScoreSql;
 
 use InvalidArgumentException;
+use PdoStatement;
 
 interface QueryInterface
 {
@@ -17,7 +19,7 @@ interface QueryInterface
      * @param array $data
      * @return int
      */
-    public function insert( $data = array() );
+    public function insert($data = array());
 
     /**
      * builds select statement.
@@ -25,17 +27,17 @@ interface QueryInterface
      * @param null|int $limit
      * @return string
      */
-    public function select( $limit = null );
+    public function select($limit = null);
 
     /**
      * builds select statement with $id as primary-key,
      * or set $column to use another column to select.
      *
-     * @param int    $id
+     * @param int $id
      * @param string $column
      * @return string
      */
-    public function load( $id, $column=null );
+    public function load($id, $column = null);
 
     /**
      * for paginate.
@@ -47,7 +49,7 @@ interface QueryInterface
      * @param int $perPage
      * @return mixed
      */
-    public function page( $page, $perPage=20 );
+    public function page($page, $perPage = 20);
 
     /**
      * get the current limit value.
@@ -63,22 +65,22 @@ interface QueryInterface
      * @param string $column
      * @return string
      */
-    public function delete( $id=null, $column=null );
+    public function delete($id = null, $column = null);
 
     /**
      * builds update statement.
      *
      * @param array $data
-     * @return \PdoStatement
+     * @return PdoStatement
      */
-    public function update( $data = array() );
+    public function update($data = array());
 
     /**
      * @param $data
+     * @return int|PdoStatement
      * @throws InvalidArgumentException
-     * @return int|\PdoStatement
      */
-    public function save( $data );
+    public function save($data);
 
     /**
      * resets the query state.

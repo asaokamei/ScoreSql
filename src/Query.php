@@ -1,8 +1,8 @@
 <?php
+
 namespace WScore\ScoreSql;
 
 use WScore\ScoreSql\Builder\Builder;
-use WScore\ScoreSql\Sql\Join;
 
 /**
  * Class Query
@@ -39,7 +39,7 @@ class Query extends Sql\Sql
     /**
      * @param Builder $builder
      */
-    public function setBuilder( $builder )
+    public function setBuilder($builder)
     {
         $this->builder = $builder;
     }
@@ -47,15 +47,6 @@ class Query extends Sql\Sql
     // +----------------------------------------------------------------------+
     //  builds SQL statements.
     // +----------------------------------------------------------------------+
-    /**
-     * @param string $type
-     * @return $this
-     */
-    public function sqlType( $type )
-    {
-        $this->sqlType = strtolower($type);
-        return $this;
-    }
 
     /**
      * @return string
@@ -63,7 +54,7 @@ class Query extends Sql\Sql
     public function __toString()
     {
         $builder = $this->builder ?: Builder::forge();
-        $sql = $builder->toSql( $this );
+        $sql = $builder->toSql($this);
         $this->bound = $builder->getBind()->getBinding();
         return $sql;
     }
@@ -81,7 +72,17 @@ class Query extends Sql\Sql
      */
     public function toSelect()
     {
-        return $this->sqlType( 'select' );
+        return $this->sqlType('select');
+    }
+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function sqlType($type)
+    {
+        $this->sqlType = strtolower($type);
+        return $this;
     }
 
     /**
@@ -89,7 +90,7 @@ class Query extends Sql\Sql
      */
     public function toCount()
     {
-        return $this->sqlType( 'count' );
+        return $this->sqlType('count');
     }
 
     /**
@@ -97,7 +98,7 @@ class Query extends Sql\Sql
      */
     public function toInsert()
     {
-        return $this->sqlType( 'insert' );
+        return $this->sqlType('insert');
     }
 
     /**
@@ -105,7 +106,7 @@ class Query extends Sql\Sql
      */
     public function toUpdate()
     {
-        return $this->sqlType( 'update' );
+        return $this->sqlType('update');
     }
 
     /**
@@ -113,6 +114,6 @@ class Query extends Sql\Sql
      */
     public function toDelete()
     {
-        return $this->sqlType( 'delete' );
+        return $this->sqlType('delete');
     }
 }

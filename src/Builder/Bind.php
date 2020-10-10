@@ -1,5 +1,8 @@
 <?php
+
 namespace WScore\ScoreSql\Builder;
+
+use Closure;
 
 class Bind
 {
@@ -7,7 +10,7 @@ class Bind
      * @var bool
      */
     public static $useColumnInBindValues = false;
-    
+
     /**
      * @var int
      */
@@ -32,7 +35,7 @@ class Bind
      * @param $column
      * @param $type
      */
-    public function setColumnType( $column, $type )
+    public function setColumnType($column, $type)
     {
         $this->col_data_types[$column] = $type;
     }
@@ -48,26 +51,30 @@ class Bind
      * types for the place holder is kept in prepared_types array.
      *
      * @param string|array $val
-     * @param null|int|string  $col     column name. used to find data type
-     * @param null|int         $type    data type
+     * @param null|int|string $col column name. used to find data type
+     * @param null|int $type data type
      * @return string|array
      */
-    public function prepare( $val, $col=null, $type=null )
+    public function prepare($val, $col = null, $type = null)
     {
-        if( is_array( $val ) ) {
+        if (is_array($val)) {
             $holder = [];
-            foreach( $val as $key => $v ) {
-                $holder[$key] = $this->prepare( $v, $col, $type );
+            foreach ($val as $key => $v) {
+                $holder[$key] = $this->prepare($v, $col, $type);
             }
             return $holder;
         }
-        if( $val instanceof \Closure ) return $val;
+        if ($val instanceof Closure) {
+            return $val;
+        }
 
-        $holder  = ( static::$useColumnInBindValues ) ? ':' : ''; 
-        $holder .=  'db_prep_' . $this->prepared_counter++;
-        $this->prepared_values[ $holder ] = $val;
-        $this->setPreparedType( $holder, $col, $type );
-        if( !static::$useColumnInBindValues ) $holder = ':'.$holder;
+        $holder = (static::$useColumnInBindValues) ? ':' : '';
+        $holder .= 'db_prep_' . $this->prepared_counter++;
+        $this->prepared_values[$holder] = $val;
+        $this->setPreparedType($holder, $col, $type);
+        if (!static::$useColumnInBindValues) {
+            $holder = ':' . $holder;
+        }
         return $holder;
     }
 
@@ -77,12 +84,12 @@ class Bind
      * @param string|null $type
      * @return string|null
      */
-    protected function setPreparedType( $holder, $col, $type )
+    protected function setPreparedType($holder, $col, $type)
     {
-        if( $type ) {
-            $this->prepared_types[ $holder ] = $type;
-        } elseif( $col && isset( $this->col_data_types[$col] ) ) {
-            $this->prepared_types[ $holder ] = $this->col_data_types[ $col ];
+        if ($type) {
+            $this->prepared_types[$holder] = $type;
+        } elseif ($col && isset($this->col_data_types[$col])) {
+            $this->prepared_types[$holder] = $this->col_data_types[$col];
         }
         return $type;
     }

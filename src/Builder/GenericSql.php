@@ -1,6 +1,8 @@
 <?php
+
 namespace WScore\ScoreSql\Builder;
 
+use InvalidArgumentException;
 use WScore\ScoreSql\Sql\Join;
 
 class GenericSql extends GenericUtils
@@ -53,13 +55,12 @@ class GenericSql extends GenericUtils
      */
     protected function buildInsertCol()
     {
-        /** @noinspection PhpUnusedParameterInspection */
         return '( ' . $this->formatList(
-            $this->getMagicQuery('values'),
-            function( $col, $val ) {
-                return $this->quote( $col );
-            }
-        ) . ' )';
+                $this->getMagicQuery('values'),
+                function ($col) {
+                    return $this->quote($col);
+                }
+            ) . ' )';
     }
 
     /**
@@ -68,11 +69,11 @@ class GenericSql extends GenericUtils
     protected function buildInsertVal()
     {
         return 'VALUES ( ' . $this->formatList(
-            $this->getMagicQuery('values'),
-            function( $col, $val ) {
-                return $this->evaluate( $val ) ?: $this->prepare( $val, $col );
-            }
-        ) . ' )';
+                $this->getMagicQuery('values'),
+                function ($col, $val) {
+                    return $this->evaluate($val) ?: $this->prepare($val, $col);
+                }
+            ) . ' )';
     }
 
     /**
@@ -81,13 +82,13 @@ class GenericSql extends GenericUtils
     protected function buildUpdateSet()
     {
         return 'SET ' . $this->formatList(
-            $this->getMagicQuery('values'),
-            function( $col, $val ) {
-                $val = $this->evaluate( $val ) ?: $this->prepare( $val, $col );
-                $col = $this->quote( $col );
-                return $this->quote( $col ) . '=' . $val;
-            }
-        );
+                $this->getMagicQuery('values'),
+                function ($col, $val) {
+                    $val = $this->evaluate($val) ?: $this->prepare($val, $col);
+                    $col = $this->quote($col);
+                    return $this->quote($col) . '=' . $val;
+                }
+            );
     }
 
     /**
@@ -95,7 +96,7 @@ class GenericSql extends GenericUtils
      */
     protected function buildFlags()
     {
-        return $this->getMagicQuery('selFlags') ? implode( ' ', $this->getMagicQuery('selFlags') ) : '';
+        return $this->getMagicQuery('selFlags') ? implode(' ', $this->getMagicQuery('selFlags')) : '';
     }
 
     /**
@@ -103,7 +104,7 @@ class GenericSql extends GenericUtils
      */
     protected function buildTable()
     {
-        return $this->quote( $this->getMagicQuery('table') );
+        return $this->quote($this->getMagicQuery('table'));
     }
 
     /**
@@ -112,7 +113,7 @@ class GenericSql extends GenericUtils
     protected function buildFrom()
     {
         $table = $this->getMagicQuery('table');
-        $table = $this->evaluate( $table ) ?: $this->quote($table);
+        $table = $this->evaluate($table) ?: $this->quote($table);
         return 'FROM ' . $table;
     }
 
@@ -122,23 +123,23 @@ class GenericSql extends GenericUtils
     protected function buildTableAlias()
     {
         $alias = $this->getMagicQuery('tableAlias');
-        if( $alias ) {
-            $alias = 'AS ' . $this->quote( $this->getMagicQuery('tableAlias') );
+        if ($alias) {
+            $alias = 'AS ' . $this->quote($this->getMagicQuery('tableAlias'));
         }
         return $alias;
     }
 
     /**
      * @return string
+     * @noinspection PhpUnusedParameterInspection
      */
     protected function buildJoin()
     {
-        /** @noinspection PhpUnusedParameterInspection */
         return $this->formatList(
             $this->getMagicQuery('join'),
-            function( $col, $join ) {
-                if( $join instanceof Join ) {
-                    $join = $join->build( $this->bind, $this->quote );
+            function ($col, $join) {
+                if ($join instanceof Join) {
+                    $join = $join->build($this->bind, $this->quote);
                 }
                 return $join;
             },
@@ -147,18 +148,20 @@ class GenericSql extends GenericUtils
     }
 
     /**
-     * @throws \InvalidArgumentException
      * @return string
+     * @throws InvalidArgumentException
      */
     protected function buildColumn()
     {
-        if ( !$column_list = $this->getMagicQuery('columns') ) return '*';
+        if (!$column_list = $this->getMagicQuery('columns')) {
+            return '*';
+        }
         return $this->formatList(
             $column_list,
-            function( $alias, $col ) {
-                $col = $this->evaluate( $col ) ?: $this->quote($col);
-                if ( !is_numeric( $alias ) ) {
-                    $col .= ' AS ' . $this->quote( $alias );
+            function ($alias, $col) {
+                $col = $this->evaluate($col) ?: $this->quote($col);
+                if (!is_numeric($alias)) {
+                    $col .= ' AS ' . $this->quote($alias);
                 }
                 return $col;
             }
@@ -178,25 +181,29 @@ class GenericSql extends GenericUtils
      */
     protected function buildGroupBy()
     {
-        if ( !$group = $this->getMagicQuery('group') ) return '';
-        $group = (array) $group;
-        $group = $this->quote( $group );
-        return 'GROUP BY ' . implode( ', ', $group );
+        if (!$group = $this->getMagicQuery('group')) {
+            return '';
+        }
+        $group = (array)$group;
+        $group = $this->quote($group);
+        return 'GROUP BY ' . implode(', ', $group);
     }
 
     /**
      * @return string
+     * @noinspection PhpUnusedParameterInspection
      */
     protected function buildOrderBy()
     {
-        if ( !$orders = $this->getMagicQuery('order') ) return '';
-        /** @noinspection PhpUnusedParameterInspection */
+        if (!$orders = $this->getMagicQuery('order')) {
+            return '';
+        }
         return 'ORDER BY ' . $this->formatList(
-            $orders,
-            function( $col, $order ) {
-                return $this->quote( $order[ 0 ], $this->getMagicQuery('tableAlias') ) . " " . $order[ 1 ];
-            }
-        );
+                $orders,
+                function ($col, $order) {
+                    return $this->quote($order[0], $this->getMagicQuery('tableAlias')) . " " . $order[1];
+                }
+            );
     }
 
     /**
@@ -220,7 +227,7 @@ class GenericSql extends GenericUtils
      */
     protected function buildForUpdate()
     {
-        if ( $this->getMagicQuery('forUpdate') ) {
+        if ($this->getMagicQuery('forUpdate')) {
             return 'FOR UPDATE';
         }
         return '';
@@ -234,8 +241,8 @@ class GenericSql extends GenericUtils
      */
     protected function buildWhere()
     {
-        $criteria = $this->formatCriteria( 'where' );
-        return $criteria ? 'WHERE '.$criteria : '';
+        $criteria = $this->formatCriteria('where');
+        return $criteria ? 'WHERE ' . $criteria : '';
     }
 
     /**
@@ -243,8 +250,8 @@ class GenericSql extends GenericUtils
      */
     protected function buildHaving()
     {
-        $criteria = $this->formatCriteria( 'having' );
-        return $criteria ? 'HAVING '.$criteria : '';
+        $criteria = $this->formatCriteria('having');
+        return $criteria ? 'HAVING ' . $criteria : '';
     }
     // +----------------------------------------------------------------------+
 }

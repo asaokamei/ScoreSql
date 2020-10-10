@@ -1,4 +1,5 @@
 <?php
+
 namespace WScore\ScoreSql\Sql;
 
 use Closure;
@@ -34,7 +35,7 @@ class Sql implements SqlInterface
      * @var string           name of table of parent query (for sub-query)
      */
     protected $tableParent;
-    
+
     /**
      * @var string           name of id (primary key)
      */
@@ -43,32 +44,32 @@ class Sql implements SqlInterface
     /**
      * @var Join[]           join for table
      */
-    protected $join = [ ];
+    protected $join = [];
 
     /**
      * @var string|array     columns to select in array or string
      */
-    protected $columns = [ ];
+    protected $columns = [];
 
     /**
      * @var array            values for insert/update in array
      */
-    protected $values = [ ];
+    protected $values = [];
 
     /**
      * @var string[]         such as distinct, for update, etc.
      */
-    protected $selFlags = [ ];
+    protected $selFlags = [];
 
     /**
      * @var array            order by. [ [ order, dir ], [].. ]
      */
-    protected $order = [ ];
+    protected $order = [];
 
     /**
      * @var array           group by. [ group, group2, ...]
      */
-    protected $group = [ ];
+    protected $group = [];
 
     /**
      * @var Where
@@ -98,11 +99,23 @@ class Sql implements SqlInterface
     protected $subQueryCount = 1;
 
     // +----------------------------------------------------------------------+
+
+    /**
+     * @param $value
+     * @return Closure
+     */
+    public static function raw($value)
+    {
+        return function () use ($value) {
+            return $value;
+        };
+    }
+
     /**
      * @param string $type
      * @return $this
      */
-    public function dbType( $type )
+    public function dbType($type)
     {
         $this->dbType = $type;
         return $this;
@@ -114,9 +127,9 @@ class Sql implements SqlInterface
      * @param $column
      * @return Where
      */
-    public function __get( $column )
+    public function __get($column)
     {
-        return $this->given( $column );
+        return $this->given($column);
     }
 
     /**
@@ -125,9 +138,18 @@ class Sql implements SqlInterface
      * @param $key
      * @param $value
      */
-    public function __set( $key, $value )
+    public function __set($key, $value)
     {
-        $this->values[ $key ] = $value;
+        $this->values[$key] = $value;
+    }
+
+    /**
+     * @param string|Closure $column
+     * @return Where
+     */
+    public function given($column)
+    {
+        return Where::column($column);
     }
 
     /**
@@ -135,17 +157,17 @@ class Sql implements SqlInterface
      */
     public function reset()
     {
-        $this->sqlType   = 'select';
-        $this->where     = null;
-        $this->join      = [ ];
-        $this->columns   = [ ];
-        $this->values    = [ ];
-        $this->selFlags  = [ ];
-        $this->order     = [ ];
-        $this->group     = [ ];
-        $this->having    = null;
-        $this->limit     = null;
-        $this->offset    = 0;
+        $this->sqlType = 'select';
+        $this->where = null;
+        $this->join = [];
+        $this->columns = [];
+        $this->values = [];
+        $this->selFlags = [];
+        $this->order = [];
+        $this->group = [];
+        $this->having = null;
+        $this->limit = null;
+        $this->offset = 0;
         $this->returning = null;
         $this->forUpdate = false;
     }
@@ -154,16 +176,30 @@ class Sql implements SqlInterface
      * return a new Sql|Query object as sub-query.
      *
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      * @return $this
      */
-    public function subQuery( $table, $alias=null )
+    public function subQuery($table, $alias = null)
     {
         $sub = new self();
-        if( !$alias ) $alias = 'sub_' . $this->subQueryCount ++;
-        $sub->table( $table, $alias );
-        $sub->setParentTable( $this->getAliasOrTable() );
+        if (!$alias) {
+            $alias = 'sub_' . $this->subQueryCount++;
+        }
+        $sub->table($table, $alias);
+        $sub->setParentTable($this->getAliasOrTable());
         return $sub;
+    }
+
+    /**
+     * @param string|null $table
+     * @param string|null $alias
+     * @return $this
+     */
+    public function table($table, $alias = null)
+    {
+        $this->table = $this->table = $table;
+        $this->tableAlias = $alias ?: null;
+        return $this;
     }
 
     /**
@@ -171,87 +207,64 @@ class Sql implements SqlInterface
      *
      * @param string $name
      */
-    protected function setParentTable( $name )
+    protected function setParentTable($name)
     {
         $this->tableParent = $name;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getAliasOrTable()
+    {
+        return $this->tableAlias ?: $this->table;
     }
 
     /**
      * @param $key
      * @return string|array|mixed
      */
-    public function magicGet( $key )
+    public function magicGet($key)
     {
-        return isset( $this->$key ) ? $this->$key : null;
-    }
-
-    /**
-     * @param $value
-     * @return Closure
-     */
-    public static function raw( $value )
-    {
-        return function () use ( $value ) {
-            return $value;
-        };
-    }
-
-    /**
-     * @param Where       $where
-     * @param string|null $andOr
-     * @return $this
-     */
-    public function where( $where, $andOr=null )
-    {
-        if( !$this->where ) {
-            $this->where = $where;
-        } else {
-            $this->where->set( $where, $andOr );
-        }
-        return $this;
+        return isset($this->$key) ? $this->$key : null;
     }
 
     /**
      * @param $where
      * @return $this
      */
-    public function whereOr( $where )
+    public function whereOr($where)
     {
-        return $this->where( $where, 'or' );
+        return $this->where($where, 'or');
     }
 
+    // +----------------------------------------------------------------------+
+    //  Setting string, array, and data to build SQL statement.
+    // +----------------------------------------------------------------------+
+
     /**
-     * @param string|Closure $column
-     * @return Where
+     * @param Where $where
+     * @param string|null $andOr
+     * @return $this
      */
-    public function given( $column )
+    public function where($where, $andOr = null)
     {
-        return Where::column( $column );
+        if (!$this->where) {
+            $this->where = $where;
+        } else {
+            $this->where->set($where, $andOr);
+        }
+        return $this;
     }
 
     /**
      * @param JoinInterface $join
      * @return $this
      */
-    public function join( $join )
+    public function join($join)
     {
         $this->join[] = $join;
-        $join->setQueryTable( $this->getAliasOrTable() );
-        return $this;
-    }
-
-    // +----------------------------------------------------------------------+
-    //  Setting string, array, and data to build SQL statement.
-    // +----------------------------------------------------------------------+
-    /**
-     * @param string $table
-     * @param string $alias
-     * @return $this
-     */
-    public function table( $table, $alias = null )
-    {
-        $this->table   = $this->table = $table;
-        $this->tableAlias = $alias ? : null;
+        $join->setQueryTable($this->getAliasOrTable());
         return $this;
     }
 
@@ -266,14 +279,6 @@ class Sql implements SqlInterface
     /**
      * @return string
      */
-    protected function getAliasOrTable()
-    {
-        return $this->tableAlias ?: $this->table;
-    }
-
-    /**
-     * @return string
-     */
     public function getKeyName()
     {
         return $this->keyName;
@@ -283,7 +288,7 @@ class Sql implements SqlInterface
      * @param string $keyName
      * @return $this
      */
-    public function keyName( $keyName )
+    public function keyName($keyName)
     {
         $this->keyName = $keyName;
         return $this;
@@ -291,14 +296,16 @@ class Sql implements SqlInterface
 
     /**
      * @param string $id
-     * @param string $column
+     * @param string|null $column
      * @return $this
      */
-    public function key( $id, $column=null )
+    public function key($id, $column = null)
     {
-        if( !$id ) return $this;
+        if (!$id) {
+            return $this;
+        }
         $column = $column ?: $this->keyName;
-        $this->where( $this->$column->eq( $id ) );
+        $this->where($this->$column->eq($id));
         return $this;
     }
 
@@ -307,14 +314,16 @@ class Sql implements SqlInterface
      * @param null|string $as
      * @return $this
      */
-    public function column( $column, $as = null )
+    public function column($column, $as = null)
     {
-        if( $column === false ) {
-            $this->columns = [ ];
-        } else if ( $as ) {
-            $this->columns[ $as ] = $column;
+        if ($column === false) {
+            $this->columns = [];
         } else {
-            $this->columns[ ] = $column;
+            if ($as) {
+                $this->columns[$as] = $column;
+            } else {
+                $this->columns[] = $column;
+            }
         }
         return $this;
     }
@@ -324,16 +333,18 @@ class Sql implements SqlInterface
      * or
      * ->columns( 'col1', 'col2', ... );
      *
-     * @param array $column
+     * @param array|string $column
      * @return $this
      */
-    public function columns( $column )
+    public function columns($column)
     {
-        if( is_array($column ) ) {
+        if (is_array($column)) {
             $this->columns += $column;
-        } elseif( func_num_args() > 1 ) {
+        } elseif (func_num_args() > 1) {
             $column = func_get_args();
             $this->columns += $column;
+        } else {
+            $this->columns += [$column];
         }
         return $this;
     }
@@ -345,12 +356,12 @@ class Sql implements SqlInterface
      * @param string|null $value
      * @return $this
      */
-    public function value( $name, $value = null )
+    public function value($name, $value = null)
     {
-        if ( is_array( $name ) ) {
+        if (is_array($name)) {
             $this->values += $name;
-        } elseif ( func_num_args() > 1 ) {
-            $this->values[ $name ] = $value;
+        } elseif (func_num_args() > 1) {
+            $this->values[$name] = $value;
         }
         return $this;
     }
@@ -360,9 +371,9 @@ class Sql implements SqlInterface
      * @param string $sort
      * @return $this
      */
-    public function order( $order, $sort = 'ASC' )
+    public function order($order, $sort = 'ASC')
     {
-        $this->order[ ] = [ $order, $sort ];
+        $this->order[] = [$order, $sort];
         return $this;
     }
 
@@ -370,9 +381,9 @@ class Sql implements SqlInterface
      * @param string $group
      * @return $this
      */
-    public function group( $group )
+    public function group($group)
     {
-        $this->group[ ] = $group;
+        $this->group[] = $group;
         return $this;
     }
 
@@ -380,7 +391,7 @@ class Sql implements SqlInterface
      * @param Where $having
      * @return $this
      */
-    public function having( $having )
+    public function having($having)
     {
         $this->having = $having;
         return $this;
@@ -390,9 +401,9 @@ class Sql implements SqlInterface
      * @param int $limit
      * @return $this
      */
-    public function limit( $limit )
+    public function limit($limit)
     {
-        $this->limit = ( is_numeric( $limit ) ) ? (int)$limit : null;
+        $this->limit = (is_numeric($limit)) ? (int)$limit : null;
         return $this;
     }
 
@@ -400,9 +411,9 @@ class Sql implements SqlInterface
      * @param int $offset
      * @return $this
      */
-    public function offset( $offset )
+    public function offset($offset)
     {
-        $this->offset = ( is_numeric( $offset ) ) ? (int) $offset : 0;
+        $this->offset = (is_numeric($offset)) ? (int)$offset : 0;
         return $this;
     }
 
@@ -412,26 +423,26 @@ class Sql implements SqlInterface
      */
     public function distinct()
     {
-        return $this->flag( 'DISTINCT' );
-    }
-
-    /**
-     * @param bool $for
-     * @return $this
-     */
-    public function forUpdate( $for = true )
-    {
-        $this->forUpdate = $for;
-        return $this;
+        return $this->flag('DISTINCT');
     }
 
     /**
      * @param string $flag
      * @return $this
      */
-    public function flag( $flag )
+    public function flag($flag)
     {
-        $this->selFlags[ ] = $flag;
+        $this->selFlags[] = $flag;
+        return $this;
+    }
+
+    /**
+     * @param bool $for
+     * @return $this
+     */
+    public function forUpdate($for = true)
+    {
+        $this->forUpdate = $for;
         return $this;
     }
 
@@ -439,7 +450,7 @@ class Sql implements SqlInterface
      * @param string $return
      * @return $this
      */
-    public function returning( $return )
+    public function returning($return)
     {
         $this->returning = $return;
         return $this;

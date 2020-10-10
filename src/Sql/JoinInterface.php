@@ -5,10 +5,18 @@
  * Date: 2014/06/30
  * Time: 16:11
  */
+
 namespace WScore\ScoreSql\Sql;
 
 interface JoinInterface
 {
+    /**
+     * @param string $table
+     * @param string $alias
+     * @return JoinInterface
+     */
+    public static function table($table, $alias);
+
     /**
      * @return JoinInterface
      */
@@ -23,26 +31,19 @@ interface JoinInterface
      * @param Where|string $criteria
      * @return JoinInterface
      */
-    public function on( $criteria );
-
-    /**
-     * @param string $table
-     * @param string $alias
-     * @return JoinInterface
-     */
-    public static function table( $table, $alias );
+    public function on($criteria);
 
     /**
      * @param string $type
      * @return JoinInterface
      */
-    public function by( $type );
+    public function by($type);
 
     /**
      * @param string $key
      * @return JoinInterface
      */
-    public function using( $key );
+    public function using($key);
 
     /**
      * for setting parent query's table or alias name.
@@ -51,5 +52,5 @@ interface JoinInterface
      * @param string $queryTable
      * @return JoinInterface
      */
-    public function setQueryTable( $queryTable );
+    public function setQueryTable($queryTable);
 }

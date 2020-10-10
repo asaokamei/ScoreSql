@@ -1,6 +1,8 @@
 <?php
+
 namespace WScore\ScoreSql\Sql;
 
+use InvalidArgumentException;
 use WScore\ScoreSql\Builder\Bind;
 use WScore\ScoreSql\Builder\Quote;
 
@@ -22,9 +24,9 @@ class Join implements JoinInterface
     protected $type = 'JOIN';
 
     /**
-     * @var string
+     * @var string[]
      */
-    protected $usingKey;
+    protected $usingKey = [];
 
     /**
      * @var string|Where
@@ -51,9 +53,9 @@ class Join implements JoinInterface
     // +----------------------------------------------------------------------+
     /**
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      */
-    public function __construct( $table, $alias=null )
+    public function __construct($table, $alias = null)
     {
         $this->table = $table;
         $this->alias = $alias;
@@ -61,13 +63,12 @@ class Join implements JoinInterface
 
     /**
      * @param string $table
-     * @param string $alias
+     * @param string|null $alias
      * @return JoinInterface
      */
-    public static function table( $table, $alias=null )
+    public static function table($table, $alias = null)
     {
-        $join = new self( $table, $alias );
-        return $join;
+        return new self($table, $alias);
     }
 
     /**
@@ -75,7 +76,17 @@ class Join implements JoinInterface
      */
     public function left()
     {
-        $this->by( 'LEFT OUTER JOIN' );
+        $this->by('LEFT OUTER JOIN');
+        return $this;
+    }
+
+    /**
+     * @param string $type
+     * @return JoinInterface
+     */
+    public function by($type)
+    {
+        $this->type = $type;
         return $this;
     }
 
@@ -84,17 +95,7 @@ class Join implements JoinInterface
      */
     public function right()
     {
-        $this->by( 'RIGHT OUTER JOIN' );
-        return $this;
-    }
-
-    /**
-     * @param string $type
-     * @return JoinInterface
-     */
-    public function by( $type )
-    {
-        $this->type = $type;
+        $this->by('RIGHT OUTER JOIN');
         return $this;
     }
 
@@ -105,19 +106,26 @@ class Join implements JoinInterface
      * @param string $queryTable
      * @return $this
      */
-    public function setQueryTable( $queryTable )
+    public function setQueryTable($queryTable)
     {
         $this->queryTable = $queryTable;
         return $this;
     }
 
     /**
-     * @param string $key
+     * @param string|array|callable $key
      * @return JoinInterface
      */
-    public function using( $key )
+    public function using($key)
     {
-        $this->usingKey = $key;
+        if (func_num_args() > 1) {
+            $args = func_get_args();
+        } elseif (is_array($key)) {
+            $args = $key;
+        } else {
+            $args = [$key];
+        }
+        $this->usingKey = $args;
         return $this;
     }
 
@@ -125,7 +133,7 @@ class Join implements JoinInterface
      * @param Where|string $criteria
      * @return JoinInterface
      */
-    public function on( $criteria )
+    public function on($criteria)
     {
         $this->criteria = $criteria;
         return $this;
@@ -135,39 +143,20 @@ class Join implements JoinInterface
     //  build sql statement.
     // +----------------------------------------------------------------------+
     /**
-     * @param Bind $bind
-     * @param Quote $quote
+     * @param Bind|null $bind
+     * @param Quote|null $quote
      * @return string
      */
-    public function build( $bind=null, $quote=null )
+    public function build($bind = null, $quote = null)
     {
-        $this->bind  = $bind;
+        $this->bind = $bind;
         $this->quote = $quote;
         $join = [
             $this->buildJoinType(),
             $this->buildTable(),
             $this->buildUsingOrOn(),
         ];
-        return implode( ' ', $join );
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function quote( $name )
-    {
-        if( !$this->quote ) return $name;
-        if( is_array( $name ) ) return $this->quote->map( $name );
-        return $this->quote->quote( $name );
-    }
-
-    /**
-     * @return string
-     */
-    protected function alias()
-    {
-        return $this->alias ?: $this->table;
+        return implode(' ', $join);
     }
 
     /**
@@ -183,11 +172,26 @@ class Join implements JoinInterface
      */
     protected function buildTable()
     {
-        $table = $this->quote( $this->table );
-        if( $this->alias ) {
-            $table .= ' ' . $this->quote( $this->alias );
+        $table = $this->quote($this->table);
+        if ($this->alias) {
+            $table .= ' ' . $this->quote($this->alias);
         }
         return $table;
+    }
+
+    /**
+     * @param string|array $name
+     * @return string|array
+     */
+    protected function quote($name)
+    {
+        if (!$this->quote) {
+            return $name;
+        }
+        if (is_array($name)) {
+            return $this->quote->map($name);
+        }
+        return $this->quote->quote($name);
     }
 
     /**
@@ -195,10 +199,10 @@ class Join implements JoinInterface
      */
     protected function buildUsingOrOn()
     {
-        if( $this->criteria ) {
+        if ($this->criteria) {
             return $this->buildOn();
         }
-        if( $this->usingKey ) {
+        if ($this->usingKey) {
             return $this->buildUsing();
         }
         return '';
@@ -206,32 +210,47 @@ class Join implements JoinInterface
 
     /**
      * @return string
-     */
-    protected function buildUsing()
-    {
-        return 'USING( ' . $this->quote( $this->usingKey ) . ' )';
-    }
-
-    /**
-     * @throws \InvalidArgumentException
-     * @return string
+     * @throws InvalidArgumentException
      */
     protected function buildOn()
     {
-        if( is_object( $this->criteria ) && $this->criteria instanceof Where ) {
-            $sql = $this->criteria->build( $this->bind, $this->quote, $this->alias, $this->queryTable );
-        }
-        elseif( is_string( $this->criteria ) ) {
+        if (is_object($this->criteria) && $this->criteria instanceof Where) {
+            $sql = $this->criteria->build($this->bind, $this->quote, $this->alias, $this->queryTable);
+        } elseif (is_string($this->criteria)) {
             $sql = $this->criteria;
         } else {
-            throw new \InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
-        if( $this->usingKey ) {
-            $sql = $this->quote( $this->alias() . '.' . $this->usingKey ) .
-                '=' .
-                $this->quote( $this->queryTable . '.' . $this->usingKey ) .
+        if (!empty($this->usingKey)) {
+            $using = [];
+            foreach ($this->usingKey as $item) {
+                $using[] = $this->quote($this->alias() . '.' . $item) .
+                    '=' .
+                    $this->quote($this->queryTable . '.' . $item);
+            }
+            $sql = implode(' AND ', $using) .
                 ' AND ( ' . $sql . ' )';
         }
         return 'ON ( ' . $sql . ' )';
+    }
+
+    /**
+     * @return string
+     */
+    protected function alias()
+    {
+        return $this->alias ?: $this->table;
+    }
+
+    /**
+     * @return string
+     */
+    protected function buildUsing()
+    {
+        $using = [];
+        foreach ($this->usingKey as $item) {
+            $using[] = $this->quote($item);
+        }
+        return 'USING( ' . implode(', ', $using) . ' )';
     }
 }

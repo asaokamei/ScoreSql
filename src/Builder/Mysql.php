@@ -1,4 +1,5 @@
 <?php
+
 namespace WScore\ScoreSql\Builder;
 
 class Mysql extends GenericSql
@@ -46,15 +47,15 @@ class Mysql extends GenericSql
      */
     protected function buildLimitOffset()
     {
-        $limit  = (int) $this->getMagicQuery('limit');
-        $offset = (int) $this->getMagicQuery('offset');
-        if ( $limit && $offset ) {
+        $limit = (int)$this->getMagicQuery('limit');
+        $offset = (int)$this->getMagicQuery('offset');
+        if ($limit && $offset) {
             return ' LIMIT ' . $offset . ' , ' . $limit;
         }
-        if ( $limit ) {
+        if ($limit) {
             return ' LIMIT ' . $limit;
         }
-        if ( $offset ) {
+        if ($offset) {
             return ' OFFSET ' . $offset;
         }
         return '';

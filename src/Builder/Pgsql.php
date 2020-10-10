@@ -1,4 +1,5 @@
 <?php
+
 namespace WScore\ScoreSql\Builder;
 
 class Pgsql extends GenericSql

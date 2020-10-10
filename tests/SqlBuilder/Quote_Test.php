@@ -1,29 +1,27 @@
 <?php
+
 namespace tests\Sql;
 
+use PHPUnit\Framework\TestCase;
 use WScore\ScoreSql\Builder\Quote;
 
-require_once( dirname( __DIR__ ) . '/autoloader.php' );
+require_once(dirname(__DIR__) . '/autoloader.php');
 
-class Quote_Test extends \PHPUnit_Framework_TestCase
+class Quote_Test extends TestCase
 {
     /**
      * @var Quote
      */
     var $q;
-    
-    function setup()
+
+    function setup(): void
     {
         $this->q = new Quote();
     }
-    
-    function get($head='test') {
-        return $head . mt_rand(1000,9999);
-    }
-    
+
     function test0()
     {
-        $this->assertEquals( 'WScore\ScoreSql\Builder\Quote', get_class( $this->q ) );
+        $this->assertEquals('WScore\ScoreSql\Builder\Quote', get_class($this->q));
     }
 
     /**
@@ -33,7 +31,12 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
     {
         $token = $this->get();
         $quoted = $this->q->quote($token);
-        $this->assertEquals( "\"{$token}\"", $quoted );
+        $this->assertEquals("\"{$token}\"", $quoted);
+    }
+
+    function get($head = 'test')
+    {
+        return $head . mt_rand(1000, 9999);
     }
 
     /**
@@ -44,7 +47,7 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
         $token = $this->get();
         $this->q->setQuote('*');
         $quoted = $this->q->quote($token);
-        $this->assertEquals( "*{$token}*", $quoted );
+        $this->assertEquals("*{$token}*", $quoted);
     }
 
     /**
@@ -52,9 +55,9 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
      */
     function quote_does_not_quote_a_quoted_value()
     {
-        $token = $this->q->quote($this->get());;
+        $token = $this->q->quote($this->get());
         $quoted = $this->q->quote($token);
-        $this->assertEquals( $token, $quoted );
+        $this->assertEquals($token, $quoted);
     }
 
     /**
@@ -63,16 +66,16 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
     function quote_split_as_and_space_and_period()
     {
         $quoted = $this->q->quote("test more");
-        $this->assertEquals( '"test more"', $quoted );
+        $this->assertEquals('"test more"', $quoted);
 
         $quoted = $this->q->quote("\"test more\".col");
-        $this->assertEquals( '"test more"."col"', $quoted );
+        $this->assertEquals('"test more"."col"', $quoted);
 
         $quoted = $this->q->quote("test.more as quote");
-        $this->assertEquals( '"test"."more" as "quote"', $quoted );
+        $this->assertEquals('"test"."more" as "quote"', $quoted);
 
         $quoted = $this->q->quote("test.more AS quote");
-        $this->assertEquals( '"test"."more" AS "quote"', $quoted );
+        $this->assertEquals('"test"."more" AS "quote"', $quoted);
     }
 
     /**
@@ -80,7 +83,7 @@ class Quote_Test extends \PHPUnit_Framework_TestCase
      */
     function quote_with_prefix_and_parent()
     {
-        $quoted = $this->q->quote( '$.test', 'sub', 'main' );
-        $this->assertEquals( '"main"."test"', $quoted );
+        $quoted = $this->q->quote('$.test', 'sub', 'main');
+        $this->assertEquals('"main"."test"', $quoted);
     }
 }
